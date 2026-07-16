@@ -14,5 +14,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new(endpoint)?;
     let client = client.connect().await?;
 
+    dbg!(client);
+
     Ok(())
 }

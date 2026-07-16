@@ -6,5 +6,6 @@ edition = "2024"
 [dependencies]
 inquire = "0.9.4"
 reqwest = "0.13.4"
+thiserror = "2.0.18"
 tokio = { version = "1.52.4", features = ["full"] }
 url = "2.5.8"
