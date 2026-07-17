@@ -1,3 +1,10 @@
+use aes::Aes128;
+use aes::cipher::{BlockModeEncrypt, KeyIvInit, block_padding::Pkcs7};
+use base64::Engine;
+use base64::engine::general_purpose::STANDARD;
+use cbc::Encryptor;
+use rand::Rng;
+use serde_json::json;
 use thiserror::Error;
 use url::Url;
 
@@ -5,7 +12,7 @@ const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 #[derive(Debug)]
 pub struct Client<S = Disconnected> {
-    endpoint: Url,
+    instance_url: Url,
     http: reqwest::Client,
     state: S,
 }
@@ -15,14 +22,19 @@ pub struct Disconnected;
 #[derive(Debug)]
 pub struct Connected {
     session_id: u32,
+    request_count: u32,
+    key: [u8; 16],
+    iv: [u8; 16],
 }
 
 impl Client {
-    pub fn new(endpoint: Url) -> Result<Client, reqwest::Error> {
+    pub fn from_url(mut instance_url: Url) -> Result<Client, reqwest::Error> {
         let http = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
 
+        instance_url.set_path("pronote/");
+
         Ok(Client {
-            endpoint,
+            instance_url,
             http,
             state: Disconnected,
         })
@@ -50,6 +62,17 @@ fn extract_session_id(input: &str) -> Option<u32> {
     session_id
 }
 
+type Aes128CbcEnc = Encryptor<Aes128>;
+
+fn encode_request_count(request_count: u32, key: &[u8; 16], iv: &[u8; 16]) -> String {
+    let plaintext = request_count.to_string();
+
+    let request_count =
+        Aes128CbcEnc::new(key.into(), iv.into()).encrypt_padded_vec::<Pkcs7>(plaintext.as_bytes());
+
+    hex::encode(request_count)
+}
+
 #[derive(Error, Debug)]
 pub enum ConnectionError {
     #[error("network error")]
@@ -62,7 +85,7 @@ impl Client<Disconnected> {
     pub async fn connect(self) -> Result<Client<Connected>, ConnectionError> {
         let response = self
             .http
-            .get(self.endpoint.clone())
+            .get(self.instance_url.join("eleve.html").unwrap())
             .send()
             .await?
             .text()
@@ -70,10 +93,48 @@ impl Client<Disconnected> {
 
         let session_id = extract_session_id(&response).ok_or(ConnectionError::NoSessionId)?;
 
+        let mut request_count = 1;
+        let key: [u8; 16] = *md5::compute(&[]);
+        let mut iv = [0u8; 16];
+
+        let encoded_request_count = encode_request_count(request_count, &key, &iv);
+
+        let endpoint = format!("appelfonction/3/{}/{}", session_id, encoded_request_count);
+
+        rand::rng().fill_bytes(&mut iv);
+
+        let body = json!({
+            "id": "FonctionParametres",
+            "no": encoded_request_count,
+            "session": session_id,
+            "dataSec": {
+                "data": {
+                    "Uuid": STANDARD.encode(&iv),
+                    "identifiantNav": null
+                }
+            }
+        });
+
+        let _response = self
+            .http
+            .post(self.instance_url.join(&endpoint).unwrap())
+            .json(&body)
+            .send()
+            .await?
+            .text()
+            .await?;
+
+        request_count += 2;
+
         Ok(Client {
-            endpoint: self.endpoint,
+            instance_url: self.instance_url,
             http: self.http,
-            state: Connected { session_id },
+            state: Connected {
+                session_id,
+                request_count,
+                key,
+                iv,
+            },
         })
     }
 }
