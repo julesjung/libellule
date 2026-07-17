@@ -1,12 +1,11 @@
-use aes::Aes128;
-use aes::cipher::{BlockModeEncrypt, KeyIvInit, block_padding::Pkcs7};
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD;
-use cbc::Encryptor;
 use rand::Rng;
 use serde_json::json;
-use thiserror::Error;
 use url::Url;
+
+use crate::crypto::encode_request_count;
+use crate::error::ConnectionError;
 
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
@@ -60,25 +59,6 @@ fn extract_session_id(input: &str) -> Option<u32> {
     }
 
     session_id
-}
-
-type Aes128CbcEnc = Encryptor<Aes128>;
-
-fn encode_request_count(request_count: u32, key: &[u8; 16], iv: &[u8; 16]) -> String {
-    let plaintext = request_count.to_string();
-
-    let request_count =
-        Aes128CbcEnc::new(key.into(), iv.into()).encrypt_padded_vec::<Pkcs7>(plaintext.as_bytes());
-
-    hex::encode(request_count)
-}
-
-#[derive(Error, Debug)]
-pub enum ConnectionError {
-    #[error("network error")]
-    Network(#[from] reqwest::Error),
-    #[error("session id not found in response")]
-    NoSessionId,
 }
 
 impl Client<Disconnected> {

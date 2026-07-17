@@ -1,0 +1,10 @@
+[package]
+name = "pronote-cli"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+inquire = "0.9.4"
+pronote = { path = "../pronote" }
+tokio = { version = "1.53.0", features = ["full"] }
+url = "2.5.8"
