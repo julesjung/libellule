@@ -1,1 +1,7 @@
 /target
+/build
+
+xcuserdata
+
+/ios/PronoteKit/*
+!/ios/PronoteKit/Package.swift
