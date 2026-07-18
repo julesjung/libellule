@@ -10,20 +10,34 @@ import PronoteKit
 
 struct ContentView: View {
     @State private var client: Client?
+    @State private var parameters: ParametersRecord?
+    @State private var username: String = ""
+    @State private var password: String = ""
     
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Spacer()
+            TextField("Username", text: $username)
+                .autocorrectionDisabled(true)
+                .textInputAutocapitalization(.never)
+                .textFieldStyle(.roundedBorder)
+            SecureField("Password", text: $password)
+                .textFieldStyle(.roundedBorder)
+            Button {
+                Task {
+                    client = try! await Client(instanceUrl: "https://demo.index-education.net/pronote/")
+                    
+                    parameters = try! await client?.connect()
+                }
+            } label: {
+                Text("Log In")
+            }
+            .disabled(true)
+            .buttonSizing(.flexible)
+            .buttonStyle(.glassProminent)
+            Spacer()
         }
         .padding()
-        .task {
-            client = try! await Client(instanceUrl: "https://demo.index-education.net/pronote/")
-            
-            try! await client?.connect()
-        }
     }
 }
 
