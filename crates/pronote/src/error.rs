@@ -1,7 +1,5 @@
-use thiserror::Error;
-
-#[derive(Error, Debug)]
-pub enum ConnectionError {
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
     #[error("network error")]
     Network(#[from] reqwest::Error),
     #[error("session id not found in response")]

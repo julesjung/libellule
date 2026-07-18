@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use inquire::CustomType;
-use pronote::Client;
+use pronote::client::Client;
 use url::Url;
 
 #[tokio::main]
@@ -12,9 +12,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .prompt()?;
 
     let client = Client::from_url(instance_url).await?;
-    let client = client.connect().await?;
+    let (_client, parameters) = client.connect().await?;
 
-    dbg!(client);
+    println!(
+        "Found instance \"{}\" using PRONOTE version {}",
+        parameters.general.name, parameters.general.version
+    );
 
     Ok(())
 }

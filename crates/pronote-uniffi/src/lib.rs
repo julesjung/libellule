@@ -1,13 +1,15 @@
 use std::sync::Mutex;
 
-use pronote::session::{Connected, Disconnected};
+use pronote::client::Client as PronoteClient;
+use pronote::parameters::Parameters;
+use pronote::{Connected, Disconnected};
 use url::Url;
 
 uniffi::setup_scaffolding!();
 
 enum ClientState {
-    Disconnected(pronote::Client<Disconnected>),
-    Connected(pronote::Client<Connected>),
+    Disconnected(PronoteClient<Disconnected>),
+    Connected(PronoteClient<Connected>),
 }
 
 #[derive(uniffi::Object)]
@@ -38,7 +40,7 @@ impl Client {
 
         Ok(Client {
             state: Mutex::new(Some(ClientState::Disconnected(
-                pronote::Client::from_url(instance_url)
+                PronoteClient::from_url(instance_url)
                     .await
                     .map_err(|_| Error::IncorrectUrl)?,
             ))),
@@ -46,7 +48,7 @@ impl Client {
     }
 
     #[uniffi::method]
-    pub async fn connect(&self) -> Result<(), Error> {
+    pub async fn connect(&self) -> Result<ParametersRecord, Error> {
         let client = {
             let mut state = self.state.lock().unwrap();
 
@@ -59,11 +61,26 @@ impl Client {
             }
         };
 
-        let client = client.connect().await.map_err(|_| Error::IncorrectUrl)?;
+        let (client, parameters) = client.connect().await.map_err(|_| Error::IncorrectUrl)?;
 
         let mut state = self.state.lock().unwrap();
         *state = Some(ClientState::Connected(client));
 
-        Ok(())
+        Ok(parameters.into())
+    }
+}
+
+#[derive(uniffi::Record)]
+pub struct ParametersRecord {
+    pub name: String,
+    pub version: String,
+}
+
+impl From<Parameters> for ParametersRecord {
+    fn from(value: Parameters) -> ParametersRecord {
+        ParametersRecord {
+            name: value.general.name,
+            version: value.general.version,
+        }
     }
 }

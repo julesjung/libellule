@@ -1,19 +1,18 @@
+use std::fmt::Debug;
+use std::marker::PhantomData;
+
 use serde::Serialize;
-use serde_json::json;
+use serde::de::DeserializeOwned;
 use url::Url;
 
-use crate::{api::function::Function, crypto::encode_request_count};
+use crate::api::{Function, Request, Response};
+use crate::crypto::encode_request_count;
+use crate::error::Error;
 
 #[derive(Debug)]
 pub struct Disconnected;
 #[derive(Debug)]
 pub struct Connected;
-
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    #[error("network error")]
-    NetworkError(#[from] reqwest::Error),
-}
 
 #[derive(Debug)]
 pub struct Session<S = Disconnected> {
@@ -21,7 +20,7 @@ pub struct Session<S = Disconnected> {
     request_count: u32,
     key: [u8; 16],
     iv: [u8; 16],
-    state: S,
+    state: PhantomData<S>,
 }
 
 impl Session {
@@ -29,9 +28,9 @@ impl Session {
         Session {
             session_id,
             request_count: 0,
-            key: *md5::compute(&[]),
+            key: *md5::compute([]),
             iv: [0u8; 16],
-            state: Disconnected,
+            state: PhantomData::<Disconnected>,
         }
     }
 
@@ -39,13 +38,14 @@ impl Session {
         encode_request_count(self.request_count, &self.key, &self.iv)
     }
 
-    pub async fn call<'a, S>(
+    pub async fn call<'a, S, D>(
         &mut self,
         context: FunctionContext<'a>,
         data: S,
-    ) -> Result<String, Error>
+    ) -> Result<D, Error>
     where
         S: Serialize,
+        D: DeserializeOwned,
     {
         self.request_count += 1;
         let encoded_request_count = self.encode_request_count();
@@ -57,23 +57,23 @@ impl Session {
 
         let url = context.instance_url.join(&endpoint).unwrap();
 
-        let body = json!({
-            "id": "FonctionParametres",
-            "no": encoded_request_count,
-            "session": self.session_id,
-            "dataSec": data
-        });
+        let body = Request::new(
+            context.function,
+            encoded_request_count,
+            self.session_id,
+            data,
+        );
 
-        let response = context
+        let response: Response<D> = context
             .http
-            .get(url)
+            .post(url)
             .json(&body)
             .send()
             .await?
-            .text()
+            .json()
             .await?;
 
-        Ok(response)
+        Ok(response.data())
     }
 }
 
@@ -84,7 +84,7 @@ impl Session<Disconnected> {
             request_count: self.request_count,
             key: self.key,
             iv,
-            state: Connected,
+            state: PhantomData::<Connected>,
         }
     }
 }

@@ -1,7 +1,9 @@
 mod api;
-mod client;
 mod crypto;
+mod session;
 
-pub use client::*;
+pub use session::{Connected, Disconnected};
 
+pub mod client;
 pub mod error;
+pub mod parameters;
