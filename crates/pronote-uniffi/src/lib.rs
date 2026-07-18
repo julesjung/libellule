@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 
-use pronote::{Connected, Disconnected};
+use pronote::session::{Connected, Disconnected};
 use url::Url;
 
 uniffi::setup_scaffolding!();
@@ -33,12 +33,14 @@ impl std::fmt::Display for Error {
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
     #[uniffi::constructor]
-    pub fn new(instance_url: String) -> Result<Client, Error> {
+    pub async fn new(instance_url: String) -> Result<Client, Error> {
         let instance_url = Url::parse(&instance_url).map_err(|_| Error::IncorrectUrl)?;
 
         Ok(Client {
             state: Mutex::new(Some(ClientState::Disconnected(
-                pronote::Client::from_url(instance_url).map_err(|_| Error::IncorrectUrl)?,
+                pronote::Client::from_url(instance_url)
+                    .await
+                    .map_err(|_| Error::IncorrectUrl)?,
             ))),
         })
     }

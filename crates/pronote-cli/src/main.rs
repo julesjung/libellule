@@ -11,7 +11,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_default(demo_url)
         .prompt()?;
 
-    let client = Client::from_url(instance_url)?;
+    let client = Client::from_url(instance_url).await?;
     let client = client.connect().await?;
 
     dbg!(client);
