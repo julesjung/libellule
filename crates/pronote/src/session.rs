@@ -1,26 +1,17 @@
-use std::fmt::Debug;
-use std::marker::PhantomData;
-
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use url::Url;
 
 use crate::api::{Function, Request, Response};
-use crate::crypto::encode_request_count;
+use crate::crypto::aes_encrypt;
 use crate::error::Error;
 
 #[derive(Debug)]
-pub struct Disconnected;
-#[derive(Debug)]
-pub struct Connected;
-
-#[derive(Debug)]
-pub struct Session<S = Disconnected> {
-    session_id: u32,
-    request_count: u32,
-    key: [u8; 16],
-    iv: [u8; 16],
-    state: PhantomData<S>,
+pub struct Session {
+    pub session_id: u32,
+    pub request_count: u32,
+    pub key: [u8; 16],
+    pub iv: [u8; 16],
 }
 
 impl Session {
@@ -30,14 +21,11 @@ impl Session {
             request_count: 0,
             key: *md5::compute([]),
             iv: [0u8; 16],
-            state: PhantomData::<Disconnected>,
         }
     }
+}
 
-    pub fn encode_request_count(&self) -> String {
-        encode_request_count(self.request_count, &self.key, &self.iv)
-    }
-
+impl Session {
     pub async fn call<'a, S, D>(
         &mut self,
         context: FunctionContext<'a>,
@@ -64,28 +52,28 @@ impl Session {
             data,
         );
 
-        let response: Response<D> = context
+        let response = context
             .http
             .post(url)
             .json(&body)
             .send()
             .await?
-            .json()
+            .text()
             .await?;
+
+        self.request_count += 1;
+
+        dbg!(&response);
+
+        let response: Response<D> = serde_json::from_str(&response).unwrap();
 
         Ok(response.data())
     }
-}
 
-impl Session<Disconnected> {
-    pub fn connect(self, iv: [u8; 16]) -> Session<Connected> {
-        Session {
-            session_id: self.session_id,
-            request_count: self.request_count,
-            key: self.key,
-            iv,
-            state: PhantomData::<Connected>,
-        }
+    pub fn encode_request_count(&self) -> String {
+        let plaintext = self.request_count.to_string();
+        let cipher = aes_encrypt(plaintext.as_bytes(), &self.key, &self.iv);
+        hex::encode(cipher)
     }
 }
 

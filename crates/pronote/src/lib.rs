@@ -2,8 +2,8 @@ mod api;
 mod crypto;
 mod session;
 
-pub use session::{Connected, Disconnected};
-
+pub mod authentication;
 pub mod client;
 pub mod error;
+pub mod identification;
 pub mod parameters;

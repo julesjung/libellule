@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 pub enum Function {
     #[serde(rename = "FonctionParametres")]
     InstanceParameters,
+    Identification,
+    #[serde(rename = "Authentification")]
+    Authentication,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

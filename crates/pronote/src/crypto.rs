@@ -1,14 +1,19 @@
 use aes::Aes128;
+use aes::cipher::{BlockModeDecrypt, block_padding};
 use aes::cipher::{BlockModeEncrypt, KeyIvInit, block_padding::Pkcs7};
-use cbc::Encryptor;
+use cbc::{Decryptor, Encryptor};
 
 type Aes128CbcEnc = Encryptor<Aes128>;
+type Aes128CbcDec = Decryptor<Aes128>;
 
-pub fn encode_request_count(request_count: u32, key: &[u8; 16], iv: &[u8; 16]) -> String {
-    let plaintext = request_count.to_string();
+pub fn aes_encrypt(plaintext: &[u8], key: &[u8; 16], iv: &[u8; 16]) -> Vec<u8> {
+    Aes128CbcEnc::new(key.into(), iv.into()).encrypt_padded_vec::<Pkcs7>(plaintext)
+}
 
-    let request_count =
-        Aes128CbcEnc::new(key.into(), iv.into()).encrypt_padded_vec::<Pkcs7>(plaintext.as_bytes());
-
-    hex::encode(request_count)
+pub fn aes_decrypt(
+    ciphertext: &[u8],
+    key: &[u8; 16],
+    iv: &[u8; 16],
+) -> Result<Vec<u8>, block_padding::Error> {
+    Aes128CbcDec::new(key.into(), iv.into()).decrypt_padded_vec::<Pkcs7>(ciphertext)
 }
