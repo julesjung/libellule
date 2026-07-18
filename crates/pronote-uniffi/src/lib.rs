@@ -18,12 +18,14 @@ pub struct Client {
 #[derive(uniffi::Error, Debug)]
 pub enum Error {
     IncorrectUrl,
+    WrongState,
 }
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::IncorrectUrl => write!(f, "incorrect URL"),
+            Error::WrongState => write!(f, "a method was called in the wrong state"),
         }
     }
 }
@@ -50,7 +52,7 @@ impl Client {
                 Some(ClientState::Disconnected(client)) => client,
                 other => {
                     *state = other;
-                    return Err(Error::IncorrectUrl);
+                    return Err(Error::WrongState);
                 }
             }
         };

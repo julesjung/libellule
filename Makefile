@@ -1,3 +1,5 @@
+IOS_VERSION := 16.0
+
 .PHONY: all ios-build ios-bindings ios-xcframework ios-package clean
 
 all: ios
@@ -5,8 +7,8 @@ all: ios
 ios: ios-package
 
 ios-build:
-	cargo build -p pronote-uniffi --target aarch64-apple-ios
-	cargo build -p pronote-uniffi --target aarch64-apple-ios-sim
+	IPHONEOS_DEPLOYMENT_TARGET=$(IOS_VERSION) cargo build -p pronote-uniffi --target aarch64-apple-ios
+	IPHONEOS_DEPLOYMENT_TARGET=$(IOS_VERSION) cargo build -p pronote-uniffi --target aarch64-apple-ios-sim
 
 ios-bindings: ios-build
 	mkdir -p ./build/bindings
