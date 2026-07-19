@@ -9,11 +9,25 @@ pub enum Function {
     Authentication,
     #[serde(rename = "ParametresUtilisateur")]
     UserParameters,
+    #[serde(rename = "DernieresNotes")]
+    Grades,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SecuredData<T> {
     pub data: T,
+    #[serde(
+        rename = "Signature",
+        skip_serializing_if = "Option::is_none",
+        skip_deserializing
+    )]
+    pub signature: Option<Signature>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Signature {
+    #[serde(rename = "onglet")]
+    tab: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -34,8 +48,15 @@ pub struct Request<T> {
 }
 
 impl<T> Request<T> {
-    pub fn new(function: Function, request_count: String, session: u32, data: T) -> Request<T> {
-        let secured_data = SecuredData { data };
+    pub fn new(
+        function: Function,
+        request_count: String,
+        session: u32,
+        tab: Option<u32>,
+        data: T,
+    ) -> Request<T> {
+        let signature = tab.map(|tab| Signature { tab });
+        let secured_data = SecuredData { data, signature };
 
         Request {
             function,

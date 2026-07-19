@@ -17,10 +17,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let username = Text::new("Username:").prompt()?;
     let password = Password::new("Password:").without_confirmation().prompt()?;
 
-    let mut client = client.authenticate(&username, &password).await?;
-    let user = client.user_information().await?;
+    let client = client.authenticate(&username, &password).await?;
+    let mut client = client.load_user().await?;
 
-    dbg!(user);
+    let grades = client.get_grades().await?;
+
+    dbg!(grades);
 
     Ok(())
 }

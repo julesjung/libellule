@@ -2,7 +2,7 @@ use serde::Serialize;
 use serde::de::DeserializeOwned;
 use url::Url;
 
-use crate::api::function::{Function, Request, Response};
+use crate::api::{Function, Request, Response};
 use crate::crypto::aes_encrypt;
 use crate::error::Error;
 
@@ -49,8 +49,11 @@ impl Session {
             context.function,
             encoded_request_count,
             self.session_id,
+            context.tab,
             data,
         );
+
+        println!("{}", serde_json::to_string_pretty(&body).unwrap());
 
         let response = context
             .http
@@ -79,6 +82,7 @@ pub struct FunctionContext<'a> {
     instance_url: &'a Url,
     http: &'a reqwest::Client,
     function: Function,
+    tab: Option<u32>,
 }
 
 impl<'a> FunctionContext<'a> {
@@ -86,11 +90,13 @@ impl<'a> FunctionContext<'a> {
         instance_url: &'a Url,
         http: &'a reqwest::Client,
         function: Function,
+        tab: Option<u32>,
     ) -> FunctionContext<'a> {
         FunctionContext {
             instance_url,
             http,
             function,
+            tab,
         }
     }
 }

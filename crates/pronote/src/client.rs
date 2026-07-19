@@ -7,12 +7,12 @@ use serde_json::json;
 use sha2::Digest;
 use url::Url;
 
-use crate::api::function::{Empty, Function, Response};
+use crate::api::{self, Empty, Function, Response};
 use crate::authentication::AuthenticationData;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::identification::IndentificationData;
-use crate::models::User;
+use crate::models;
 use crate::session::{FunctionContext, Session};
 
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -23,12 +23,15 @@ pub struct Disconnected;
 pub struct Connected;
 #[derive(Debug)]
 pub struct Authenticated;
+#[derive(Debug)]
+pub struct Ready;
 
 #[derive(Debug)]
 pub struct Client<S = Disconnected> {
     instance_url: Url,
     http: reqwest::Client,
     session: Session,
+    parameters: Option<api::UserParameters>,
     state: PhantomData<S>,
 }
 
@@ -51,6 +54,7 @@ impl Client {
             instance_url,
             http,
             session,
+            parameters: None,
             state: PhantomData::<Disconnected>,
         })
     }
@@ -64,8 +68,12 @@ impl Client {
             "identifiantNav": null
         });
 
-        let context =
-            FunctionContext::new(&self.instance_url, &self.http, Function::InstanceParameters);
+        let context = FunctionContext::new(
+            &self.instance_url,
+            &self.http,
+            Function::InstanceParameters,
+            None,
+        );
 
         let mut session = self.session;
 
@@ -77,6 +85,7 @@ impl Client {
             instance_url: self.instance_url,
             http: self.http,
             session,
+            parameters: None,
             state: PhantomData::<Connected>,
         })
     }
@@ -111,8 +120,12 @@ impl Client<Connected> {
     ) -> Result<Client<Authenticated>, Error> {
         let mut session = self.session;
 
-        let context =
-            FunctionContext::new(&self.instance_url, &self.http, Function::Identification);
+        let context = FunctionContext::new(
+            &self.instance_url,
+            &self.http,
+            Function::Identification,
+            None,
+        );
 
         let data = json!({
             "genreConnexion": 0,
@@ -162,8 +175,12 @@ impl Client<Connected> {
         let encrypted_solution = aes_encrypt(solution.as_bytes(), &temporary_key, &session.iv);
         let encrypted_solution = hex::encode(encrypted_solution);
 
-        let context =
-            FunctionContext::new(&self.instance_url, &self.http, Function::Authentication);
+        let context = FunctionContext::new(
+            &self.instance_url,
+            &self.http,
+            Function::Authentication,
+            None,
+        );
 
         let data = json!({
             "connexion": 0,
@@ -188,18 +205,60 @@ impl Client<Connected> {
             instance_url: self.instance_url,
             http: self.http,
             session,
+            parameters: None,
             state: PhantomData::<Authenticated>,
         })
     }
 }
 
 impl Client<Authenticated> {
-    pub async fn user_information(&mut self) -> Result<User, Error> {
+    pub async fn load_user(self) -> Result<Client<Ready>, Error> {
+        let mut session = self.session;
+
+        let context = FunctionContext::new(
+            &self.instance_url,
+            &self.http,
+            Function::UserParameters,
+            None,
+        );
+
+        let response: Response<api::UserParameters> = session.call(context, Empty::new()).await?;
+
+        Ok(Client {
+            instance_url: self.instance_url,
+            http: self.http,
+            session,
+            parameters: Some(response.secured_data.data),
+            state: PhantomData::<Ready>,
+        })
+    }
+}
+
+impl Client<Ready> {
+    pub async fn get_grades(&mut self) -> Result<models::GradesData, Error> {
         let context =
-            FunctionContext::new(&self.instance_url, &self.http, Function::UserParameters);
+            FunctionContext::new(&self.instance_url, &self.http, Function::Grades, Some(198));
 
-        let response = self.session.call(context, Empty::new()).await?;
+        let period = self
+            .parameters
+            .as_ref()
+            .unwrap()
+            .resources
+            .tab_periods_list
+            .value
+            .iter()
+            .find_map(|tab_periods| match tab_periods.id {
+                198 => Some(&tab_periods.default_period.value),
+                _ => None,
+            })
+            .unwrap();
 
-        Ok(response.into())
+        let data = json!({
+            "Periode": period
+        });
+
+        let response: Response<api::GradesData> = self.session.call(context, data).await?;
+
+        Ok(response.secured_data.data.into())
     }
 }

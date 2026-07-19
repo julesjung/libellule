@@ -13,10 +13,10 @@ struct ContentView: View {
     @State private var url: String = ""
     @State private var username: String = ""
     @State private var password: String = ""
-    @State private var user: User?
+    @State private var gradesData: GradesData?
     
     var body: some View {
-        VStack {
+        NavigationStack {
             if client == nil {
                 VStack {
                     HStack {
@@ -27,12 +27,12 @@ struct ContentView: View {
                             .keyboardType(.URL)
                             .textFieldStyle(.plain)
                     }
-                        .padding()
-                        .glassEffect()
+                    .padding()
+                    .glassEffect()
                     Button {
                         Task {
                             client = try! await ObservableClient(instanceUrl: url)
-                                                        
+                            
                             try! await client!.connect()
                         }
                     } label: {
@@ -41,12 +41,14 @@ struct ContentView: View {
                     .disabled(url.isEmpty)
                     .buttonStyle(.glassProminent)
                 }
+                .padding()
             } else {
                 switch client!.status {
-                case .disconnected, .connecting:
+                case .disconnected:
                     ProgressView("Connexion à l'instance PRONOTE")
                 case .connected:
-                    Spacer()
+                    VStack {
+                        Spacer()
                         HStack {
                             Image(systemName: "person")
                             TextField("Nom d'utilisateur", text: $username)
@@ -63,34 +65,41 @@ struct ContentView: View {
                                 .textInputAutocapitalization(.never)
                                 .textFieldStyle(.plain)
                         }
-                    .padding()
-                    .glassEffect()
-                    
-                    Button {
-                        Task {
-                            try! await client?.authenticate(username: username, password: password)
+                        .padding()
+                        .glassEffect()
+                        
+                        Button {
+                            Task {
+                                try! await client?.authenticate(username: username, password: password)
+                            }
+                        } label: {
+                            Text("Connexion")
                         }
-                    } label: {
-                        Text("Connexion")
+                        .disabled(username.isEmpty || password.isEmpty)
+                        .buttonStyle(.glassProminent)
+                        Spacer()
                     }
-                    .disabled(username.isEmpty || password.isEmpty)
-                    .buttonStyle(.glassProminent)
-                    Spacer()
-                case .authenticating:
-                    ProgressView("Authentification")
-                case .authenticated, .requesting:
-                    if user == nil {
-                        ProgressView("Chargement des données")
+                    .padding()
+                case .authenticated:
+                    ProgressView("Chargement de l'utilsateur")
                         .task {
-                            user = try! await client!.userInformation()
+                            try! await client!.loadUser()
                         }
+                case .ready:
+                    if gradesData == nil {
+                        ProgressView("Chargement des notes")
+                            .task {
+                                gradesData = try! await client!.getGrades()
+                            }
                     } else {
-                        UserView(user: user!)
+                        NavigationLink("Voir les notes") {
+                            GradesView(gradesData: gradesData!)
+                        }
+                        .buttonStyle(.glass)
                     }
                 }
             }
         }
-        .padding()
     }
 }
 

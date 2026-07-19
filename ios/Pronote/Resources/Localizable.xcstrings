@@ -1,22 +1,32 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
-    "Authentification" : {
+    "%@/%lld" : {
       "localizations" : {
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authentification"
+            "state" : "new",
+            "value" : "%1$@/%2$lld"
           }
         }
       }
     },
-    "Chargement des données" : {
+    "Chargement de l'utilsateur" : {
       "localizations" : {
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chargement des données"
+            "value" : "Chargement de l'utilsateur"
+          }
+        }
+      }
+    },
+    "Chargement des notes" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des notes"
           }
         }
       }
@@ -61,6 +71,16 @@
         }
       }
     },
+    "Notes" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes"
+          }
+        }
+      }
+    },
     "Suivant" : {
       "localizations" : {
         "fr" : {
@@ -77,6 +97,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "URL de l'instance PRONOTE"
+          }
+        }
+      }
+    },
+    "Voir les notes" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voir les notes"
           }
         }
       }

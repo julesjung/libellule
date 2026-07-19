@@ -1,7 +1,9 @@
 use std::sync::Mutex;
 
-use pronote::client::{Authenticated, Client as PronoteClient};
-use pronote::client::{Connected, Disconnected};
+use pronote::{
+    client::{Authenticated, Client as PronoteClient, Connected, Disconnected, Ready},
+    models,
+};
 use url::Url;
 
 uniffi::setup_scaffolding!();
@@ -17,28 +19,16 @@ pub enum Error {
     InvalidUrl(#[from] url::ParseError),
 }
 
-#[derive(uniffi::Enum)]
-pub enum ClientStatus {
-    Disconnected,
-    Connecting,
-    Connected,
-    Authenticating,
-    Authenticated,
-    Requesting,
-}
-
 enum ClientState {
     Disconnected(PronoteClient<Disconnected>),
-    Connecting,
     Connected(PronoteClient<Connected>),
-    Authenticating,
     Authenticated(PronoteClient<Authenticated>),
-    Requesting,
+    Ready(PronoteClient<Ready>),
 }
 
 #[derive(uniffi::Object)]
 pub struct Client {
-    state: Mutex<ClientState>,
+    state: Mutex<Option<ClientState>>,
 }
 
 #[uniffi::export(async_runtime = "tokio")]
@@ -48,37 +38,10 @@ impl Client {
         let instance_url = Url::parse(&instance_url)?;
 
         Ok(Client {
-            state: Mutex::new(ClientState::Disconnected(
+            state: Mutex::new(Some(ClientState::Disconnected(
                 PronoteClient::from_url(instance_url).await?,
-            )),
+            ))),
         })
-    }
-
-    pub fn status(&self) -> ClientStatus {
-        let state = self.state.lock().unwrap();
-
-        match &*state {
-            ClientState::Disconnected(_) => ClientStatus::Disconnected,
-            ClientState::Connecting => ClientStatus::Connecting,
-            ClientState::Connected(_) => ClientStatus::Connected,
-            ClientState::Authenticating => ClientStatus::Authenticating,
-            ClientState::Authenticated(_) => ClientStatus::Authenticated,
-            ClientState::Requesting => ClientStatus::Requesting,
-        }
-    }
-}
-
-impl Client {
-    fn take_authenticated(&self) -> Result<PronoteClient<Authenticated>, Error> {
-        let mut state = self.state.lock().unwrap();
-
-        match std::mem::replace(&mut *state, ClientState::Requesting) {
-            ClientState::Authenticated(client) => Ok(client),
-            other => {
-                *state = other;
-                return Err(Error::IncorrectState);
-            }
-        }
     }
 }
 
@@ -88,8 +51,8 @@ impl Client {
         let client = {
             let mut state = self.state.lock().unwrap();
 
-            match std::mem::replace(&mut *state, ClientState::Connecting) {
-                ClientState::Disconnected(client) => client,
+            match state.take() {
+                Some(ClientState::Disconnected(client)) => client,
                 other => {
                     *state = other;
                     return Err(Error::IncorrectState);
@@ -100,7 +63,7 @@ impl Client {
         let client = client.connect().await?;
 
         let mut state = self.state.lock().unwrap();
-        *state = ClientState::Connected(client);
+        *state = Some(ClientState::Connected(client));
 
         Ok(())
     }
@@ -109,8 +72,8 @@ impl Client {
         let client = {
             let mut state = self.state.lock().unwrap();
 
-            match std::mem::replace(&mut *state, ClientState::Authenticating) {
-                ClientState::Connected(client) => client,
+            match state.take() {
+                Some(ClientState::Connected(client)) => client,
                 other => {
                     *state = other;
                     return Err(Error::IncorrectState);
@@ -121,38 +84,116 @@ impl Client {
         let client = client.authenticate(&username, &password).await?;
 
         let mut state = self.state.lock().unwrap();
-        *state = ClientState::Authenticated(client);
+        *state = Some(ClientState::Authenticated(client));
 
         Ok(())
     }
 
-    pub async fn user_information(&self) -> Result<User, Error> {
-        let mut client = self.take_authenticated()?;
+    pub async fn load_user(&self) -> Result<(), Error> {
+        let client = {
+            let mut state = self.state.lock().unwrap();
 
-        let user = client.user_information().await?;
+            match state.take() {
+                Some(ClientState::Authenticated(client)) => client,
+                other => {
+                    *state = other;
+                    return Err(Error::IncorrectState);
+                }
+            }
+        };
+
+        let client = client.load_user().await?;
 
         let mut state = self.state.lock().unwrap();
-        *state = ClientState::Authenticated(client);
+        *state = Some(ClientState::Ready(client));
 
-        Ok(user.into())
+        Ok(())
+    }
+
+    pub async fn get_grades(&self) -> Result<GradesData, Error> {
+        let mut client = {
+            let mut state = self.state.lock().unwrap();
+
+            match state.take() {
+                Some(ClientState::Ready(client)) => client,
+                other => {
+                    *state = other;
+                    return Err(Error::IncorrectState);
+                }
+            }
+        };
+
+        let grades_data = client.get_grades().await?;
+
+        Ok(grades_data.into())
     }
 }
 
 #[derive(Debug, uniffi::Record)]
-pub struct User {
-    pub fullname: String,
-    pub institution_name: String,
-    pub class: String,
-    pub profile_picture: String,
+pub struct GradesData {
+    subjects: Vec<Subject>,
+    assignments: Vec<Assignment>,
 }
 
-impl From<pronote::models::User> for User {
-    fn from(value: pronote::models::User) -> User {
-        User {
-            fullname: value.fullname,
-            institution_name: value.institution_name,
-            class: value.class,
-            profile_picture: value.profile_picture,
+impl From<models::GradesData> for GradesData {
+    fn from(value: models::GradesData) -> GradesData {
+        GradesData {
+            subjects: value
+                .subjects
+                .into_iter()
+                .map(|subject| subject.into())
+                .collect(),
+            assignments: value
+                .assignments
+                .into_iter()
+                .map(|subject| subject.into())
+                .collect(),
+        }
+    }
+}
+
+#[derive(Debug, uniffi::Record)]
+pub struct Subject {
+    id: String,
+    name: String,
+}
+
+impl From<models::Subject> for Subject {
+    fn from(value: models::Subject) -> Subject {
+        Self {
+            id: value.id,
+            name: value.name,
+        }
+    }
+}
+
+#[derive(Debug, uniffi::Record)]
+pub struct Assignment {
+    id: String,
+    label: String,
+    grade: Option<f32>,
+    scale: f32,
+    coefficient: f32,
+    date: String,
+    subject: Subject,
+    average: f32,
+    min_grade: f32,
+    max_grade: f32,
+}
+
+impl From<models::Assignment> for Assignment {
+    fn from(value: models::Assignment) -> Assignment {
+        Assignment {
+            id: value.id,
+            label: value.label,
+            grade: value.grade,
+            scale: value.scale,
+            coefficient: value.coefficient,
+            date: value.date,
+            subject: value.subject.into(),
+            average: value.average,
+            min_grade: value.min_grade,
+            max_grade: value.max_grade,
         }
     }
 }

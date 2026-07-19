@@ -15,22 +15,33 @@ final class ObservableClient {
     
     init(instanceUrl: String) async throws {
         self.client = try await Client(instanceUrl: instanceUrl)
-        self.status = client.status()
+        self.status = .disconnected
     }
     
     func connect() async throws {
         try await self.client.connect()
-        self.status = client.status()
+        self.status = .connected
     }
     
     func authenticate(username: String, password: String) async throws {
         try await self.client.authenticate(username: username, password: password)
-        self.status = client.status()
+        self.status = .authenticated
     }
     
-    func userInformation() async throws -> User {
-        let user = try await self.client.userInformation()
-        self.status = client.status()
-        return user
+    func loadUser() async throws {
+        try await self.client.loadUser()
+        self.status = .ready
     }
+    
+    func getGrades() async throws -> GradesData {
+        let gradesData = try await self.client.getGrades()
+        return gradesData
+    }
+}
+
+enum ClientStatus {
+    case disconnected
+    case connected
+    case authenticated
+    case ready
 }
