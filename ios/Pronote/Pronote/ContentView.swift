@@ -9,47 +9,88 @@ import SwiftUI
 import PronoteKit
 
 struct ContentView: View {
-    @State private var client: Client?
-    @State private var parameters: ParametersRecord?
+    @State private var client: ObservableClient?
+    @State private var url: String = ""
     @State private var username: String = ""
     @State private var password: String = ""
-    @State private var fullname: String?
+    @State private var user: User?
     
     var body: some View {
         VStack {
-            if parameters == nil {
-                ProgressView("Connecting to PRONOTE instance")
-            } else if fullname == nil {
-                Spacer()
-                TextField("Username", text: $username)
-                    .autocorrectionDisabled(true)
-                    .textInputAutocapitalization(.never)
-                    .textFieldStyle(.roundedBorder)
-                SecureField("Password", text: $password)
-                    .textFieldStyle(.roundedBorder)
-                Button {
-                    Task {
-                        if client != nil {
-                            fullname = try! await client?.authenticate(username: username, password: password)
-                        }
+            if client == nil {
+                VStack {
+                    HStack {
+                        Image(systemName: "link")
+                        TextField("URL de l'instance PRONOTE", text: $url)
+                            .autocorrectionDisabled(true)
+                            .textInputAutocapitalization(.never)
+                            .keyboardType(.URL)
+                            .textFieldStyle(.plain)
                     }
-                } label: {
-                    Text("Log In")
+                        .padding()
+                        .glassEffect()
+                    Button {
+                        Task {
+                            client = try! await ObservableClient(instanceUrl: url)
+                                                        
+                            try! await client!.connect()
+                        }
+                    } label: {
+                        Text("Suivant")
+                    }
+                    .disabled(url.isEmpty)
+                    .buttonStyle(.glassProminent)
                 }
-                .disabled(username.isEmpty || password.isEmpty)
-                .buttonSizing(.flexible)
-                .buttonStyle(.glassProminent)
-                Spacer()
             } else {
-                Text("Hello \(fullname ?? "")")
+                switch client!.status {
+                case .disconnected, .connecting:
+                    ProgressView("Connexion à l'instance PRONOTE")
+                case .connected:
+                    Spacer()
+                        HStack {
+                            Image(systemName: "person")
+                            TextField("Nom d'utilisateur", text: $username)
+                                .autocorrectionDisabled(true)
+                                .textInputAutocapitalization(.never)
+                                .textFieldStyle(.plain)
+                        }
+                        .padding()
+                        .glassEffect()
+                        HStack {
+                            Image(systemName: "lock")
+                            SecureField("Mot de passe", text: $password)
+                                .autocorrectionDisabled(true)
+                                .textInputAutocapitalization(.never)
+                                .textFieldStyle(.plain)
+                        }
+                    .padding()
+                    .glassEffect()
+                    
+                    Button {
+                        Task {
+                            try! await client?.authenticate(username: username, password: password)
+                        }
+                    } label: {
+                        Text("Connexion")
+                    }
+                    .disabled(username.isEmpty || password.isEmpty)
+                    .buttonStyle(.glassProminent)
+                    Spacer()
+                case .authenticating:
+                    ProgressView("Authentification")
+                case .authenticated, .requesting:
+                    if user == nil {
+                        ProgressView("Chargement des données")
+                        .task {
+                            user = try! await client!.userInformation()
+                        }
+                    } else {
+                        UserView(user: user!)
+                    }
+                }
             }
         }
         .padding()
-        .task {
-            client = try! await Client(instanceUrl: "https://demo.index-education.net/pronote/")
-            
-            parameters = try! await client?.connect()
-        }
     }
 }
 

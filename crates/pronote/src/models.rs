@@ -13,11 +13,13 @@ impl From<Response<UserParameters>> for User {
         let data = value.secured_data.data;
         let files = value.unsecured_data.unwrap().files;
 
+        let profile_picture = files[0].replace("\r\n", "");
+
         User {
             fullname: data.resources.name,
             institution_name: data.institution.value[0].name.clone(),
             class: data.resources.class.name,
-            profile_picture: files[0].clone(),
+            profile_picture: profile_picture,
         }
     }
 }

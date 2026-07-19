@@ -20,6 +20,11 @@
 			path = Pronote;
 			sourceTree = "<group>";
 		};
+		84C05DEA300D11DC004CCA35 /* Resources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +44,7 @@
 			children = (
 				847AC297300AB73000D87659 /* Pronote */,
 				847AC296300AB73000D87659 /* Products */,
+				84C05DEA300D11DC004CCA35 /* Resources */,
 			);
 			sourceTree = "<group>";
 		};
@@ -67,6 +73,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				847AC297300AB73000D87659 /* Pronote */,
+				84C05DEA300D11DC004CCA35 /* Resources */,
 			);
 			name = Pronote;
 			packageProductDependencies = (
@@ -92,11 +99,11 @@
 				};
 			};
 			buildConfigurationList = 847AC290300AB73000D87659 /* Build configuration list for PBXProject "Pronote" */;
-			developmentRegion = en;
+			developmentRegion = fr;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				fr,
 			);
 			mainGroup = 847AC28C300AB73000D87659;
 			minimizedProjectReferenceProxies = 1;
@@ -194,6 +201,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -251,6 +259,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
