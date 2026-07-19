@@ -1,9 +1,9 @@
 mod api;
+mod authentication;
 mod crypto;
+mod identification;
 mod session;
 
-pub mod authentication;
 pub mod client;
 pub mod error;
-pub mod identification;
-pub mod parameters;
+pub mod models;

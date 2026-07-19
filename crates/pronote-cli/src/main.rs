@@ -12,19 +12,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .prompt()?;
 
     let client = Client::from_url(instance_url).await?;
-    let (client, parameters) = client.connect().await?;
-
-    println!(
-        "Found instance \"{}\" using PRONOTE version {}",
-        parameters.general.name, parameters.general.version
-    );
+    let client = client.connect().await?;
 
     let username = Text::new("Username:").prompt()?;
-    let password = Password::new("Password:").prompt()?;
+    let password = Password::new("Password:").without_confirmation().prompt()?;
 
-    let (_client, fullname) = client.authenticate(&username, &password).await?;
+    let mut client = client.authenticate(&username, &password).await?;
+    let user = client.user_information().await?;
 
-    println!("User: {}", fullname);
+    dbg!(user);
 
     Ok(())
 }

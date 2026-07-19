@@ -2,7 +2,7 @@ use serde::Serialize;
 use serde::de::DeserializeOwned;
 use url::Url;
 
-use crate::api::{Function, Request, Response};
+use crate::api::function::{Function, Request, Response};
 use crate::crypto::aes_encrypt;
 use crate::error::Error;
 
@@ -30,7 +30,7 @@ impl Session {
         &mut self,
         context: FunctionContext<'a>,
         data: S,
-    ) -> Result<D, Error>
+    ) -> Result<Response<D>, Error>
     where
         S: Serialize,
         D: DeserializeOwned,
@@ -63,11 +63,9 @@ impl Session {
 
         self.request_count += 1;
 
-        dbg!(&response);
-
         let response: Response<D> = serde_json::from_str(&response).unwrap();
 
-        Ok(response.data())
+        Ok(response)
     }
 
     pub fn encode_request_count(&self) -> String {

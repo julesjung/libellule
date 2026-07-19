@@ -2,10 +2,10 @@ use std::sync::Mutex;
 
 use pronote::client::{Authenticated, Client as PronoteClient};
 use pronote::client::{Connected, Disconnected};
-use pronote::parameters::Parameters;
+use pronote::models::User;
 use url::Url;
 
-uniffi::setup_scaffolding!();
+uniffi::include_scaffolding!("pronote");
 
 enum ClientState {
     Disconnected(PronoteClient<Disconnected>),
@@ -13,13 +13,11 @@ enum ClientState {
     Authenticated(PronoteClient<Authenticated>),
 }
 
-#[derive(uniffi::Object)]
 pub struct Client {
     state: Mutex<Option<ClientState>>,
 }
 
-#[derive(thiserror::Error, uniffi::Error, Debug)]
-#[uniffi(flat_error)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("pronote error")]
     PronoteError(#[from] pronote::error::Error),
@@ -29,9 +27,7 @@ pub enum Error {
     InvalidUrl(#[from] url::ParseError),
 }
 
-#[uniffi::export(async_runtime = "tokio")]
 impl Client {
-    #[uniffi::constructor]
     pub async fn new(instance_url: String) -> Result<Client, Error> {
         let instance_url = Url::parse(&instance_url)?;
 
@@ -42,8 +38,7 @@ impl Client {
         })
     }
 
-    #[uniffi::method]
-    pub async fn connect(&self) -> Result<ParametersRecord, Error> {
+    pub async fn connect(&self) -> Result<(), Error> {
         let client = {
             let mut state = self.state.lock().unwrap();
 
@@ -56,16 +51,15 @@ impl Client {
             }
         };
 
-        let (client, parameters) = client.connect().await?;
+        let client = client.connect().await?;
 
         let mut state = self.state.lock().unwrap();
         *state = Some(ClientState::Connected(client));
 
-        Ok(parameters.into())
+        Ok(())
     }
 
-    #[uniffi::method]
-    pub async fn authenticate(&self, username: String, password: String) -> Result<String, Error> {
+    pub async fn authenticate(&self, username: String, password: String) -> Result<(), Error> {
         let client = {
             let mut state = self.state.lock().unwrap();
 
@@ -78,26 +72,32 @@ impl Client {
             }
         };
 
-        let (client, fullname) = client.authenticate(&username, &password).await?;
+        let client = client.authenticate(&username, &password).await?;
 
         let mut state = self.state.lock().unwrap();
         *state = Some(ClientState::Authenticated(client));
-        
-        Ok(fullname)
+
+        Ok(())
     }
-}
 
-#[derive(uniffi::Record)]
-pub struct ParametersRecord {
-    pub name: String,
-    pub version: String,
-}
+    pub async fn user_information(&self) -> Result<User, Error> {
+        let mut client = {
+            let mut state = self.state.lock().unwrap();
 
-impl From<Parameters> for ParametersRecord {
-    fn from(value: Parameters) -> ParametersRecord {
-        ParametersRecord {
-            name: value.general.name,
-            version: value.general.version,
-        }
+            match state.take() {
+                Some(ClientState::Authenticated(client)) => client,
+                other => {
+                    *state = other;
+                    return Err(Error::IncorrectState);
+                }
+            }
+        };
+
+        let user = client.user_information().await?;
+
+        let mut state = self.state.lock().unwrap();
+        *state = Some(ClientState::Authenticated(client));
+
+        Ok(user)
     }
 }

@@ -4,6 +4,4 @@ use serde::Deserialize;
 pub struct AuthenticationData {
     #[serde(rename = "cle")]
     pub key: String,
-    #[serde(rename = "libelleUtil")]
-    pub fullname: String,
 }

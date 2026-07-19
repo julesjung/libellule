@@ -7,12 +7,12 @@ use serde_json::json;
 use sha2::Digest;
 use url::Url;
 
-use crate::api::Function;
+use crate::api::function::{Empty, Function, Response};
 use crate::authentication::AuthenticationData;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::identification::IndentificationData;
-use crate::parameters::Parameters;
+use crate::models::User;
 use crate::session::{FunctionContext, Session};
 
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -55,7 +55,7 @@ impl Client {
         })
     }
 
-    pub async fn connect(self) -> Result<(Client<Connected>, Parameters), Error> {
+    pub async fn connect(self) -> Result<Client<Connected>, Error> {
         let mut iv = [0u8; 16];
         rand::rng().fill_bytes(&mut iv);
 
@@ -69,19 +69,16 @@ impl Client {
 
         let mut session = self.session;
 
-        let response: Parameters = session.call(context, data).await?;
+        let _: Response<Empty> = session.call(context, data).await?;
 
         session.iv = *md5::compute(iv);
 
-        Ok((
-            Client {
-                instance_url: self.instance_url,
-                http: self.http,
-                session,
-                state: PhantomData::<Connected>,
-            },
-            response,
-        ))
+        Ok(Client {
+            instance_url: self.instance_url,
+            http: self.http,
+            session,
+            state: PhantomData::<Connected>,
+        })
     }
 }
 
@@ -111,7 +108,7 @@ impl Client<Connected> {
         self,
         username: &str,
         password: &str,
-    ) -> Result<(Client<Authenticated>, String), Error> {
+    ) -> Result<Client<Authenticated>, Error> {
         let mut session = self.session;
 
         let context =
@@ -132,21 +129,22 @@ impl Client<Connected> {
             "informationsAppareil": null
         });
 
-        let response: IndentificationData = session.call(context, data).await?;
+        let response: Response<IndentificationData> = session.call(context, data).await?;
+        let data = response.secured_data.data;
 
-        let mut unencrypted_key = response.random;
+        let mut unencrypted_key = data.random;
         unencrypted_key.push_str(password);
 
         let mtp = hex::encode_upper(sha2::Sha256::digest(unencrypted_key.as_bytes()));
 
-        let mut key = username.to_string();
-        key.push_str(mtp.as_str());
+        let mut temporary_key = username.to_string();
+        temporary_key.push_str(mtp.as_str());
 
-        let key = md5::compute(key.as_bytes());
+        let temporary_key = md5::compute(temporary_key.as_bytes());
 
-        let challenge = hex::decode(response.challenge)?;
+        let challenge = hex::decode(data.challenge)?;
 
-        let decrypted_challenge = aes_decrypt(challenge.as_slice(), &key, &session.iv)?;
+        let decrypted_challenge = aes_decrypt(challenge.as_slice(), &temporary_key, &session.iv)?;
         let decrypted_challenge = String::from_utf8(decrypted_challenge).unwrap();
 
         let solution: String = decrypted_challenge
@@ -161,7 +159,7 @@ impl Client<Connected> {
             })
             .collect();
 
-        let encrypted_solution = aes_encrypt(solution.as_bytes(), &key, &session.iv);
+        let encrypted_solution = aes_encrypt(solution.as_bytes(), &temporary_key, &session.iv);
         let encrypted_solution = hex::encode(encrypted_solution);
 
         let context =
@@ -173,16 +171,35 @@ impl Client<Connected> {
             "espace": 3
         });
 
-        let response: AuthenticationData = session.call(context, data).await?;
+        let response: Response<AuthenticationData> = session.call(context, data).await?;
+        let data = response.secured_data.data;
 
-        Ok((
-            Client {
-                instance_url: self.instance_url,
-                http: self.http,
-                session,
-                state: PhantomData::<Authenticated>,
-            },
-            response.fullname,
-        ))
+        let encrypted_key = hex::decode(&data.key)?;
+        let new_key = aes_decrypt(encrypted_key.as_slice(), &temporary_key, &session.iv)?;
+        let new_key: Vec<u8> = String::from_utf8(new_key)
+            .unwrap()
+            .split(',')
+            .map(|byte| byte.parse::<u8>().unwrap())
+            .collect();
+
+        session.key = *md5::compute(new_key);
+
+        Ok(Client {
+            instance_url: self.instance_url,
+            http: self.http,
+            session,
+            state: PhantomData::<Authenticated>,
+        })
+    }
+}
+
+impl Client<Authenticated> {
+    pub async fn user_information(&mut self) -> Result<User, Error> {
+        let context =
+            FunctionContext::new(&self.instance_url, &self.http, Function::UserParameters);
+
+        let response = self.session.call(context, Empty::new()).await?;
+
+        Ok(response.into())
     }
 }

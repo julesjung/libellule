@@ -7,22 +7,30 @@ pub enum Function {
     Identification,
     #[serde(rename = "Authentification")]
     Authentication,
+    #[serde(rename = "ParametresUtilisateur")]
+    UserParameters,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SecuredData<T> {
-    data: T,
+    pub data: T,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UnsecuredData {
+    #[serde(rename = "fichiers")]
+    pub files: Vec<String>,
 }
 
 #[derive(Serialize, Debug)]
 pub struct Request<T> {
     #[serde(rename = "id")]
-    function: Function,
+    pub function: Function,
     #[serde(rename = "no")]
-    request_count: String,
-    session: u32,
+    pub request_count: String,
+    pub session: u32,
     #[serde(rename = "dataSec")]
-    secured_data: SecuredData<T>,
+    pub secured_data: SecuredData<T>,
 }
 
 impl<T> Request<T> {
@@ -41,11 +49,22 @@ impl<T> Request<T> {
 #[derive(Deserialize, Debug)]
 pub struct Response<T> {
     #[serde(rename = "dataSec")]
-    secured_data: SecuredData<T>,
+    pub secured_data: SecuredData<T>,
+    #[serde(rename = "dataNonSec")]
+    pub unsecured_data: Option<UnsecuredData>,
 }
 
-impl<T> Response<T> {
-    pub fn data(self) -> T {
-        self.secured_data.data
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Empty {}
+
+impl Empty {
+    pub fn new() -> Empty {
+        Empty {}
     }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Value<T> {
+    #[serde(rename = "V")]
+    pub value: T,
 }
