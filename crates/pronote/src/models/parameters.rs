@@ -1,14 +1,18 @@
-use crate::api::Value;
+use crate::api::FromValue;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 
+#[serde_as]
 #[derive(Deserialize, Debug)]
 pub struct UserParameters {
     #[serde(rename = "ressource")]
     pub resources: Resources,
     #[serde(rename = "listeInformationsEtablissements")]
-    pub institution: Value<Vec<Institution>>,
+    #[serde_as(as = "FromValue")]
+    pub institution: Vec<Institution>,
 }
 
+#[serde_as]
 #[derive(Deserialize, Debug)]
 pub struct Resources {
     #[serde(rename = "L")]
@@ -16,7 +20,8 @@ pub struct Resources {
     #[serde(rename = "classeDEleve")]
     pub class: Class,
     #[serde(rename = "listeOngletsPourPeriodes")]
-    pub tab_periods_list: Value<Vec<TabPeriods>>,
+    #[serde_as(as = "FromValue")]
+    pub tab_periods_list: Vec<TabPeriods>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -31,14 +36,17 @@ pub struct Institution {
     pub name: String,
 }
 
+#[serde_as]
 #[derive(Deserialize, Debug)]
 pub struct TabPeriods {
     #[serde(rename = "G")]
     pub id: u32,
     #[serde(rename = "listePeriodes")]
-    pub periods: Value<Vec<Period>>,
+    #[serde_as(as = "FromValue")]
+    pub periods: Vec<Period>,
     #[serde(rename = "periodeParDefaut")]
-    pub default_period: Value<Period>,
+    #[serde_as(as = "FromValue")]
+    pub default_period: Period,
 }
 
 #[derive(Deserialize, Serialize, Debug)]

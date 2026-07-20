@@ -19,8 +19,11 @@ struct GradesView: View {
                     Text(assignment.label).font(.caption).lineLimit(1)
                 }
                 Spacer()
-                Text("\(String(format: "%.2f", assignment.grade ?? .nan))/\(Int(assignment.scale))")
+                Text("\(assignment.grade))/\(Int(assignment.scale))")
             }
+        }
+        .task {
+            print(gradesData)
         }
         .listStyle(.plain)
         .navigationTitle(Text("Notes"))

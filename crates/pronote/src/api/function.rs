@@ -72,7 +72,7 @@ pub struct Response<T> {
     #[serde(rename = "dataSec")]
     pub secured_data: SecuredData<T>,
     #[serde(rename = "dataNonSec")]
-    pub unsecured_data: Option<UnsecuredData>,
+    pub _unsecured_data: Option<UnsecuredData>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -82,10 +82,4 @@ impl Empty {
     pub fn new() -> Empty {
         Empty {}
     }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Value<T> {
-    #[serde(rename = "V")]
-    pub value: T,
 }

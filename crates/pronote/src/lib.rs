@@ -1,3 +1,6 @@
+#[cfg(feature = "uniffi")]
+uniffi::setup_scaffolding!();
+
 mod api;
 mod authentication;
 mod crypto;

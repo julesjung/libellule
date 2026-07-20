@@ -1,9 +1,7 @@
 use std::sync::Mutex;
 
-use pronote::{
-    client::{Authenticated, Client as PronoteClient, Connected, Disconnected, Ready},
-    models,
-};
+use pronote::client::{Authenticated, Client as PronoteClient, Connected, Disconnected, Ready};
+use pronote::models::GradesData;
 use url::Url;
 
 uniffi::setup_scaffolding!();
@@ -126,74 +124,5 @@ impl Client {
         let grades_data = client.get_grades().await?;
 
         Ok(grades_data.into())
-    }
-}
-
-#[derive(Debug, uniffi::Record)]
-pub struct GradesData {
-    subjects: Vec<Subject>,
-    assignments: Vec<Assignment>,
-}
-
-impl From<models::GradesData> for GradesData {
-    fn from(value: models::GradesData) -> GradesData {
-        GradesData {
-            subjects: value
-                .subjects
-                .into_iter()
-                .map(|subject| subject.into())
-                .collect(),
-            assignments: value
-                .assignments
-                .into_iter()
-                .map(|subject| subject.into())
-                .collect(),
-        }
-    }
-}
-
-#[derive(Debug, uniffi::Record)]
-pub struct Subject {
-    id: String,
-    name: String,
-}
-
-impl From<models::Subject> for Subject {
-    fn from(value: models::Subject) -> Subject {
-        Self {
-            id: value.id,
-            name: value.name,
-        }
-    }
-}
-
-#[derive(Debug, uniffi::Record)]
-pub struct Assignment {
-    id: String,
-    label: String,
-    grade: Option<f32>,
-    scale: f32,
-    coefficient: f32,
-    date: String,
-    subject: Subject,
-    average: f32,
-    min_grade: f32,
-    max_grade: f32,
-}
-
-impl From<models::Assignment> for Assignment {
-    fn from(value: models::Assignment) -> Assignment {
-        Assignment {
-            id: value.id,
-            label: value.label,
-            grade: value.grade,
-            scale: value.scale,
-            coefficient: value.coefficient,
-            date: value.date,
-            subject: value.subject.into(),
-            average: value.average,
-            min_grade: value.min_grade,
-            max_grade: value.max_grade,
-        }
     }
 }

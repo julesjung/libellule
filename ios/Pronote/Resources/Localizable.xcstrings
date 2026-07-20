@@ -1,12 +1,12 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
-    "%@/%lld" : {
+    "%@)/%@" : {
       "localizations" : {
         "fr" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$@/%2$lld"
+            "value" : "%1$@)/%2$@"
           }
         }
       }

@@ -1,73 +1,86 @@
-use crate::api;
+use serde::Deserialize;
+use serde_with::serde_as;
 
-#[derive(Debug)]
+use crate::api::FromValue;
+
+#[serde_as]
+#[derive(Deserialize, Debug)]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct GradesData {
+    #[serde(rename = "listeServices")]
+    #[serde_as(as = "FromValue")]
     pub subjects: Vec<Subject>,
+    #[serde(rename = "listeDevoirs")]
+    #[serde_as(as = "FromValue")]
     pub assignments: Vec<Assignment>,
 }
 
-impl From<api::GradesData> for GradesData {
-    fn from(value: api::GradesData) -> GradesData {
-        GradesData {
-            subjects: value
-                .subjects
-                .value
-                .into_iter()
-                .map(|subject| subject.into())
-                .collect(),
-            assignments: value
-                .assignments
-                .value
-                .into_iter()
-                .map(|subject| subject.into())
-                .collect(),
-        }
-    }
-}
-
-#[derive(Debug)]
+#[derive(Deserialize, Debug)]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct Subject {
+    #[serde(rename = "N")]
     pub id: String,
+    #[serde(rename = "L")]
     pub name: String,
 }
 
-impl From<api::Subject> for Subject {
-    fn from(value: api::Subject) -> Subject {
-        Self {
-            id: value.id,
-            name: value.name,
-        }
-    }
-}
-
-#[derive(Debug)]
+#[serde_as]
+#[derive(Deserialize, Debug)]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct Assignment {
+    #[serde(rename = "N")]
     pub id: String,
+    #[serde(rename = "commentaire")]
     pub label: String,
-    pub grade: Option<f32>,
-    pub scale: f32,
+    #[serde(rename = "note")]
+    #[serde_as(as = "FromValue")]
+    pub grade: Grade,
+    #[serde(rename = "bareme")]
+    #[serde_as(as = "FromValue")]
+    pub scale: String,
     pub coefficient: f32,
+    #[serde(rename = "date")]
+    #[serde_as(as = "FromValue")]
     pub date: String,
+    #[serde(rename = "service")]
+    #[serde_as(as = "FromValue")]
     pub subject: Subject,
-    pub average: f32,
-    pub min_grade: f32,
-    pub max_grade: f32,
+    #[serde(rename = "moyenne")]
+    #[serde_as(as = "FromValue")]
+    pub average: String,
+    #[serde(rename = "noteMin")]
+    #[serde_as(as = "FromValue")]
+    pub min_grade: String,
+    #[serde(rename = "noteMax")]
+    #[serde_as(as = "FromValue")]
+    pub max_grade: String,
 }
 
-impl From<api::Assignment> for Assignment {
-    fn from(value: api::Assignment) -> Assignment {
-        dbg!(&value.grade);
-        Assignment {
-            id: value.id,
-            label: value.label,
-            grade: value.grade.value.replace(',', ".").parse().ok(),
-            scale: value.scale.value.replace(',', ".").parse().unwrap(),
-            coefficient: value.coefficient,
-            date: value.date.value,
-            subject: value.subject.value.into(),
-            average: value.average.value.replace(',', ".").parse().unwrap(),
-            min_grade: value.min_grade.value.replace(',', ".").parse().unwrap(),
-            max_grade: value.max_grade.value.replace(',', ".").parse().unwrap(),
+#[derive(Deserialize, Debug)]
+#[serde(from = "String")]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
+pub enum Grade {
+    Graded(String),
+    Absent,
+    Exempted,
+    NotGraded,
+    Unfit,
+    NotSubmitted,
+    AbsentZero,
+    NotSubmittedZero,
+}
+
+impl From<String> for Grade {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "|1" => Grade::Absent,
+            "|2" => Grade::Exempted,
+            "|3" => Grade::NotGraded,
+            "|4" => Grade::Unfit,
+            "|5" => Grade::NotSubmitted,
+            "|6" => Grade::AbsentZero,
+            "|7" => Grade::NotSubmittedZero,
+            _ => Grade::Graded(value),
         }
     }
 }

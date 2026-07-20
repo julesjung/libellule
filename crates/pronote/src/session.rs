@@ -53,8 +53,6 @@ impl Session {
             data,
         );
 
-        println!("{}", serde_json::to_string_pretty(&body).unwrap());
-
         let response = context
             .http
             .post(url)

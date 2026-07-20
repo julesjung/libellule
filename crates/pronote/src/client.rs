@@ -7,12 +7,12 @@ use serde_json::json;
 use sha2::Digest;
 use url::Url;
 
-use crate::api::{self, Empty, Function, Response};
+use crate::api::{Empty, Function, Response};
 use crate::authentication::AuthenticationData;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::identification::IndentificationData;
-use crate::models;
+use crate::models::{GradesData, UserParameters};
 use crate::session::{FunctionContext, Session};
 
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -31,7 +31,7 @@ pub struct Client<S = Disconnected> {
     instance_url: Url,
     http: reqwest::Client,
     session: Session,
-    parameters: Option<api::UserParameters>,
+    parameters: Option<UserParameters>,
     state: PhantomData<S>,
 }
 
@@ -222,7 +222,7 @@ impl Client<Authenticated> {
             None,
         );
 
-        let response: Response<api::UserParameters> = session.call(context, Empty::new()).await?;
+        let response: Response<UserParameters> = session.call(context, Empty::new()).await?;
 
         Ok(Client {
             instance_url: self.instance_url,
@@ -235,7 +235,7 @@ impl Client<Authenticated> {
 }
 
 impl Client<Ready> {
-    pub async fn get_grades(&mut self) -> Result<models::GradesData, Error> {
+    pub async fn get_grades(&mut self) -> Result<GradesData, Error> {
         let context =
             FunctionContext::new(&self.instance_url, &self.http, Function::Grades, Some(198));
 
@@ -245,10 +245,9 @@ impl Client<Ready> {
             .unwrap()
             .resources
             .tab_periods_list
-            .value
             .iter()
             .find_map(|tab_periods| match tab_periods.id {
-                198 => Some(&tab_periods.default_period.value),
+                198 => Some(&tab_periods.default_period),
                 _ => None,
             })
             .unwrap();
@@ -257,7 +256,7 @@ impl Client<Ready> {
             "Periode": period
         });
 
-        let response: Response<api::GradesData> = self.session.call(context, data).await?;
+        let response: Response<GradesData> = self.session.call(context, data).await?;
 
         Ok(response.secured_data.data.into())
     }

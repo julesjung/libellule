@@ -1,7 +1,5 @@
 mod function;
-mod grades;
-mod parameters;
+mod value;
 
 pub use function::*;
-pub use grades::*;
-pub use parameters::*;
+pub use value::*;
