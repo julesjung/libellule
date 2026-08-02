@@ -4,7 +4,7 @@ use serde_with::DeserializeAs;
 #[derive(Deserialize, Debug)]
 pub struct Value<T> {
     #[serde(rename = "V")]
-    value: T,
+    pub value: T,
 }
 
 pub struct FromValue;
@@ -17,6 +17,20 @@ where
     where
         D: serde::Deserializer<'de>,
     {
-        Ok(Value::<T>::deserialize(deserializer)?.value)
+        Value::<T>::deserialize(deserializer).map(|value| value.value)
     }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ReferencedObject {
+    #[serde(rename = "N")]
+    id: String,
+    #[serde(rename = "L")]
+    label: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct NamedObject {
+    #[serde(rename = "L")]
+    label: String,
 }

@@ -1,58 +1,98 @@
-use crate::api::FromValue;
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
 
-#[serde_as]
-#[derive(Deserialize, Debug)]
+use crate::api;
+use crate::error::Error;
+use crate::models::Tab;
+
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+#[serde(try_from = "api::UserParameters")]
 pub struct UserParameters {
-    #[serde(rename = "ressource")]
-    pub resources: Resources,
-    #[serde(rename = "listeInformationsEtablissements")]
-    #[serde_as(as = "FromValue")]
-    pub institution: Vec<Institution>,
+    pub fullname: String,
+    pub class: String,
+    pub tabs: TabsParameters,
 }
 
-#[serde_as]
-#[derive(Deserialize, Debug)]
-pub struct Resources {
-    #[serde(rename = "L")]
-    pub name: String,
-    #[serde(rename = "classeDEleve")]
-    pub class: Class,
-    #[serde(rename = "listeOngletsPourPeriodes")]
-    #[serde_as(as = "FromValue")]
-    pub tab_periods_list: Vec<TabPeriods>,
+#[derive(Debug)]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+pub struct TabsParameters {
+    pub periods: HashMap<Tab, TabPeriods>,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Class {
-    #[serde(rename = "L")]
-    pub name: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct Institution {
-    #[serde(rename = "L")]
-    pub name: String,
-}
-
-#[serde_as]
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct TabPeriods {
-    #[serde(rename = "G")]
-    pub id: u32,
-    #[serde(rename = "listePeriodes")]
-    #[serde_as(as = "FromValue")]
     pub periods: Vec<Period>,
-    #[serde(rename = "periodeParDefaut")]
-    #[serde_as(as = "FromValue")]
-    pub default_period: Period,
+    pub default: String,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+#[serde(into = "api::Period")]
 pub struct Period {
-    #[serde(rename = "N")]
-    pub id: Option<String>,
-    #[serde(rename = "L")]
+    pub id: String,
     pub name: String,
+}
+
+impl From<api::Period> for Period {
+    fn from(value: api::Period) -> Self {
+        Period {
+            id: value.id.unwrap(),
+            name: value.name,
+        }
+    }
+}
+
+impl From<Period> for api::Period {
+    fn from(value: Period) -> Self {
+        api::Period {
+            id: Some(value.id),
+            name: value.name,
+        }
+    }
+}
+
+impl TryFrom<api::TabPeriods> for (Tab, TabPeriods) {
+    type Error = Error;
+
+    fn try_from(value: api::TabPeriods) -> Result<Self, Error> {
+        value.id.try_into().map(|tab: Tab| {
+            (
+                tab,
+                TabPeriods {
+                    periods: value
+                        .periods
+                        .value
+                        .into_iter()
+                        .map(|period| period.into())
+                        .collect(),
+                    default: value.default.value.id.unwrap(),
+                },
+            )
+        })
+    }
+}
+
+impl TryFrom<api::UserParameters> for UserParameters {
+    type Error = Error;
+
+    fn try_from(value: api::UserParameters) -> Result<Self, Error> {
+        let tabs_periods: HashMap<Tab, TabPeriods> = value
+            .resources
+            .tabs_periods
+            .value
+            .into_iter()
+            .filter_map(|tab_periods| tab_periods.try_into().ok())
+            .collect();
+
+        Ok(UserParameters {
+            fullname: value.resources.label,
+            class: value.resources.class.name,
+            tabs: TabsParameters {
+                periods: tabs_periods,
+            },
+        })
+    }
 }

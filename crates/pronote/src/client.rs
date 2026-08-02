@@ -12,31 +12,30 @@ use crate::authentication::AuthenticationData;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::identification::IndentificationData;
-use crate::models::{GradesData, UserParameters};
+use crate::models::{GradesData, Period, UserParameters};
 use crate::session::{FunctionContext, Session};
 
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
 #[derive(Debug)]
-pub struct Disconnected;
+struct Disconnected;
 #[derive(Debug)]
-pub struct Connected;
+struct Connected;
 #[derive(Debug)]
-pub struct Authenticated;
+struct Authenticated;
 #[derive(Debug)]
 pub struct Ready;
 
 #[derive(Debug)]
-pub struct Client<S = Disconnected> {
+pub struct Client<State = Ready> {
     instance_url: Url,
     http: reqwest::Client,
     session: Session,
-    parameters: Option<UserParameters>,
-    state: PhantomData<S>,
+    state: PhantomData<State>,
 }
 
-impl Client {
-    pub async fn from_url(instance_url: Url) -> Result<Client, Error> {
+impl Client<Disconnected> {
+    async fn from_url(instance_url: Url) -> Result<Client<Disconnected>, Error> {
         let http = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
 
         let response = http
@@ -54,12 +53,11 @@ impl Client {
             instance_url,
             http,
             session,
-            parameters: None,
             state: PhantomData::<Disconnected>,
         })
     }
 
-    pub async fn connect(self) -> Result<Client<Connected>, Error> {
+    async fn connect(self) -> Result<Client<Connected>, Error> {
         let mut iv = [0u8; 16];
         rand::rng().fill_bytes(&mut iv);
 
@@ -85,7 +83,6 @@ impl Client {
             instance_url: self.instance_url,
             http: self.http,
             session,
-            parameters: None,
             state: PhantomData::<Connected>,
         })
     }
@@ -113,7 +110,7 @@ fn extract_session_id(input: &str) -> Option<u32> {
 }
 
 impl Client<Connected> {
-    pub async fn authenticate(
+    async fn authenticate(
         self,
         username: &str,
         password: &str,
@@ -205,14 +202,13 @@ impl Client<Connected> {
             instance_url: self.instance_url,
             http: self.http,
             session,
-            parameters: None,
             state: PhantomData::<Authenticated>,
         })
     }
 }
 
 impl Client<Authenticated> {
-    pub async fn load_user(self) -> Result<Client<Ready>, Error> {
+    async fn load_user(self) -> Result<Client<Ready>, Error> {
         let mut session = self.session;
 
         let context = FunctionContext::new(
@@ -224,33 +220,31 @@ impl Client<Authenticated> {
 
         let response: Response<UserParameters> = session.call(context, Empty::new()).await?;
 
+        todo!("store user parameters inside the client");
+
         Ok(Client {
             instance_url: self.instance_url,
             http: self.http,
             session,
-            parameters: Some(response.secured_data.data),
             state: PhantomData::<Ready>,
         })
     }
 }
 
-impl Client<Ready> {
-    pub async fn get_grades(&mut self) -> Result<GradesData, Error> {
+impl Client {
+    pub async fn login(instance_url: Url, username: &str, password: &str) -> Result<Self, Error> {
+        todo!("create an Instance struct holding verified instance information");
+        let client = Client::from_url(instance_url).await?;
+        let client = client.connect().await?;
+        let client = client.authenticate(username, password).await?;
+        let client = client.load_user().await?;
+
+        Ok(client)
+    }
+
+    pub async fn get_grades(&mut self, period: &Period) -> Result<GradesData, Error> {
         let context =
             FunctionContext::new(&self.instance_url, &self.http, Function::Grades, Some(198));
-
-        let period = self
-            .parameters
-            .as_ref()
-            .unwrap()
-            .resources
-            .tab_periods_list
-            .iter()
-            .find_map(|tab_periods| match tab_periods.id {
-                198 => Some(&tab_periods.default_period),
-                _ => None,
-            })
-            .unwrap();
 
         let data = json!({
             "Periode": period
@@ -258,6 +252,6 @@ impl Client<Ready> {
 
         let response: Response<GradesData> = self.session.call(context, data).await?;
 
-        Ok(response.secured_data.data.into())
+        Ok(response.secured_data.data)
     }
 }
