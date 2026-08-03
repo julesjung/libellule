@@ -20,17 +20,3 @@ where
         Value::<T>::deserialize(deserializer).map(|value| value.value)
     }
 }
-
-#[derive(Deserialize, Debug)]
-pub struct ReferencedObject {
-    #[serde(rename = "N")]
-    id: String,
-    #[serde(rename = "L")]
-    label: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct NamedObject {
-    #[serde(rename = "L")]
-    label: String,
-}

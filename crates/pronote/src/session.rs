@@ -6,7 +6,7 @@ use crate::api::{Function, Request, Response};
 use crate::crypto::aes_encrypt;
 use crate::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Session {
     pub session_id: u32,
     pub request_count: u32,

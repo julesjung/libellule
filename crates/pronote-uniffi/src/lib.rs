@@ -1,57 +1,45 @@
-use std::sync::Mutex;
+use std::sync::Arc;
 
 use pronote::client::Client as PronoteClient;
-use pronote::models::GradesData;
-use url::Url;
+use pronote::error::Error;
+use pronote::instance::Instance;
+use pronote::models::{GradesData, Period};
+use tokio::sync::Mutex;
 
 uniffi::setup_scaffolding!();
 
-#[derive(thiserror::Error, uniffi::Error, Debug)]
-#[uniffi(flat_error)]
-pub enum Error {
-    #[error("pronote error")]
-    PronoteError(#[from] pronote::error::Error),
-    #[error("client is already being used")]
-    AlreadyInUse,
-    #[error("invalid url")]
-    InvalidUrl(#[from] url::ParseError),
-}
-
 #[derive(uniffi::Object)]
 pub struct Client {
-    inner: Mutex<Option<PronoteClient>>,
+    inner: Mutex<PronoteClient>,
 }
 
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
     #[uniffi::constructor]
     pub async fn new(
-        instance_url: String,
+        instance: Arc<Instance>,
         password: &str,
         username: &str,
     ) -> Result<Client, Error> {
-        let instance_url = Url::parse(&instance_url)?;
-        let client = PronoteClient::login(instance_url, password, username).await?;
+        let client = PronoteClient::login((*instance).clone(), password, username).await?;
 
         Ok(Client {
-            inner: Mutex::new(Some(client)),
+            inner: Mutex::new(client),
         })
     }
 }
 
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
-    pub async fn get_grades(&self) -> Result<GradesData, Error> {
-        let mut client = {
-            let client = self.inner.lock().unwrap();
+    pub async fn get_periods(&self) -> Vec<Period> {
+        self.inner.lock().await.get_periods()
+    }
 
-            client.take().ok_or(Error::AlreadyInUse)?
-        };
+    pub async fn get_default_period(&self) -> String {
+        self.inner.lock().await.get_default_period()
+    }
 
-        let grades_data = client.get_grades().await?;
-
-        *self.inner.lock().unwrap() = Some(client);
-
-        Ok(grades_data.into())
+    pub async fn get_grades(&self, period: &Period) -> Result<GradesData, Error> {
+        self.inner.lock().await.get_grades(period).await
     }
 }

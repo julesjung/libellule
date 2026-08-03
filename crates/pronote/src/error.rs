@@ -7,11 +7,13 @@ pub enum Error {
     #[error("network error")]
     Network(#[from] reqwest::Error),
     #[error("session id not found in response")]
-    NoSessionId,
+    SessionIdNotFound,
     #[error("hex decoding error")]
     InvalidHex(#[from] hex::FromHexError),
     #[error("incorrect password")]
     IncorrectPassword(#[from] block_padding::Error),
     #[error("unknown tab")]
     UnknownTab,
+    #[error("invalid instace url")]
+    InvalidUrl(#[from] url::ParseError),
 }

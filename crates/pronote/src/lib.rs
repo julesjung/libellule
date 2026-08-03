@@ -9,4 +9,5 @@ mod session;
 
 pub mod client;
 pub mod error;
+pub mod instance;
 pub mod models;
