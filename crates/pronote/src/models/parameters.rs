@@ -2,17 +2,25 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::api;
 use crate::error::Error;
 use crate::models::Tab;
+use crate::protocol;
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
-#[serde(try_from = "api::UserParameters")]
+#[serde(try_from = "protocol::UserParameters")]
 pub struct UserParameters {
-    pub fullname: String,
+    pub user: User,
     pub class: String,
     pub tabs: TabsParameters,
+}
+
+#[derive(Debug)]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+pub struct User {
+    pub id: String,
+    pub fullname: String,
+    pub kind: u32,
 }
 
 #[derive(Debug)]
@@ -30,14 +38,14 @@ pub struct TabPeriods {
 
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
-#[serde(into = "api::Period")]
+#[serde(into = "protocol::Period")]
 pub struct Period {
     pub id: String,
     pub name: String,
 }
 
-impl From<api::Period> for Period {
-    fn from(value: api::Period) -> Self {
+impl From<protocol::Period> for Period {
+    fn from(value: protocol::Period) -> Self {
         Period {
             id: value.id.unwrap(),
             name: value.name,
@@ -45,19 +53,19 @@ impl From<api::Period> for Period {
     }
 }
 
-impl From<Period> for api::Period {
+impl From<Period> for protocol::Period {
     fn from(value: Period) -> Self {
-        api::Period {
+        protocol::Period {
             id: Some(value.id),
             name: value.name,
         }
     }
 }
 
-impl TryFrom<api::TabPeriods> for (Tab, TabPeriods) {
+impl TryFrom<protocol::TabPeriods> for (Tab, TabPeriods) {
     type Error = Error;
 
-    fn try_from(value: api::TabPeriods) -> Result<Self, Error> {
+    fn try_from(value: protocol::TabPeriods) -> Result<Self, Error> {
         value.id.try_into().map(|tab: Tab| {
             (
                 tab,
@@ -75,10 +83,10 @@ impl TryFrom<api::TabPeriods> for (Tab, TabPeriods) {
     }
 }
 
-impl TryFrom<api::UserParameters> for UserParameters {
+impl TryFrom<protocol::UserParameters> for UserParameters {
     type Error = Error;
 
-    fn try_from(value: api::UserParameters) -> Result<Self, Error> {
+    fn try_from(value: protocol::UserParameters) -> Result<Self, Error> {
         let tabs_periods: HashMap<Tab, TabPeriods> = value
             .resources
             .tabs_periods
@@ -87,8 +95,14 @@ impl TryFrom<api::UserParameters> for UserParameters {
             .filter_map(|tab_periods| tab_periods.try_into().ok())
             .collect();
 
-        Ok(UserParameters {
+        let user = User {
+            id: value.resources.id,
             fullname: value.resources.label,
+            kind: value.resources.group,
+        };
+
+        Ok(UserParameters {
+            user,
             class: value.resources.class.name,
             tabs: TabsParameters {
                 periods: tabs_periods,

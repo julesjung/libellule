@@ -2,9 +2,10 @@ use serde::Serialize;
 use serde::de::DeserializeOwned;
 use url::Url;
 
-use crate::api::{Function, Request, Response};
 use crate::crypto::aes_encrypt;
 use crate::error::Error;
+use crate::models::Tab;
+use crate::protocol::{Function, Request, Response};
 
 #[derive(Debug, Clone)]
 pub struct Session {
@@ -62,6 +63,8 @@ impl Session {
             .text()
             .await?;
 
+        // println!("{}", &response);
+
         self.request_count += 1;
 
         let response: Response<D> = serde_json::from_str(&response).unwrap();
@@ -80,7 +83,7 @@ pub struct FunctionContext<'a> {
     instance_url: &'a Url,
     http: &'a reqwest::Client,
     function: Function,
-    tab: Option<u32>,
+    tab: Option<Tab>,
 }
 
 impl<'a> FunctionContext<'a> {
@@ -88,7 +91,7 @@ impl<'a> FunctionContext<'a> {
         instance_url: &'a Url,
         http: &'a reqwest::Client,
         function: Function,
-        tab: Option<u32>,
+        tab: Option<Tab>,
     ) -> FunctionContext<'a> {
         FunctionContext {
             instance_url,

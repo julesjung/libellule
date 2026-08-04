@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::api::Value;
+use crate::protocol::Value;
 
 #[derive(Deserialize, Debug)]
 pub struct UserParameters {
@@ -12,8 +12,12 @@ pub struct UserParameters {
 
 #[derive(Deserialize, Debug)]
 pub struct Resources {
+    #[serde(rename = "N")]
+    pub id: String,
     #[serde(rename = "L")]
     pub label: String,
+    #[serde(rename = "G")]
+    pub group: u32,
     #[serde(rename = "classeDEleve")]
     pub class: Class,
     #[serde(rename = "listeOngletsPourPeriodes")]

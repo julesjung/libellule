@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use serde_with::serde_as;
 
-use crate::api::FromValue;
+use crate::protocol::FromValue;
 
 #[serde_as]
 #[derive(Deserialize, Debug)]

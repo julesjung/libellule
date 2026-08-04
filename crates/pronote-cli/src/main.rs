@@ -20,17 +20,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let mut client = Client::login(instance, username.as_str(), password.as_str()).await?;
 
-    let periods = client.get_periods();
+    // let periods = client.get_periods();
 
-    let default_period_id = client.get_default_period();
-    let default_period = periods
-        .iter()
-        .find(|period| period.id == default_period_id)
-        .unwrap();
+    // let default_period_id = client.get_default_period();
+    // let default_period = periods
+    //     .iter()
+    //     .find(|period| period.id == default_period_id)
+    //     .unwrap();
 
-    let grades = client.get_grades(default_period).await?;
+    // let grades = client.get_grades(default_period).await?;
 
-    dbg!(grades);
+    // dbg!(grades);
+
+    let _timetable = client.timetable(4).await;
 
     Ok(())
 }

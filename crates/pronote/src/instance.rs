@@ -4,8 +4,8 @@ use serde_json::json;
 use url::Url;
 
 use crate::{
-    api::{Empty, Function, Response},
     error::Error,
+    protocol::{Empty, Function, Response},
     session::{FunctionContext, Session},
 };
 

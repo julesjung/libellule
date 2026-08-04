@@ -1,10 +1,10 @@
 #[cfg(feature = "uniffi")]
 uniffi::setup_scaffolding!();
 
-mod api;
 mod authentication;
 mod crypto;
 mod identification;
+mod protocol;
 mod session;
 
 pub mod client;

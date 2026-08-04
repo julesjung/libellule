@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::models::Tab;
+
 #[derive(Serialize, Debug)]
 pub enum Function {
     #[serde(rename = "FonctionParametres")]
@@ -11,6 +13,8 @@ pub enum Function {
     UserParameters,
     #[serde(rename = "DernieresNotes")]
     Grades,
+    #[serde(rename = "PageEmploiDuTemps")]
+    Timetable,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -27,7 +31,7 @@ pub struct SecuredData<T> {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Signature {
     #[serde(rename = "onglet")]
-    tab: u32,
+    tab: Tab,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -52,7 +56,7 @@ impl<T> Request<T> {
         function: Function,
         request_count: String,
         session: u32,
-        tab: Option<u32>,
+        tab: Option<Tab>,
         data: T,
     ) -> Request<T> {
         let signature = tab.map(|tab| Signature { tab });

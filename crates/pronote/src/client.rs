@@ -2,13 +2,13 @@ use serde_json::json;
 use sha2::Digest;
 use url::Url;
 
-use crate::api::{Empty, Function, Response};
 use crate::authentication::AuthenticationData;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::identification::IndentificationData;
 use crate::instance::Instance;
 use crate::models::{GradesData, Period, Tab, UserParameters};
+use crate::protocol::{Empty, Function, Response, Timetable};
 use crate::session::{FunctionContext, Session};
 
 #[derive(Debug)]
@@ -148,8 +148,12 @@ impl Client {
     }
 
     pub async fn get_grades(&mut self, period: &Period) -> Result<GradesData, Error> {
-        let context =
-            FunctionContext::new(&self.instance_url, &self.http, Function::Grades, Some(198));
+        let context = FunctionContext::new(
+            &self.instance_url,
+            &self.http,
+            Function::Grades,
+            Some(Tab::Grades),
+        );
 
         let data = json!({
             "Periode": period
@@ -158,5 +162,42 @@ impl Client {
         let response: Response<GradesData> = self.session.call(context, data).await?;
 
         Ok(response.secured_data.data)
+    }
+
+    pub async fn timetable(&mut self, week: u32) {
+        let context = FunctionContext::new(
+            &self.instance_url,
+            &self.http,
+            Function::Timetable,
+            Some(Tab::Timetable),
+        );
+
+        let user = &self.user_parameters.user;
+
+        let user = json!({
+            "L": user.fullname,
+            "N": user.id,
+            "G": user.kind
+        });
+
+        let data = json!({
+            "avecAbsencesEleve": false,
+            "avecAbsencesRessource": true,
+            "avecConseilDeClasse": true,
+            "avecCoursSortiePeda": true,
+            "avecDisponibilites": true,
+            "avecInfosPrefsGrille": true,
+            "avecRessourcesLibrePiedHoraire": false,
+            "avecRetenuesEleve": true,
+            "estEDTPermanence": false,
+            "numeroSemaine": week,
+            "NumeroSemaine": week,
+            "ressource": user,
+            "Ressource": user
+        });
+
+        let response: Response<Timetable> = self.session.call(context, data).await.unwrap();
+
+        dbg!(response);
     }
 }
