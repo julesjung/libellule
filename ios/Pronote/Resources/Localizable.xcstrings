@@ -11,7 +11,14 @@
         }
       }
     },
+    "Authentification" : {
+
+    },
+    "Chargement de l'instance PRONOTE" : {
+
+    },
     "Chargement de l'utilsateur" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fr" : {
           "stringUnit" : {
@@ -20,6 +27,9 @@
           }
         }
       }
+    },
+    "Chargement des cours" : {
+
     },
     "Chargement des notes" : {
       "localizations" : {
@@ -42,6 +52,7 @@
       }
     },
     "Connexion à l'instance PRONOTE" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fr" : {
           "stringUnit" : {
@@ -50,6 +61,12 @@
           }
         }
       }
+    },
+    "Date" : {
+
+    },
+    "Emploi du temps" : {
+
     },
     "Mot de passe" : {
       "localizations" : {
@@ -81,6 +98,9 @@
         }
       }
     },
+    "Période" : {
+
+    },
     "Suivant" : {
       "localizations" : {
         "fr" : {
@@ -90,6 +110,15 @@
           }
         }
       }
+    },
+    "Trimestre 1" : {
+
+    },
+    "Trimestre 2" : {
+
+    },
+    "Trimestre 3" : {
+
     },
     "URL de l'instance PRONOTE" : {
       "localizations" : {
@@ -102,6 +131,7 @@
       }
     },
     "Voir les notes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fr" : {
           "stringUnit" : {

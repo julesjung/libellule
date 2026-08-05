@@ -12,6 +12,16 @@ struct GradesView: View {
     var gradesData: GradesData
     
     var body: some View {
+        Picker("Période", selection: .constant(1)) {
+            Text("Trimestre 1")
+                .tag(1)
+            Text("Trimestre 2")
+                .tag(2)
+            Text("Trimestre 3")
+                .tag(3)
+        }
+        .pickerStyle(.menu)
+        .buttonStyle(.glass)
         List(gradesData.assignments, id: \.self) { assignment in
             HStack {
                 VStack(alignment: .leading) {

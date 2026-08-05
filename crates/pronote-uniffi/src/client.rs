@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use pronote::models;
 use time::Date;
 use time::format_description::well_known::Iso8601;
@@ -18,11 +16,7 @@ pub struct Client {
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
     #[uniffi::constructor]
-    pub async fn new(
-        instance: Arc<Instance>,
-        password: &str,
-        username: &str,
-    ) -> Result<Client, Error> {
+    pub async fn new(instance: &Instance, password: &str, username: &str) -> Result<Client, Error> {
         let client = pronote::Client::login(&instance.inner, password, username).await?;
 
         Ok(Client {
