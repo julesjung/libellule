@@ -1,5 +1,6 @@
 use serde_json::json;
 use sha2::Digest;
+use time::{Date, PlainDateTime, Time};
 use url::Url;
 
 use crate::authentication::AuthenticationData;
@@ -7,9 +8,10 @@ use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::identification::IndentificationData;
 use crate::instance::Instance;
-use crate::models::{GradesData, Period, Tab, UserParameters};
-use crate::protocol::{Empty, Function, Response, Timetable};
+use crate::models::{GradesData, Period, Tab, Timetable, UserParameters};
+use crate::protocol::{self, Empty, Function, Response};
 use crate::session::{FunctionContext, Session};
+use crate::time::format_datetime;
 
 #[derive(Debug)]
 pub struct Client {
@@ -21,11 +23,11 @@ pub struct Client {
 
 impl Client {
     pub async fn login(
-        instance: Instance,
+        instance: &Instance,
         username: &str,
         password: &str,
     ) -> Result<Client, Error> {
-        let mut session = instance.session;
+        let mut session = instance.session.clone();
 
         let context = FunctionContext::new(
             &instance.base_url,
@@ -118,8 +120,8 @@ impl Client {
         let response: Response<UserParameters> = session.call(context, Empty::new()).await?;
 
         Ok(Client {
-            instance_url: instance.base_url,
-            http: instance.http,
+            instance_url: instance.base_url.clone(),
+            http: instance.http.clone(),
             user_parameters: response.secured_data.data,
             session,
         })
@@ -164,7 +166,7 @@ impl Client {
         Ok(response.secured_data.data)
     }
 
-    pub async fn timetable(&mut self, week: u32) {
+    pub async fn timetable(&mut self, date: Date) -> Result<Timetable, Error> {
         let context = FunctionContext::new(
             &self.instance_url,
             &self.http,
@@ -180,24 +182,34 @@ impl Client {
             "G": user.kind
         });
 
+        let date = format_datetime(PlainDateTime::new(date, Time::MIDNIGHT))?;
+
         let data = json!({
-            "avecAbsencesEleve": false,
+            "avecAbsencesEleve": true,
             "avecAbsencesRessource": true,
             "avecConseilDeClasse": true,
             "avecCoursSortiePeda": true,
             "avecDisponibilites": true,
             "avecInfosPrefsGrille": true,
-            "avecRessourcesLibrePiedHoraire": false,
             "avecRetenuesEleve": true,
+            "DateDebut": {
+                "_T": 7,
+                "V": date
+            },
+            "DateDebut": {
+                "_T": 7,
+                "V": date
+            },
+            "estEDTAnnuel": false,
             "estEDTPermanence": false,
-            "numeroSemaine": week,
-            "NumeroSemaine": week,
             "ressource": user,
             "Ressource": user
         });
 
-        let response: Response<Timetable> = self.session.call(context, data).await.unwrap();
+        dbg!(&data);
 
-        dbg!(response);
+        let response: Response<protocol::Timetable> = self.session.call(context, data).await?;
+
+        response.secured_data.data.try_into()
     }
 }

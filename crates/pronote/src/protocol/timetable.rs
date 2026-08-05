@@ -5,40 +5,40 @@ use crate::protocol::Value;
 #[derive(Debug, Deserialize)]
 pub struct Timetable {
     #[serde(rename = "ListeCours")]
-    lessons: Vec<Lesson>,
+    pub lessons: Vec<Lesson>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Lesson {
     #[serde(rename = "N")]
-    id: String,
+    pub id: String,
 
     #[serde(rename = "G")]
-    kind: u32,
+    pub kind: u32,
 
     #[serde(rename = "DateDuCours")]
-    date: Value<String>,
+    pub date: Value<String>,
 
     #[serde(rename = "estAnnule", default)]
-    cancelled: bool,
+    pub cancelled: bool,
 
     #[serde(rename = "ListeContenus")]
-    information: Value<Vec<LessonInformation>>,
+    pub information: Value<Vec<LessonInformation>>,
 
     #[serde(rename = "CouleurFond")]
-    background_color: String,
+    pub background_color: String,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct LessonInformation {
     #[serde(rename = "N")]
-    id: Option<String>,
+    pub id: Option<String>,
 
     #[serde(rename = "L")]
-    label: String,
+    pub label: String,
 
     #[serde(rename = "G")]
-    kind: u32,
+    pub kind: u32,
 }
 
 // #[derive(Deserialize, Debug)]

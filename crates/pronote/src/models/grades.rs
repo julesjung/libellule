@@ -1,11 +1,11 @@
 use serde::Deserialize;
 use serde_with::serde_as;
 
+use crate::models::Subject;
 use crate::protocol::FromValue;
 
 #[serde_as]
 #[derive(Deserialize, Debug)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct GradesData {
     #[serde(rename = "listeServices")]
     #[serde_as(as = "FromValue")]
@@ -15,18 +15,8 @@ pub struct GradesData {
     pub assignments: Vec<Assignment>,
 }
 
-#[derive(Deserialize, Debug)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
-pub struct Subject {
-    #[serde(rename = "N")]
-    pub id: String,
-    #[serde(rename = "L")]
-    pub name: String,
-}
-
 #[serde_as]
 #[derive(Deserialize, Debug)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct Assignment {
     #[serde(rename = "N")]
     pub id: String,
@@ -58,7 +48,6 @@ pub struct Assignment {
 
 #[derive(Deserialize, Debug)]
 #[serde(from = "String")]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
 pub enum Grade {
     Graded(String),
     Absent,

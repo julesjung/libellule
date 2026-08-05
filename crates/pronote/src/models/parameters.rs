@@ -7,16 +7,13 @@ use crate::models::Tab;
 use crate::protocol;
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 #[serde(try_from = "protocol::UserParameters")]
 pub struct UserParameters {
     pub user: User,
-    pub class: String,
     pub tabs: TabsParameters,
 }
 
 #[derive(Debug)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct User {
     pub id: String,
     pub fullname: String,
@@ -24,20 +21,17 @@ pub struct User {
 }
 
 #[derive(Debug)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct TabsParameters {
     pub periods: HashMap<Tab, TabPeriods>,
 }
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 pub struct TabPeriods {
     pub periods: Vec<Period>,
     pub default: String,
 }
 
 #[derive(Debug, Clone, Serialize)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 #[serde(into = "protocol::Period")]
 pub struct Period {
     pub id: String,
@@ -103,7 +97,6 @@ impl TryFrom<protocol::UserParameters> for UserParameters {
 
         Ok(UserParameters {
             user,
-            class: value.resources.class.name,
             tabs: TabsParameters {
                 periods: tabs_periods,
             },

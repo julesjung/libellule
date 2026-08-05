@@ -1,8 +1,6 @@
 use aes::cipher::block_padding;
 
 #[derive(thiserror::Error, Debug)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Error))]
-#[cfg_attr(feature = "uniffi", uniffi(flat_error))]
 pub enum Error {
     #[error("network error")]
     Network(#[from] reqwest::Error),
@@ -16,4 +14,10 @@ pub enum Error {
     UnknownTab,
     #[error("invalid instace url")]
     InvalidUrl(#[from] url::ParseError),
+    #[error("error parsing datetime")]
+    ParseDateTime(#[from] time::error::Parse),
+    #[error("error formatting datetime")]
+    FormatDateTime(#[from] time::error::Format),
+    #[error("unknown lesson information kind")]
+    UnknownLessonInformationKind { lesson_kind: u32 },
 }

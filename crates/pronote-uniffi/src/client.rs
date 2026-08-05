@@ -1,0 +1,67 @@
+use std::sync::Arc;
+
+use pronote::models;
+use time::Date;
+use time::format_description::well_known::Iso8601;
+use tokio::sync::Mutex;
+
+use crate::error::Error;
+use crate::grades::{GradesData, Period};
+use crate::instance::Instance;
+use crate::timetable::Timetable;
+
+#[derive(uniffi::Object)]
+pub struct Client {
+    inner: Mutex<pronote::Client>,
+}
+
+#[uniffi::export(async_runtime = "tokio")]
+impl Client {
+    #[uniffi::constructor]
+    pub async fn new(
+        instance: Arc<Instance>,
+        password: &str,
+        username: &str,
+    ) -> Result<Client, Error> {
+        let client = pronote::Client::login(&instance.inner, password, username).await?;
+
+        Ok(Client {
+            inner: Mutex::new(client),
+        })
+    }
+}
+
+#[uniffi::export(async_runtime = "tokio")]
+impl Client {
+    pub async fn get_periods(&self) -> Vec<Period> {
+        self.inner
+            .lock()
+            .await
+            .get_periods()
+            .into_iter()
+            .map(Period::from)
+            .collect()
+    }
+
+    pub async fn get_default_period(&self) -> String {
+        self.inner.lock().await.get_default_period()
+    }
+
+    pub async fn get_grades(&self, period: &Period) -> Result<GradesData, Error> {
+        let period = models::Period {
+            id: period.id.clone(),
+            name: period.name.clone(),
+        };
+
+        let grades = self.inner.lock().await.get_grades(&period).await?;
+
+        Ok(grades.into())
+    }
+
+    pub async fn timetable(&self, date: String) -> Result<Timetable, Error> {
+        let date = Date::parse(&date, &Iso8601::DATE).map_err(pronote::error::Error::from)?;
+        let timetable = self.inner.lock().await.timetable(date).await?;
+
+        Ok(timetable.into())
+    }
+}

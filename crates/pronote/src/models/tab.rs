@@ -3,7 +3,6 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use crate::error::Error;
 
 #[derive(Debug, PartialEq, Hash, Deserialize_repr, Serialize_repr)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
 #[repr(u32)]
 pub enum Tab {
     Timetable = 16,

@@ -11,17 +11,14 @@ use crate::{
 
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
-#[derive(Debug, Clone)]
-#[cfg_attr(feature = "uniffi", derive(uniffi::Object))]
+#[derive(Debug)]
 pub struct Instance {
     pub(crate) http: reqwest::Client,
     pub(crate) base_url: Url,
     pub(crate) session: Session,
 }
 
-#[cfg_attr(feature = "uniffi", uniffi::export(async_runtime = "tokio"))]
 impl Instance {
-    #[cfg_attr(feature = "uniffi", uniffi::constructor)]
     pub async fn new(url: String) -> Result<Self, Error> {
         let http = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
 

@@ -1,7 +1,8 @@
 use std::error::Error;
 
-use inquire::{CustomType, Password, Text};
-use pronote::{client::Client, instance::Instance};
+use inquire::{CustomType, DateSelect, Password, Text};
+use pronote::{Client, Instance};
+use time::{Date, format_description::well_known::Iso8601};
 use url::Url;
 
 #[tokio::main]
@@ -18,7 +19,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let username = Text::new("Username:").prompt()?;
     let password = Password::new("Password:").without_confirmation().prompt()?;
 
-    let mut client = Client::login(instance, username.as_str(), password.as_str()).await?;
+    let mut client = Client::login(&instance, username.as_str(), password.as_str()).await?;
 
     // let periods = client.get_periods();
 
@@ -32,7 +33,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // dbg!(grades);
 
-    let _timetable = client.timetable(4).await;
+    let date = DateSelect::new("Date:").prompt()?;
+
+    let date = date.format("%Y-%m-%d").to_string();
+
+    let timetable = client
+        .timetable(Date::parse(&date, &Iso8601::DATE)?)
+        .await?;
+
+    dbg!(timetable);
 
     Ok(())
 }

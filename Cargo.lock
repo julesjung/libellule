@@ -267,8 +267,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1aa79e62e7697b8e29b513a68abacf485adcd1fe8284a4316c5ae868e6633327"
 dependencies = [
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-link",
 ]
 
@@ -1030,6 +1032,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6654738b8024300cf062d04a1c13c10c8e2cea598ec1c47dc9b6641159429756"
 dependencies = [
  "bitflags",
+ "chrono",
  "crossterm",
  "dyn-clone",
  "fuzzy-matcher",
@@ -1325,7 +1328,7 @@ dependencies = [
  "serde_with",
  "sha2",
  "thiserror",
- "uniffi",
+ "time",
  "url",
 ]
 
@@ -1335,6 +1338,7 @@ version = "0.1.0"
 dependencies = [
  "inquire",
  "pronote",
+ "time",
  "tokio",
  "url",
 ]
@@ -1345,6 +1349,7 @@ version = "0.1.0"
 dependencies = [
  "pronote",
  "thiserror",
+ "time",
  "tokio",
  "uniffi",
  "url",
@@ -2074,9 +2079,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.54"
+version = "0.3.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e1d5e639ff6bab73cb6885cc7e7b1de96c3f32c68ec55f3952614bec1092244"
+checksum = "cdb87b95ec50ddfa440816d227a17b2ccbdda963a316a727fda0fc4334f7d134"
 dependencies = [
  "deranged",
  "num-conv",
