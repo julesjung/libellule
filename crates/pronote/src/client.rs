@@ -3,13 +3,12 @@ use sha2::Digest;
 use time::{Date, PlainDateTime, Time};
 use url::Url;
 
-use crate::authentication::AuthenticationData;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
-use crate::identification::IndentificationData;
 use crate::instance::Instance;
 use crate::models::{GradesData, Period, Tab, Timetable, UserParameters};
-use crate::protocol::{self, Empty, Function, Response};
+use crate::protocol;
+use crate::protocol::{AuthenticationData, Empty, Function, IndentificationData, Response};
 use crate::session::{FunctionContext, Session};
 use crate::time::format_datetime;
 

@@ -41,11 +41,13 @@ impl TryFrom<protocol::Timetable> for Timetable {
     type Error = Error;
 
     fn try_from(value: protocol::Timetable) -> Result<Self, Self::Error> {
-        let lessons = value
+        let mut lessons: Vec<Lesson> = value
             .lessons
             .into_iter()
             .map(Lesson::try_from)
             .collect::<Result<_, _>>()?;
+
+        lessons.sort_by_key(|lesson| lesson.start);
 
         Ok(Timetable { lessons })
     }
