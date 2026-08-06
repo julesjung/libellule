@@ -16,8 +16,8 @@ pub struct Client {
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
     #[uniffi::constructor]
-    pub async fn new(instance: &Instance, password: &str, username: &str) -> Result<Client, Error> {
-        let client = pronote::Client::login(&instance.inner, password, username).await?;
+    pub async fn new(instance: &Instance, username: &str, password: &str) -> Result<Client, Error> {
+        let client = pronote::Client::login(&instance.inner, username, password).await?;
 
         Ok(Client {
             inner: Mutex::new(client),
