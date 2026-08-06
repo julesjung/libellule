@@ -1,4 +1,4 @@
-use pronote::models;
+use libellule::models;
 use time::format_description::well_known::Iso8601;
 
 use crate::subject::Subject;

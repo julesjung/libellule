@@ -3,7 +3,7 @@ use std::fmt::Display;
 #[derive(uniffi::Error, Debug, thiserror::Error)]
 #[uniffi(flat_error)]
 pub enum Error {
-    Error(#[from] pronote::error::Error),
+    Error(#[from] libellule::error::Error),
 }
 
 impl Display for Error {

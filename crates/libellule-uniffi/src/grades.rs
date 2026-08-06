@@ -1,4 +1,4 @@
-use pronote::models;
+use libellule::models;
 
 use crate::subject::Subject;
 

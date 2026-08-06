@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use inquire::{CustomType, DateSelect, Password, Text};
-use pronote::{Client, Instance};
+use libellule::{Client, Instance};
 use time::{Date, format_description::well_known::Iso8601};
 use url::Url;
 

@@ -1,3 +1,7 @@
 [workspace]
-members = ["crates/pronote", "crates/pronote-cli", "crates/pronote-uniffi"]
+members = [
+    "crates/libellule",
+    "crates/libellule-cli",
+    "crates/libellule-uniffi"
+]
 resolver = "3"

@@ -1,4 +1,4 @@
-use pronote::models;
+use libellule::models;
 use time::Date;
 use time::format_description::well_known::Iso8601;
 use tokio::sync::Mutex;
@@ -10,14 +10,14 @@ use crate::timetable::Timetable;
 
 #[derive(uniffi::Object)]
 pub struct Client {
-    inner: Mutex<pronote::Client>,
+    inner: Mutex<libellule::Client>,
 }
 
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
     #[uniffi::constructor]
     pub async fn new(instance: &Instance, username: &str, password: &str) -> Result<Client, Error> {
-        let client = pronote::Client::login(&instance.inner, username, password).await?;
+        let client = libellule::Client::login(&instance.inner, username, password).await?;
 
         Ok(Client {
             inner: Mutex::new(client),
@@ -53,7 +53,7 @@ impl Client {
     }
 
     pub async fn timetable(&self, date: String) -> Result<Timetable, Error> {
-        let date = Date::parse(&date, &Iso8601::DATE).map_err(pronote::error::Error::from)?;
+        let date = Date::parse(&date, &Iso8601::DATE).map_err(libellule::error::Error::from)?;
         let timetable = self.inner.lock().await.timetable(date).await?;
 
         Ok(timetable.into())

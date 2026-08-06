@@ -1129,6 +1129,50 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 
 [[package]]
+name = "libellule"
+version = "0.1.0"
+dependencies = [
+ "aes",
+ "base64",
+ "cbc",
+ "hex",
+ "md5",
+ "rand",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "serde_with",
+ "sha2",
+ "thiserror",
+ "time",
+ "url",
+]
+
+[[package]]
+name = "libellule-cli"
+version = "0.1.0"
+dependencies = [
+ "inquire",
+ "libellule",
+ "time",
+ "tokio",
+ "url",
+]
+
+[[package]]
+name = "libellule-uniffi"
+version = "0.1.0"
+dependencies = [
+ "libellule",
+ "thiserror",
+ "time",
+ "tokio",
+ "uniffi",
+ "url",
+]
+
+[[package]]
 name = "linux-raw-sys"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1309,50 +1353,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fd00f0bb2e90d81d1044c2b32617f68fcb9fa3bb7640c23e9c748e53fb30934"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "pronote"
-version = "0.1.0"
-dependencies = [
- "aes",
- "base64",
- "cbc",
- "hex",
- "md5",
- "rand",
- "reqwest",
- "serde",
- "serde_json",
- "serde_repr",
- "serde_with",
- "sha2",
- "thiserror",
- "time",
- "url",
-]
-
-[[package]]
-name = "pronote-cli"
-version = "0.1.0"
-dependencies = [
- "inquire",
- "pronote",
- "time",
- "tokio",
- "url",
-]
-
-[[package]]
-name = "pronote-uniffi"
-version = "0.1.0"
-dependencies = [
- "pronote",
- "thiserror",
- "time",
- "tokio",
- "uniffi",
- "url",
 ]
 
 [[package]]

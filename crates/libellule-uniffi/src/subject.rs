@@ -1,4 +1,4 @@
-use pronote::models;
+use libellule::models;
 
 #[derive(Debug, uniffi::Record)]
 pub struct Subject {

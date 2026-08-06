@@ -1,18 +1,18 @@
 [package]
-name = "pronote-uniffi"
+name = "libellule-uniffi"
 version = "0.1.0"
 edition = "2024"
 
 [lib]
 crate-type = ["dylib", "staticlib"]
-name = "pronote"
+name = "libellule"
 
 [[bin]]
 name = "uniffi-bindgen"
 path = "uniffi-bindgen.rs"
 
 [dependencies]
-pronote = { path = "../pronote" }
+libellule = { path = "../libellule" }
 thiserror = "2.0.18"
 time = "0.3.55"
 tokio = { version = "1.53.0", features = ["full"] }

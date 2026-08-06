@@ -1,11 +1,11 @@
 [package]
-name = "pronote-cli"
+name = "libellule-cli"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 inquire = { version = "0.9.4", features = ["date"] }
-pronote = { path = "../pronote" }
+libellule = { path = "../libellule" }
 time = { version = "0.3.55", features = ["macros"] }
 tokio = { version = "1.53.0", features = ["full"] }
 url = "2.5.8"
