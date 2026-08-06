@@ -205,8 +205,6 @@ impl Client {
             "Ressource": user
         });
 
-        dbg!(&data);
-
         let response: Response<protocol::Timetable> = self.session.call(context, data).await?;
 
         response.secured_data.data.try_into()

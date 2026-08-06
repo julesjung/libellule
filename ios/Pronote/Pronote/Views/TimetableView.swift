@@ -26,14 +26,17 @@ struct TimetableView: View {
         VStack {
             DatePicker("Date", selection: $selectedDate, displayedComponents: [.date])
                 .datePickerStyle(.compact)
+                .buttonStyle(.glass)
                 .onChange(of: selectedDate) {
                     timetable = nil
                 }
             if timetable == nil {
+                Spacer()
                 ProgressView("Chargement des cours")
                     .task {
                         timetable = try! await client.timetable(date: formatter.string(from: selectedDate))
                     }
+                Spacer()
             } else {
                 List(timetable!.lessons, id: \.id) { lesson in
                     VStack(alignment: .leading) {

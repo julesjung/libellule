@@ -14,9 +14,6 @@
     "Authentification" : {
 
     },
-    "Chargement de l'instance PRONOTE" : {
-
-    },
     "Chargement de l'utilsateur" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -41,6 +38,9 @@
         }
       }
     },
+    "Chargement des périodes" : {
+
+    },
     "Connexion" : {
       "localizations" : {
         "fr" : {
@@ -52,7 +52,6 @@
       }
     },
     "Connexion à l'instance PRONOTE" : {
-      "extractionState" : "stale",
       "localizations" : {
         "fr" : {
           "stringUnit" : {
@@ -110,15 +109,6 @@
           }
         }
       }
-    },
-    "Trimestre 1" : {
-
-    },
-    "Trimestre 2" : {
-
-    },
-    "Trimestre 3" : {
-
     },
     "URL de l'instance PRONOTE" : {
       "localizations" : {
