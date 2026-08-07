@@ -17,13 +17,13 @@ pub struct GeneralParameters {
     pub label: String,
 
     #[serde(rename = "PremierLundi")]
-    pub first_monday: String,
+    pub first_monday: Value<String>,
 
     #[serde(rename = "PremiereDate")]
-    pub first_day: String,
+    pub first_day: Value<String>,
 
     #[serde(rename = "DerniereDate")]
-    pub last_day: String,
+    pub last_day: Value<String>,
 
     #[serde(rename = "PlacesParJour")]
     pub places_per_day: u32,
@@ -43,7 +43,10 @@ pub struct GeneralParameters {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Hour {
+    #[serde(rename = "G")]
     pub id: u32,
+
+    #[serde(rename = "L")]
     pub label: String,
 }
 

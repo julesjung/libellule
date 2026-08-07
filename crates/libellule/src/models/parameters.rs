@@ -126,9 +126,9 @@ impl TryFrom<(protocol::InstanceParameters, protocol::UserParameters)> for Param
         let instance = Instance {
             version: general.version,
             label: general.label,
-            first_monday: general.first_monday,
-            first_day: general.first_day,
-            last_day: general.last_day,
+            first_monday: general.first_monday.value,
+            first_day: general.first_day.value,
+            last_day: general.last_day.value,
             places_per_day: general.places_per_day,
             places_per_hour: general.places_per_hour,
             start_hours,
