@@ -1,15 +1,18 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
-    "%@)/%@" : {
+    "%@/%@" : {
       "localizations" : {
         "fr" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$@)/%2$@"
+            "value" : "%1$@/%2$@"
           }
         }
       }
+    },
+    "Absent" : {
+
     },
     "Authentification" : {
 
@@ -86,6 +89,9 @@
           }
         }
       }
+    },
+    "Non Noté" : {
+
     },
     "Notes" : {
       "localizations" : {

@@ -16,6 +16,8 @@ struct LoginView: View {
 
     var body: some View {
         VStack {
+            Text(instance.label())
+                .font(.headline)
             HStack {
                 Image(systemName: "person.crop.circle")
                 TextField("Nom d'utilisateur", text: $username)
