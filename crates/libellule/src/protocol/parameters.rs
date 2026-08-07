@@ -2,6 +2,51 @@ use serde::{Deserialize, Serialize};
 
 use crate::protocol::Value;
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct InstanceParameters {
+    #[serde(rename = "General")]
+    pub general: GeneralParameters,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct GeneralParameters {
+    #[serde(rename = "versionPN")]
+    pub version: String,
+
+    #[serde(rename = "NomEtablissementConnexion")]
+    pub label: String,
+
+    #[serde(rename = "PremierLundi")]
+    pub first_monday: String,
+
+    #[serde(rename = "PremiereDate")]
+    pub first_day: String,
+
+    #[serde(rename = "DerniereDate")]
+    pub last_day: String,
+
+    #[serde(rename = "PlacesParJour")]
+    pub places_per_day: u32,
+
+    #[serde(rename = "PlacesParHeure")]
+    pub places_per_hour: u32,
+
+    #[serde(rename = "ListeHeures")]
+    pub start_hours: Value<Vec<Hour>>,
+
+    #[serde(rename = "ListeHeuresFin")]
+    pub end_hours: Value<Vec<Hour>>,
+
+    #[serde(rename = "ListePeriodes")]
+    pub periods: Vec<Period>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Hour {
+    pub id: u32,
+    pub label: String,
+}
+
 #[derive(Deserialize, Debug)]
 pub struct UserParameters {
     #[serde(rename = "ressource")]

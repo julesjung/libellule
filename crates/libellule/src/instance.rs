@@ -5,7 +5,7 @@ use url::Url;
 
 use crate::{
     error::Error,
-    protocol::{Empty, Function, Response},
+    protocol::{Function, InstanceParameters, Response},
     session::{FunctionContext, Session},
 };
 
@@ -16,6 +16,7 @@ pub struct Instance {
     pub(crate) http: reqwest::Client,
     pub(crate) base_url: Url,
     pub(crate) session: Session,
+    pub(crate) parameters: InstanceParameters,
 }
 
 impl Instance {
@@ -46,8 +47,7 @@ impl Instance {
 
         let context = FunctionContext::new(&base_url, &http, Function::InstanceParameters, None);
 
-        // TODO: parse instance information
-        let _: Response<Empty> = session.call(context, data).await?;
+        let response: Response<InstanceParameters> = session.call(context, data).await?;
 
         session.iv = *md5::compute(iv);
 
@@ -55,7 +55,12 @@ impl Instance {
             http,
             base_url,
             session,
+            parameters: response.secured_data.data,
         })
+    }
+
+    pub fn label(&self) -> &str {
+        self.parameters.general.label.as_str()
     }
 }
 

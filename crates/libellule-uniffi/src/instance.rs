@@ -15,4 +15,8 @@ impl Instance {
 
         Ok(instance)
     }
+
+    pub fn label(&self) -> String {
+        self.inner.label().to_string()
+    }
 }

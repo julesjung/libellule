@@ -6,9 +6,11 @@ use url::Url;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::instance::Instance;
-use crate::models::{GradesData, Period, Tab, Timetable, UserParameters};
+use crate::models::{GradesData, Parameters, Period, Tab, Timetable};
 use crate::protocol;
-use crate::protocol::{AuthenticationData, Empty, Function, IndentificationData, Response};
+use crate::protocol::{
+    AuthenticationData, Empty, Function, IndentificationData, Response, UserParameters,
+};
 use crate::session::{FunctionContext, Session};
 use crate::time::format_datetime;
 
@@ -17,7 +19,7 @@ pub struct Client {
     instance_url: Url,
     http: reqwest::Client,
     session: Session,
-    user_parameters: UserParameters,
+    parameters: Parameters,
 }
 
 impl Client {
@@ -117,11 +119,14 @@ impl Client {
         );
 
         let response: Response<UserParameters> = session.call(context, Empty::new()).await?;
+        let user_parameters = response.secured_data.data;
+
+        let parameters = Parameters::try_from((instance.parameters.clone(), user_parameters))?;
 
         Ok(Client {
             instance_url: instance.base_url.clone(),
             http: instance.http.clone(),
-            user_parameters: response.secured_data.data,
+            parameters,
             session,
         })
     }
@@ -129,7 +134,7 @@ impl Client {
 
 impl Client {
     pub fn get_periods(&self) -> Vec<Period> {
-        self.user_parameters
+        self.parameters
             .tabs
             .periods
             .get(&Tab::Grades)
@@ -139,7 +144,7 @@ impl Client {
     }
 
     pub fn get_default_period(&self) -> String {
-        self.user_parameters
+        self.parameters
             .tabs
             .periods
             .get(&Tab::Grades)
@@ -173,7 +178,7 @@ impl Client {
             Some(Tab::Timetable),
         );
 
-        let user = &self.user_parameters.user;
+        let user = &self.parameters.user;
 
         let user = json!({
             "L": user.fullname,

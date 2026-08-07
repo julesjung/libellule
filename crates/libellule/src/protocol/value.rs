@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use serde_with::DeserializeAs;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Value<T> {
     #[serde(rename = "V")]
     pub value: T,
