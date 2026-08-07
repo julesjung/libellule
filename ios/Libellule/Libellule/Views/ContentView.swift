@@ -1,22 +1,22 @@
 //
 //  ContentView.swift
-//  Pronote
+//  Libellule
 //
 //  Created by Jules on 17/07/2026.
 //
 
 import SwiftUI
-import PronoteKit
+import LibelluleKit
 
 struct ContentView: View {
     @State private var state: AppState = {
         if let url = UserDefaults.standard.string(forKey: "url") {
             return .connecting(url: url)
         }
-        
+
         return .loggedOut
     }()
-    
+
     var body: some View {
         switch state {
         case .loggedOut:

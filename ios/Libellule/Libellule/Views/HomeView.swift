@@ -1,17 +1,17 @@
 //
 //  HomeView.swift
-//  Pronote
+//  Libellule
 //
 //  Created by Jules on 05/08/2026.
 //
 
 import SwiftUI
-import PronoteKit
+import LibelluleKit
 
 struct HomeView: View {
     var client: Client
     @State private var gradesData: GradesData?
-    
+
     var body: some View {
         TabView {
             Tab("Emploi du temps", systemImage: "calendar") {
@@ -19,7 +19,7 @@ struct HomeView: View {
             }
             Tab("Notes", systemImage: "graph.2d") {
                 GradesView(client: client)
-                
+
             }
         }
     }

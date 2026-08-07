@@ -1,17 +1,17 @@
 //
 //  InstanceSelector.swift
-//  Pronote
+//  Libellule
 //
 //  Created by Jules on 03/08/2026.
 //
 
 import SwiftUI
-import PronoteKit
+import LibelluleKit
 
 struct InstanceSelector: View {
     @Binding var state: AppState
     @State private var url: String = ""
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -24,7 +24,7 @@ struct InstanceSelector: View {
             .padding()
             .textFieldStyle(.plain)
             .glassEffect()
-            
+
             Button("Suivant") {
                 self.state = .connecting(url: url)
             }

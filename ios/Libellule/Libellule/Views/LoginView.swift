@@ -1,12 +1,12 @@
 //
 //  LoginView.swift
-//  Pronote
+//  Libellule
 //
 //  Created by Jules on 05/08/2026.
 //
 
 import SwiftUI
-import PronoteKit
+import LibelluleKit
 
 struct LoginView: View {
     var instance: Instance
@@ -22,14 +22,14 @@ struct LoginView: View {
             }
             .padding()
             .glassEffect()
-            
+
             HStack {
                 Image(systemName: "key")
                 SecureField("Mot de passe", text: $password)
             }
             .padding()
             .glassEffect()
-            
+
             Button {
                 state = .authenticating(instance: instance, username: username, password: password)
             } label: {

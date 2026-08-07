@@ -1,19 +1,19 @@
 //
 //  GradesView.swift
-//  Pronote
+//  Libellule
 //
 //  Created by Jules on 20/07/2026.
 //
 
 import SwiftUI
-import PronoteKit
+import LibelluleKit
 
 struct GradesView: View {
     var client: Client
     @State private var gradesData: GradesData?
     @State private var periods: [Period] = []
     @State private var selectedPeriod: Period?
-    
+
     var body: some View {
         VStack {
             if selectedPeriod == nil {
@@ -41,7 +41,7 @@ struct GradesView: View {
                 }
                 .pickerStyle(.menu)
                 .buttonStyle(.glass)
-                
+
                 if gradesData == nil {
                     Spacer()
                     ProgressView("Chargement des notes")
@@ -57,7 +57,14 @@ struct GradesView: View {
                                 Text(assignment.label).font(.caption).lineLimit(1)
                             }
                             Spacer()
-                            Text("\(assignment.grade))/\(assignment.scale)")
+                            switch assignment.grade {
+                            case .graded(let grade):
+                                Text("\(grade)/\(assignment.scale)")
+                            case .absent:
+                                Text("Absent")
+                            default:
+                                Text("Non Noté")
+                            }
                         }
                     }
                     .listStyle(.plain)

@@ -3,5 +3,5 @@
 
 xcuserdata
 
-/ios/PronoteKit/*
-!/ios/PronoteKit/Package.swift
+/ios/LibelluleKit/*
+!/ios/LibelluleKit/Package.swift

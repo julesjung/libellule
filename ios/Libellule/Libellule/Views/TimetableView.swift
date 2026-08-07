@@ -1,19 +1,19 @@
 //
 //  TimetableView.swift
-//  Pronote
+//  Libellule
 //
 //  Created by Jules on 05/08/2026.
 //
 
 import SwiftUI
-import PronoteKit
+import LibelluleKit
 
 struct TimetableView: View {
     var client: Client
     let formatter: DateFormatter
     @State private var selectedDate: Date
     @State private var timetable: Timetable?
-    
+
     init(client: Client) {
         self.client = client
         let formatter = DateFormatter()
@@ -21,7 +21,7 @@ struct TimetableView: View {
         self.formatter = formatter
         self.selectedDate = formatter.date(from: "2026-04-01")!
     }
-    
+
     var body: some View {
         VStack {
             DatePicker("Date", selection: $selectedDate, displayedComponents: [.date])
