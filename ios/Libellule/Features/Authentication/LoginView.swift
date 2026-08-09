@@ -13,6 +13,13 @@ struct LoginView: View {
     @Binding var state: AppState
     @State private var username: String = ""
     @State private var password: String = ""
+    
+    @FocusState private var focusedField: Field?
+
+    private enum Field {
+        case username
+        case password
+    }
 
     var body: some View {
         VStack {
@@ -21,6 +28,12 @@ struct LoginView: View {
             HStack {
                 Image(systemName: "person.crop.circle")
                 TextField("Nom d'utilisateur", text: $username)
+                    .focused($focusedField, equals: .username)
+                    .textContentType(.username)
+                    .submitLabel(.continue)
+                    .onSubmit {
+                        focusedField = .password
+                    }
             }
             .padding()
             .glassEffect()
@@ -28,14 +41,18 @@ struct LoginView: View {
             HStack {
                 Image(systemName: "key")
                 SecureField("Mot de passe", text: $password)
+                    .focused($focusedField, equals: .password)
+                    .textContentType(.password)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        login()
+                    }
             }
             .padding()
             .glassEffect()
 
-            Button {
-                state = .authenticating(instance: instance, username: username, password: password)
-            } label: {
-                Text("Connexion")
+            Button("Connexion") {
+                login()
             }
             .disabled(username.isEmpty || password.isEmpty)
             .buttonStyle(.glassProminent)
@@ -46,5 +63,15 @@ struct LoginView: View {
         .textInputAutocapitalization(.never)
         .textFieldStyle(.plain)
         .padding()
+    }
+    
+    private func login() {
+        focusedField = nil
+
+        state = .authenticating(
+            instance: instance,
+            username: username,
+            password: password
+        )
     }
 }

@@ -1,5 +1,5 @@
 //
-//  InstanceSelector.swift
+//  InstanceView.swift
 //  Libellule
 //
 //  Created by Jules on 03/08/2026.
@@ -8,7 +8,7 @@
 import SwiftUI
 import LibelluleKit
 
-struct InstanceSelector: View {
+struct InstanceView: View {
     @Binding var state: AppState
     @State private var url: String = ""
 

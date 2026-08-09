@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8482B26F300ABA7000EACDE2 /* LibelluleKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8482B26E300ABA7000EACDE2 /* LibelluleKit */; };
+		8462F3D63028C15C005BB169 /* LibelluleKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8462F3D53028C15C005BB169 /* LibelluleKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,11 +20,6 @@
 			path = Libellule;
 			sourceTree = "<group>";
 		};
-		84C05DEA300D11DC004CCA35 /* Resources */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Resources;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,7 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8482B26F300ABA7000EACDE2 /* LibelluleKit in Frameworks */,
+				8462F3D63028C15C005BB169 /* LibelluleKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,7 +39,6 @@
 			children = (
 				847AC297300AB73000D87659 /* Libellule */,
 				847AC296300AB73000D87659 /* Products */,
-				84C05DEA300D11DC004CCA35 /* Resources */,
 			);
 			sourceTree = "<group>";
 		};
@@ -73,11 +67,10 @@
 			);
 			fileSystemSynchronizedGroups = (
 				847AC297300AB73000D87659 /* Libellule */,
-				84C05DEA300D11DC004CCA35 /* Resources */,
 			);
 			name = Libellule;
 			packageProductDependencies = (
-				8482B26E300ABA7000EACDE2 /* LibelluleKit */,
+				8462F3D53028C15C005BB169 /* LibelluleKit */,
 			);
 			productName = Libellule;
 			productReference = 847AC295300AB73000D87659 /* Libellule.app */;
@@ -108,7 +101,7 @@
 			mainGroup = 847AC28C300AB73000D87659;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				8482B26D300ABA7000EACDE2 /* XCLocalSwiftPackageReference "../LibelluleKit" */,
+				8462F3D43028C15C005BB169 /* XCLocalSwiftPackageReference "LibelluleKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 847AC296300AB73000D87659 /* Products */;
@@ -360,14 +353,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		8482B26D300ABA7000EACDE2 /* XCLocalSwiftPackageReference "../LibelluleKit" */ = {
+		8462F3D43028C15C005BB169 /* XCLocalSwiftPackageReference "LibelluleKit" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../LibelluleKit;
+			relativePath = LibelluleKit;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8482B26E300ABA7000EACDE2 /* LibelluleKit */ = {
+		8462F3D53028C15C005BB169 /* LibelluleKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = LibelluleKit;
 		};

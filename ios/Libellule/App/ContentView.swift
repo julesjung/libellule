@@ -20,7 +20,7 @@ struct ContentView: View {
     var body: some View {
         switch state {
         case .loggedOut:
-            InstanceSelector(state: $state)
+            InstanceView(state: $state)
         case .connecting(let url):
             ProgressView("Connexion à l'instance PRONOTE")
                 .task {
@@ -40,12 +40,4 @@ struct ContentView: View {
             HomeView(client: client)
         }
     }
-}
-
-enum AppState {
-    case loggedOut
-    case connecting(url: String)
-    case connected(instance: Instance)
-    case authenticating(instance: Instance, username: String, password: String)
-    case authenticated(client: Client)
 }
