@@ -14,9 +14,6 @@
     "Absent" : {
 
     },
-    "Authentification" : {
-
-    },
     "Chargement de l'utilsateur" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -32,6 +29,7 @@
 
     },
     "Chargement des notes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fr" : {
           "stringUnit" : {
@@ -40,9 +38,6 @@
           }
         }
       }
-    },
-    "Chargement des périodes" : {
-
     },
     "Connexion" : {
       "localizations" : {
@@ -55,6 +50,7 @@
       }
     },
     "Connexion à l'instance PRONOTE" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fr" : {
           "stringUnit" : {
@@ -67,7 +63,7 @@
     "Date" : {
 
     },
-    "Emploi du temps" : {
+    "Erreur" : {
 
     },
     "Mot de passe" : {
@@ -103,7 +99,10 @@
         }
       }
     },
-    "Période" : {
+    "Réessayer" : {
+
+    },
+    "Retour à l'écran de connexion" : {
 
     },
     "Suivant" : {

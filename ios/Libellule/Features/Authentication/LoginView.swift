@@ -9,8 +9,8 @@ import SwiftUI
 import LibelluleKit
 
 struct LoginView: View {
-    var instance: Instance
-    @Binding var state: AppState
+    @Environment(SessionStore.self) private var session
+    let instance: Instance
     @State private var username: String = ""
     @State private var password: String = ""
     
@@ -37,7 +37,7 @@ struct LoginView: View {
             }
             .padding()
             .glassEffect()
-
+            
             HStack {
                 Image(systemName: "key")
                 SecureField("Mot de passe", text: $password)
@@ -45,14 +45,18 @@ struct LoginView: View {
                     .textContentType(.password)
                     .submitLabel(.done)
                     .onSubmit {
-                        login()
+                        Task {
+                            await session.login(instance: instance, username: username, password: password)
+                        }
                     }
             }
             .padding()
             .glassEffect()
-
+            
             Button("Connexion") {
-                login()
+                Task {
+                    await session.login(instance: instance, username: username, password: password)
+                }
             }
             .disabled(username.isEmpty || password.isEmpty)
             .buttonStyle(.glassProminent)
@@ -63,15 +67,5 @@ struct LoginView: View {
         .textInputAutocapitalization(.never)
         .textFieldStyle(.plain)
         .padding()
-    }
-    
-    private func login() {
-        focusedField = nil
-
-        state = .authenticating(
-            instance: instance,
-            username: username,
-            password: password
-        )
     }
 }

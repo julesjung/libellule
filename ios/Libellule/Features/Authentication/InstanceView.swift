@@ -9,7 +9,7 @@ import SwiftUI
 import LibelluleKit
 
 struct InstanceView: View {
-    @Binding var state: AppState
+    @Environment(SessionStore.self) private var session
     @State private var url: String = ""
 
     var body: some View {
@@ -26,7 +26,9 @@ struct InstanceView: View {
             .glassEffect()
 
             Button("Suivant") {
-                self.state = .connecting(url: url)
+                Task {
+                    await session.connect(url: url)
+                }
             }
             .buttonStyle(.glassProminent)
             .disabled(url.isEmpty)

@@ -1,4 +1,4 @@
-IOS_VERSION := 16.0
+IOS_VERSION := 26.0
 
 .PHONY: all ios-build ios-bindings ios-xcframework ios-package clean
 

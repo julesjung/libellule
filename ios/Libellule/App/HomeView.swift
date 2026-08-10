@@ -9,16 +9,17 @@ import SwiftUI
 import LibelluleKit
 
 struct HomeView: View {
-    var client: Client
-    @State private var gradesData: GradesData?
+    let client: Client
 
     var body: some View {
         TabView {
+            /*
             Tab("Emploi du temps", systemImage: "calendar") {
-                TimetableView(client: client)
+                TimetableView()
             }
+             */
             Tab("Notes", systemImage: "graph.2d") {
-                GradesView(client: client)
+                GradesView(store: GradesStore(client: client))
 
             }
         }
