@@ -3,6 +3,7 @@ name = "libellule-cli"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 
 [dependencies]
 inquire = { version = "0.9.4", features = ["date"] }
