@@ -1,6 +1,6 @@
 # Libellule
 
-A Rust implementation of the PRONOTE protocol, featuring a reusable library, CLI, and native iOS client.
+A Rust implementation of the PRONOTE protocol.
 
 > [!WARNING]
 > Libellule is **not affiliated with, endorsed by, or sponsored by INDEX ÉDUCATION**.
@@ -15,7 +15,7 @@ A Rust implementation of the PRONOTE protocol, featuring a reusable library, CLI
 
 ## Security
 
-Authentication and API requests are sent directly to your PRONOTE server. This project never relays or stores your credentials.
+Authentication and API requests are sent directly to your PRONOTE server. The encrypted credentials are only stored locally in the iOS app for faster logins.
 
 ## Legal
 
