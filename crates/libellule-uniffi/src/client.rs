@@ -1,16 +1,15 @@
 use libellule::models;
 use time::Date;
 use time::format_description::well_known::Iso8601;
-use tokio::sync::Mutex;
 
 use crate::error::LibelluleError;
 use crate::grades::{GradesData, Period};
 use crate::instance::Instance;
-use crate::timetable::Timetable;
+use crate::timetable::{BoundaryDates, Timetable};
 
 #[derive(uniffi::Object)]
 pub struct Client {
-    inner: Mutex<libellule::Client>,
+    inner: libellule::Client,
 }
 
 #[uniffi::export(async_runtime = "tokio")]
@@ -23,26 +22,22 @@ impl Client {
     ) -> Result<Client, LibelluleError> {
         let client = libellule::Client::login(&instance.inner, username, password).await?;
 
-        Ok(Client {
-            inner: Mutex::new(client),
-        })
+        Ok(Client { inner: client })
     }
 }
 
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
-    pub async fn get_periods(&self) -> Vec<Period> {
+    pub fn get_periods(&self) -> Vec<Period> {
         self.inner
-            .lock()
-            .await
             .get_periods()
             .into_iter()
             .map(Period::from)
             .collect()
     }
 
-    pub async fn get_default_period(&self) -> String {
-        self.inner.lock().await.get_default_period()
+    pub fn get_default_period(&self) -> String {
+        self.inner.get_default_period()
     }
 
     pub async fn get_grades(&self, period: &Period) -> Result<GradesData, LibelluleError> {
@@ -51,14 +46,18 @@ impl Client {
             name: period.name.clone(),
         };
 
-        let grades = self.inner.lock().await.get_grades(&period).await?;
+        let grades = self.inner.get_grades(&period).await?;
 
         Ok(grades.into())
     }
 
+    pub fn boundary_dates(&self) -> BoundaryDates {
+        self.inner.boundary_dates().into()
+    }
+
     pub async fn timetable(&self, date: String) -> Result<Timetable, LibelluleError> {
         let date = Date::parse(&date, &Iso8601::DATE).map_err(libellule::error::Error::from)?;
-        let timetable = self.inner.lock().await.timetable(date).await?;
+        let timetable = self.inner.timetable(date).await?;
 
         Ok(timetable.into())
     }

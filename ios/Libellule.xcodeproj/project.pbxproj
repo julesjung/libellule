@@ -15,7 +15,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		847AC297300AB73000D87659 /* Libellule */ = {
+		846604EB302CA9B8003AC176 /* Libellule */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Libellule;
 			sourceTree = "<group>";
@@ -37,7 +37,7 @@
 		847AC28C300AB73000D87659 = {
 			isa = PBXGroup;
 			children = (
-				847AC297300AB73000D87659 /* Libellule */,
+				846604EB302CA9B8003AC176 /* Libellule */,
 				847AC296300AB73000D87659 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,7 +66,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				847AC297300AB73000D87659 /* Libellule */,
+				846604EB302CA9B8003AC176 /* Libellule */,
 			);
 			name = Libellule;
 			packageProductDependencies = (

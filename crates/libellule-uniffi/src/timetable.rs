@@ -1,5 +1,5 @@
 use libellule::models;
-use time::format_description::well_known::Iso8601;
+use time::{Date, format_description::well_known::Iso8601, macros::format_description};
 
 use crate::subject::Subject;
 
@@ -18,6 +18,7 @@ pub struct Lesson {
     pub teachers: Vec<String>,
     pub groups: Vec<Group>,
     pub locations: Vec<Location>,
+    pub background: String,
 }
 
 #[derive(Debug, uniffi::Record)]
@@ -32,6 +33,21 @@ pub struct Group {
     pub name: String,
 }
 
+#[derive(Debug, uniffi::Record)]
+pub struct BoundaryDates {
+    first: String,
+    second: String,
+}
+
+impl From<(Date, Date)> for BoundaryDates {
+    fn from(value: (Date, Date)) -> Self {
+        BoundaryDates {
+            first: value.0.format(&Iso8601::DATE).unwrap(),
+            second: value.1.format(&Iso8601::DATE).unwrap(),
+        }
+    }
+}
+
 impl From<models::Timetable> for Timetable {
     fn from(value: models::Timetable) -> Self {
         Timetable {
@@ -40,17 +56,21 @@ impl From<models::Timetable> for Timetable {
     }
 }
 
+static DATE_TIME: &[time::format_description::FormatItem<'_>] =
+    format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
+
 impl From<models::Lesson> for Lesson {
     fn from(value: models::Lesson) -> Self {
         Lesson {
             id: value.id,
             kind: value.kind,
-            start: value.start.format(&Iso8601::DATE_TIME).unwrap(),
-            end: value.end.format(&Iso8601::DATE_TIME).unwrap(),
+            start: value.start.format(DATE_TIME).unwrap(),
+            end: value.end.format(DATE_TIME).unwrap(),
             subject: value.subject.into(),
             teachers: value.teachers,
             groups: value.groups.into_iter().map(Group::from).collect(),
             locations: value.locations.into_iter().map(Location::from).collect(),
+            background: value.background,
         }
     }
 }

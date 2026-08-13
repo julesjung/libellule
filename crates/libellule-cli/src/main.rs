@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let username = Text::new("Username:").prompt()?;
     let password = Password::new("Password:").without_confirmation().prompt()?;
 
-    let mut client = Client::login(&instance, username.as_str(), password.as_str()).await?;
+    let client = Client::login(&instance, username.as_str(), password.as_str()).await?;
 
     // let periods = client.get_periods();
 

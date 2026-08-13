@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 
 use serde::Serialize;
+use time::Date;
 
 use crate::error::Error;
 use crate::models::Tab;
 use crate::protocol;
+use crate::time::parse_date;
 
 #[derive(Debug)]
 pub struct Parameters {
@@ -17,9 +19,9 @@ pub struct Parameters {
 pub struct Instance {
     pub version: String,
     pub label: String,
-    pub first_monday: String,
-    pub first_day: String,
-    pub last_day: String,
+    pub first_monday: Date,
+    pub first_day: Date,
+    pub last_day: Date,
     pub places_per_day: u32,
     pub places_per_hour: u32,
     pub start_hours: Vec<String>,
@@ -126,9 +128,9 @@ impl TryFrom<(protocol::InstanceParameters, protocol::UserParameters)> for Param
         let instance = Instance {
             version: general.version,
             label: general.label,
-            first_monday: general.first_monday.value,
-            first_day: general.first_day.value,
-            last_day: general.last_day.value,
+            first_monday: parse_date(general.first_monday.value.as_str())?,
+            first_day: parse_date(general.first_day.value.as_str())?,
+            last_day: parse_date(general.last_day.value.as_str())?,
             places_per_day: general.places_per_day,
             places_per_hour: general.places_per_hour,
             start_hours,

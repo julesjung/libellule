@@ -9,52 +9,44 @@ import SwiftUI
 import LibelluleKit
 
 struct TimetableView: View {
-    var client: Client
-    let formatter: DateFormatter
-    @State private var selectedDate: Date
-    @State private var timetable: Timetable?
-
-    init(client: Client) {
-        self.client = client
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        self.formatter = formatter
-        self.selectedDate = formatter.date(from: "2026-04-01")!
-    }
-
+    var store: TimetableStore
+    
     var body: some View {
+        @Bindable var store = store
+        
         VStack {
-            DatePicker("Date", selection: $selectedDate, displayedComponents: [.date])
-                .datePickerStyle(.compact)
-                .buttonStyle(.glass)
-                .onChange(of: selectedDate) {
-                    timetable = nil
-                }
-            if timetable == nil {
-                Spacer()
-                ProgressView("Chargement des cours")
-                    .task {
-                        timetable = try! await client.timetable(date: formatter.string(from: selectedDate))
-                    }
-                Spacer()
-            } else {
-                List(timetable!.lessons, id: \.id) { lesson in
-                    VStack(alignment: .leading) {
-                        Text(lesson.start)
-                            .font(.caption)
-                        Text(lesson.subject.name)
-                        HStack {
-                            Image(systemName: "person")
-                            Text(lesson.teachers.joined(separator: ", "))
-                        }
-                        HStack {
-                            Image(systemName: "mappin")
-                            Text(lesson.locations.map({ $0.name }).joined(separator: ", "))
+            GlassDatePicker(selection: $store.selectedDate, in: store.datesRange)
+            Spacer()
+            LoadableView(state: store.timetable, retry: { await store.loadTimetable() }) { timetable in
+                if timetable.lessons.isEmpty {
+                    ContentUnavailableView(
+                        "Aucun cours",
+                        systemImage: "beach.umbrella",
+                        description: Text("Profitez-en pour bien vous reposer !")
+                    )
+                } else {
+                    ScrollView {
+                        ForEach(timetable.lessons, id: \.id) { lesson in
+                            LessonView(lesson: lesson)
                         }
                     }
                 }
-                .listStyle(.plain)
             }
+            Spacer()
         }
+    }
+}
+
+extension Color {
+    init(hex: String) {
+        let int = UInt64(hex.dropFirst(), radix: 16)!
+
+        self.init(
+            .sRGB,
+            red: Double(int >> 16) / 255,
+            green: Double(int >> 8 & 0xFF) / 255,
+            blue:  Double(int & 0xFF) / 255,
+            opacity: 1.0
+        )
     }
 }

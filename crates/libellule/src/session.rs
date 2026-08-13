@@ -63,8 +63,6 @@ impl Session {
             .text()
             .await?;
 
-        // println!("{}", &response);
-
         self.request_count += 1;
 
         let response: Response<D> = serde_json::from_str(&response).unwrap();

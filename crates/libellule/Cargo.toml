@@ -26,3 +26,4 @@ thiserror = "2.0.18"
 url = "2.5.8"
 serde_repr = "0.1.21"
 time = { version = "0.3.55", features = ["formatting", "macros", "parsing"] }
+tokio = { version = "1.53.1", default-features = false, features = ["sync"] }

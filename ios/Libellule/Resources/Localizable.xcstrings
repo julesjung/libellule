@@ -14,6 +14,9 @@
     "Absent" : {
 
     },
+    "Aucun cours" : {
+
+    },
     "Chargement de l'utilsateur" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -24,9 +27,6 @@
           }
         }
       }
-    },
-    "Chargement des cours" : {
-
     },
     "Chargement des notes" : {
       "extractionState" : "stale",
@@ -61,6 +61,9 @@
       }
     },
     "Date" : {
+
+    },
+    "Emploi du temps" : {
 
     },
     "Erreur" : {
@@ -98,6 +101,9 @@
           }
         }
       }
+    },
+    "Profitez-en pour bien vous reposer !" : {
+
     },
     "Réessayer" : {
 

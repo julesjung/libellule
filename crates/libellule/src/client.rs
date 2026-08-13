@@ -1,6 +1,7 @@
 use serde_json::json;
 use sha2::Digest;
 use time::{Date, PlainDateTime, Time};
+use tokio::sync::Mutex;
 use url::Url;
 
 use crate::crypto::{aes_decrypt, aes_encrypt};
@@ -18,7 +19,7 @@ use crate::time::format_datetime;
 pub struct Client {
     instance_url: Url,
     http: reqwest::Client,
-    session: Session,
+    session: Mutex<Session>,
     parameters: Parameters,
 }
 
@@ -127,7 +128,7 @@ impl Client {
             instance_url: instance.base_url.clone(),
             http: instance.http.clone(),
             parameters,
-            session,
+            session: Mutex::new(session),
         })
     }
 }
@@ -153,7 +154,7 @@ impl Client {
             .clone()
     }
 
-    pub async fn get_grades(&mut self, period: &Period) -> Result<GradesData, Error> {
+    pub async fn get_grades(&self, period: &Period) -> Result<GradesData, Error> {
         let context = FunctionContext::new(
             &self.instance_url,
             &self.http,
@@ -165,12 +166,19 @@ impl Client {
             "Periode": period
         });
 
-        let response: Response<GradesData> = self.session.call(context, data).await?;
+        let response: Response<GradesData> = self.session.lock().await.call(context, data).await?;
 
         Ok(response.secured_data.data)
     }
 
-    pub async fn timetable(&mut self, date: Date) -> Result<Timetable, Error> {
+    pub fn boundary_dates(&self) -> (Date, Date) {
+        (
+            self.parameters.instance.first_day,
+            self.parameters.instance.last_day,
+        )
+    }
+
+    pub async fn timetable(&self, date: Date) -> Result<Timetable, Error> {
         let context = FunctionContext::new(
             &self.instance_url,
             &self.http,
@@ -210,7 +218,8 @@ impl Client {
             "Ressource": user
         });
 
-        let response: Response<protocol::Timetable> = self.session.call(context, data).await?;
+        let response: Response<protocol::Timetable> =
+            self.session.lock().await.call(context, data).await?;
 
         response.secured_data.data.try_into()
     }

@@ -23,6 +23,7 @@ pub struct Lesson {
     pub teachers: Vec<String>,
     pub groups: Vec<Group>,
     pub locations: Vec<Location>,
+    pub background: String,
 }
 
 #[derive(Debug)]
@@ -95,6 +96,7 @@ impl TryFrom<protocol::Lesson> for Lesson {
             subject: subject.unwrap(),
             locations,
             groups,
+            background: value.background_color,
         })
     }
 }

@@ -19,7 +19,14 @@ struct RootView: View {
         case .connected(let instance):
             LoginView(instance: instance)
         case .authenticated(let client):
-            HomeView(client: client)
+            TabView {
+                Tab("Emploi du temps", systemImage: "calendar") {
+                    TimetableView(store: TimetableStore(client: client))
+                }
+                Tab("Notes", systemImage: "graph.2d") {
+                    GradesView(store: GradesStore(client: client))
+                }
+            }
         case .failed(let error):
             ContentUnavailableView {
                 Label("Erreur", systemImage: "wifi.exclamationmark")

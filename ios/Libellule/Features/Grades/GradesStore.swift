@@ -21,17 +21,17 @@ import LibelluleKit
         self.client = client
     }
     
-    func loadPeriods() async {
-        guard case .idle = grades else { return }
+    func loadPeriods() {
+        guard case .idle = periods else { return }
 
         periods = .loading
-        let list = await client.getPeriods()
+        let list = client.getPeriods()
         guard let first = list.first else {
             periods = .failed(GradesError.noPeriods)
             return
         }
         
-        let defaultId = await client.getDefaultPeriod()
+        let defaultId = client.getDefaultPeriod()
         periods = .loaded(list)
         selectedPeriod = list.first { $0.id == defaultId } ?? first
     }
