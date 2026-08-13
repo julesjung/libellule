@@ -13,7 +13,7 @@ name = "uniffi-bindgen"
 path = "uniffi-bindgen.rs"
 
 [dependencies]
-libellule = { path = "../libellule" }
+libellule = { version = "0.1.1", path = "../libellule" }
 thiserror = "2.0.18"
 time = "0.3.55"
 tokio = { version = "1.53.0", features = ["full"] }
