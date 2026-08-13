@@ -14,6 +14,7 @@ final class TimetableStore {
     
     var datesRange: ClosedRange<Date>
     var selectedDate: Date {
+        willSet { print(selectedDate, newValue) }
         didSet { if oldValue != selectedDate { Task { await loadTimetable() } } }
     }
     var timetable: Loadable<Timetable> = .idle
@@ -30,6 +31,30 @@ final class TimetableStore {
         self.selectedDate = min(max(Date.now, lowerBound), upperBound)
         
         Task { await loadTimetable() }
+    }
+    
+    func clampToDatesRange(date: Date) -> Date {
+        return min(max(date, datesRange.lowerBound), datesRange.upperBound)
+    }
+    
+    func previousDay() {
+        selectedDate = clampToDatesRange(
+            date: Calendar.current.date(
+                byAdding: .day,
+                value: -1,
+                to: selectedDate
+            )!
+        )
+    }
+    
+    func nextDay() {
+        selectedDate = clampToDatesRange(
+            date: Calendar.current.date(
+                byAdding: .day,
+                value: 1,
+                to: selectedDate
+            )!
+        )
     }
 
     func loadTimetable() async {

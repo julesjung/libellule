@@ -11,28 +11,89 @@ import LibelluleKit
 struct TimetableView: View {
     var store: TimetableStore
     
+    @State private var showingDatePicker = false
+    
     var body: some View {
-        @Bindable var store = store
-        
-        VStack {
-            GlassDatePicker(selection: $store.selectedDate, in: store.datesRange)
-            Spacer()
-            LoadableView(state: store.timetable, retry: { await store.loadTimetable() }) { timetable in
-                if timetable.lessons.isEmpty {
-                    ContentUnavailableView(
-                        "Aucun cours",
-                        systemImage: "beach.umbrella",
-                        description: Text("Profitez-en pour bien vous reposer !")
-                    )
-                } else {
-                    ScrollView {
-                        ForEach(timetable.lessons, id: \.id) { lesson in
-                            LessonView(lesson: lesson)
+        NavigationStack {
+            VStack {
+                dateHeader
+                
+                Spacer()
+                
+                LoadableView(state: store.timetable, retry: { await store.loadTimetable() }) { timetable in
+                    if timetable.lessons.isEmpty {
+                        ContentUnavailableView(
+                            "Aucun cours",
+                            systemImage: "beach.umbrella",
+                            description: Text("Profitez-en pour bien vous reposer !")
+                        )
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 0) {
+                                ForEach(timetable.lessons, id: \.id) { lesson in
+                                    LessonView(lesson: lesson)
+                                }
+                            }
                         }
                     }
                 }
+                
+                Spacer()
             }
-            Spacer()
+                .navigationTitle("Emploi du temps")
+        }
+    }
+    
+    private var dateHeader: some View {
+        @Bindable var store = store
+        
+        return HStack {
+            Button {
+                store.previousDay()
+            } label: {
+                Image(systemName: "chevron.left")
+            }
+            .buttonStyle(.glass)
+            .controlSize(.large)
+
+            Button {
+                showingDatePicker = true
+            } label: {
+                VStack(spacing: 2) {
+                    Text(store.selectedDate.formatted(.dateTime.weekday(.wide)))
+                        .font(.headline)
+                    
+                    Text(store.selectedDate.formatted(.dateTime.day().month(.wide)))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .sheet(isPresented: $showingDatePicker) {
+                NavigationStack {
+                    CalendarView(selection: $store.selectedDate, in: store.datesRange)
+                        .padding(.horizontal)
+                        .navigationTitle("Date")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(role: .confirm) {
+                                    showingDatePicker = false
+                                }
+                            }
+                        }
+                }
+                .presentationDetents([.medium])
+            }
+            .buttonStyle(.glass)
+            .buttonSizing(.flexible)
+            
+            Button {
+                store.nextDay()
+            } label: {
+                Image(systemName: "chevron.right")
+            }
+            .buttonStyle(.glass)
+            .controlSize(.large)
         }
     }
 }
