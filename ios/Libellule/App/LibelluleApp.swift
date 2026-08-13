@@ -15,6 +15,14 @@ struct LibelluleApp: App {
         WindowGroup {
             RootView()
                 .environment(session)
+                .task {
+                    guard let url = UserDefaults.standard.string(forKey: "url") else {
+                        session.state = .loggedOut
+                        return
+                    }
+                    
+                    await session.connect(url: url)
+                }
         }
     }
 }

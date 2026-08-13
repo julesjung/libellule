@@ -19,7 +19,7 @@ final class SessionStore {
         case failed(SessionError)
     }
     
-    var state: State = .loggedOut
+    var state: State = .connecting
     
     func connect(url: String) async {
         state = .connecting
@@ -27,7 +27,16 @@ final class SessionStore {
         do {
             let instance = try await Instance(url: url)
             UserDefaults.standard.set(url, forKey: "url")
-            state = .connected(instance)
+            state = .authenticating
+            
+            guard let username = try? KeychainService.shared.load(forKey: "username"),
+                  let password = try? KeychainService.shared.load(forKey: "password")
+            else {
+                state = .connected(instance)
+                return
+            }
+            
+            await login(instance: instance, username: username, password: password)
         } catch {
             state = .failed(.connection(error))
         }
@@ -41,7 +50,11 @@ final class SessionStore {
             state = .authenticated(client)
         } catch {
             state = .failed(.authentication(error))
+            return
         }
+        
+        try? KeychainService.shared.save(value: username, forKey: "username")
+        try? KeychainService.shared.save(value: password, forKey: "password")
     }
 }
 
