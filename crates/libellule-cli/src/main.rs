@@ -1,6 +1,6 @@
-use std::error::Error;
+use std::{error::Error, fmt::Display};
 
-use inquire::{CustomType, DateSelect, Password, Text};
+use inquire::{CustomType, DateSelect, Password, Select, Text};
 use libellule::{Client, Instance};
 use time::{Date, format_description::well_known::Iso8601};
 use url::Url;
@@ -21,18 +21,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let client = Client::login(&instance, username.as_str(), password.as_str()).await?;
 
-    // let periods = client.get_periods();
+    loop {
+        let commands = vec![
+            Command::Timetable,
+            Command::Grades,
+            Command::Menu,
+            Command::Quit,
+        ];
+        let command: Command = Select::new("Command:", commands).prompt()?;
 
-    // let default_period_id = client.get_default_period();
-    // let default_period = periods
-    //     .iter()
-    //     .find(|period| period.id == default_period_id)
-    //     .unwrap();
+        match command {
+            Command::Timetable => timetable(&client).await?,
+            Command::Grades => grades(&client).await?,
+            Command::Menu => menu(&client).await?,
+            Command::Quit => break,
+        }
+    }
 
-    // let grades = client.get_grades(default_period).await?;
+    Ok(())
+}
 
-    // dbg!(grades);
-
+async fn timetable(client: &Client) -> Result<(), Box<dyn Error>> {
     let date = DateSelect::new("Date:").prompt()?;
 
     let date = date.format("%Y-%m-%d").to_string();
@@ -44,4 +53,50 @@ async fn main() -> Result<(), Box<dyn Error>> {
     dbg!(timetable);
 
     Ok(())
+}
+
+async fn grades(client: &Client) -> Result<(), Box<dyn Error>> {
+    let periods = client.get_periods();
+
+    let default_period_id = client.get_default_period();
+    let default_period = periods
+        .iter()
+        .find(|period| period.id == default_period_id)
+        .unwrap();
+
+    let grades = client.get_grades(default_period).await?;
+
+    dbg!(grades);
+
+    Ok(())
+}
+
+async fn menu(client: &Client) -> Result<(), Box<dyn Error>> {
+    let date = DateSelect::new("Date:").prompt()?;
+
+    let date = date.format("%Y-%m-%d").to_string();
+
+    let menu = client.menu(Date::parse(&date, &Iso8601::DATE)?).await?;
+
+    dbg!(menu);
+
+    Ok(())
+}
+
+enum Command {
+    Timetable,
+    Grades,
+    Menu,
+    Quit,
+}
+
+impl Display for Command {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Command::Timetable => write!(f, "Timetable"),
+            Command::Grades => write!(f, "Grades"),
+            Command::Menu => write!(f, "Menu"),
+            Command::Quit => write!(f, "Quit"),
+        }
+    }
 }
