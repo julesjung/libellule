@@ -16,29 +16,42 @@ struct LessonView: View {
         let start = DateFormatter.datetime.date(from: lesson.start)!
         let end = DateFormatter.datetime.date(from: lesson.end)!
         
+        let teachers = lesson.teachers.joined(separator: ", ")
+        let places = lesson.locations.map{$0.name}.joined(separator: ", ")
+        let groups = lesson.groups.map{$0.name}.joined(separator: ", ")
+        
         NavigationLink {
             
         } label: {
-            HStack {
-                VStack {
+            HStack(spacing: 0) {
+                VStack(spacing: 12) {
                     Text(start.formatted(date: .omitted, time: .shortened))
-                        .font(.caption)
+                        .font(.subheadline)
                     Text(end.formatted(date: .omitted, time: .shortened))
-                        .font(.caption)
+                        .font(.subheadline)
                 }
                 .padding(.trailing)
                 VStack(alignment: .leading) {
-                    Text(lesson.subject.name)
+                    Text(lesson.subject.name.localizedCapitalized)
                         .font(.headline)
-                    Text(lesson.teachers.joined(separator: ", "))
+                    if !teachers.isEmpty {
+                        Label(teachers, systemImage: "person")
+                            .font(.subheadline)
+                    }
+                    if !places.isEmpty {
+                        Label(places, systemImage: "location")
+                            .font(.subheadline)
+                    }
+                    if !groups.isEmpty {
+                        Label(groups, systemImage: "person.3")
+                            .font(.subheadline)
+                    }
                 }
                 Spacer()
             }
             .padding()
             .foregroundStyle(.foreground)
-            .background(Color(hex: lesson.background)
-                .brightness(colorScheme == .light ? 0.2 : -0.2)
-            )
+            .background(Color(hex: lesson.background))
         }
     }
 }

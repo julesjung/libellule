@@ -66,15 +66,16 @@ struct CalendarView: UIViewRepresentable {
     
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UICalendarView, context: Context) -> CGSize? {
         let width = proposal.width ?? 0
+        let height = proposal.height ?? 0
 
-                return uiView.systemLayoutSizeFitting(
-                    CGSize(
-                        width: width,
-                        height: UIView.layoutFittingCompressedSize.height
-                    ),
-                    withHorizontalFittingPriority: .required,
-                    verticalFittingPriority: .fittingSizeLevel
-                )
+        return uiView.systemLayoutSizeFitting(
+            CGSize(
+                width: width,
+                height: height
+            ),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
     }
 
     final class Coordinator: NSObject, UICalendarSelectionSingleDateDelegate {

@@ -14,7 +14,6 @@ final class TimetableStore {
     
     var datesRange: ClosedRange<Date>
     var selectedDate: Date {
-        willSet { print(selectedDate, newValue) }
         didSet { if oldValue != selectedDate { Task { await loadTimetable() } } }
     }
     var timetable: Loadable<Timetable> = .idle

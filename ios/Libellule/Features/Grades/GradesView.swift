@@ -9,7 +9,6 @@ import SwiftUI
 import LibelluleKit
 
 struct GradesView: View {
-    @Environment(SessionStore.self) private var session
     @State var store: GradesStore
 
     var body: some View {
@@ -39,7 +38,16 @@ struct GradesView: View {
                 .listStyle(.plain)
             }
             .task {
-                await store.loadPeriods()
+                await store.loadGrades()
+            }
+            .toolbar {
+                ToolbarItem {
+                    Picker("Période", selection: $store.selectedPeriod) {
+                        ForEach(store.periods, id: \.id) { period in
+                            Text(period.name).tag(period)
+                        }
+                    }
+                }
             }
         }
     }
