@@ -6,15 +6,23 @@ use crate::models::Tab;
 pub enum Function {
     #[serde(rename = "FonctionParametres")]
     InstanceParameters,
+
     Identification,
+
     #[serde(rename = "Authentification")]
     Authentication,
+
     #[serde(rename = "ParametresUtilisateur")]
     UserParameters,
+
     #[serde(rename = "DernieresNotes")]
     Grades,
+
     #[serde(rename = "PageEmploiDuTemps")]
     Timetable,
+
+    #[serde(rename = "PageMenus")]
+    Menu,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

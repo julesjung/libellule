@@ -5,6 +5,7 @@ use crate::error::Error;
 #[derive(Debug, PartialEq, Hash, Deserialize_repr, Serialize_repr)]
 #[repr(u32)]
 pub enum Tab {
+    Menu = 10,
     Timetable = 16,
     Grades = 198,
 }

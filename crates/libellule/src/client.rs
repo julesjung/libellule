@@ -7,13 +7,13 @@ use url::Url;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::instance::Instance;
-use crate::models::{GradesData, Parameters, Period, Tab, Timetable};
+use crate::models::{ConversionError, GradesData, Menu, Parameters, Period, Tab, Timetable};
 use crate::protocol;
 use crate::protocol::{
     AuthenticationData, Empty, Function, IndentificationData, Response, UserParameters,
 };
 use crate::session::{FunctionContext, Session};
-use crate::time::format_datetime;
+use crate::time::{format_date, format_datetime};
 
 #[derive(Debug)]
 pub struct Client {
@@ -222,5 +222,44 @@ impl Client {
             self.session.lock().await.call(context, data).await?;
 
         response.secured_data.data.try_into()
+    }
+
+    pub async fn menu(&self, date: Date) -> Result<Menu, Error> {
+        let context = FunctionContext::new(
+            &self.instance_url,
+            &self.http,
+            Function::Menu,
+            Some(Tab::Menu),
+        );
+
+        let date = format_date(date);
+
+        let data = json!({
+            "date": {
+                "_T": 7,
+                "V": &date
+            }
+        });
+
+        let response: Response<protocol::Menu> =
+            self.session.lock().await.call(context, data).await?;
+
+        let day = response
+            .secured_data
+            .data
+            .days
+            .value
+            .into_iter()
+            .find(|day| day.date.value == date);
+
+        let menu = match day {
+            Some(day) => day.try_into().map_err(|err| ConversionError::Menu(err))?,
+            None => Menu {
+                lunch: None,
+                dinner: None,
+            },
+        };
+
+        Ok(menu)
     }
 }

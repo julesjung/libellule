@@ -20,4 +20,6 @@ pub enum Error {
     FormatDateTime(#[from] time::error::Format),
     #[error("unknown lesson information kind")]
     UnknownLessonInformationKind { lesson_kind: u32 },
+    #[error("error during conversion: {0}")]
+    ConversionError(#[from] crate::models::ConversionError),
 }
