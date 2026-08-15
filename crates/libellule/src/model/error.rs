@@ -1,4 +1,4 @@
-use crate::models::MenuError;
+use crate::model::MenuError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ConversionError {

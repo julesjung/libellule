@@ -1,4 +1,4 @@
-use libellule::models;
+use libellule::model;
 
 #[derive(Debug, uniffi::Record)]
 pub struct Subject {
@@ -6,8 +6,8 @@ pub struct Subject {
     pub name: String,
 }
 
-impl From<models::Subject> for Subject {
-    fn from(value: models::Subject) -> Self {
+impl From<model::Subject> for Subject {
+    fn from(value: model::Subject) -> Self {
         Subject {
             id: value.id,
             name: value.name,

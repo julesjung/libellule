@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::Tab;
+use crate::model::Tab;
 
 #[derive(Serialize, Debug)]
 pub enum Function {

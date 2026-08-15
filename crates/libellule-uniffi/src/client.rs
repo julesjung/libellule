@@ -1,10 +1,11 @@
-use libellule::models;
+use libellule::model;
 use time::Date;
 use time::format_description::well_known::Iso8601;
 
 use crate::error::LibelluleError;
 use crate::grades::{GradesData, Period};
 use crate::instance::Instance;
+use crate::menu::Menu;
 use crate::timetable::{BoundaryDates, Timetable};
 
 #[derive(uniffi::Object)]
@@ -41,7 +42,7 @@ impl Client {
     }
 
     pub async fn get_grades(&self, period: &Period) -> Result<GradesData, LibelluleError> {
-        let period = models::Period {
+        let period = model::Period {
             id: period.id.clone(),
             name: period.name.clone(),
         };
@@ -60,5 +61,12 @@ impl Client {
         let timetable = self.inner.timetable(date).await?;
 
         Ok(timetable.into())
+    }
+
+    pub async fn menu(&self, date: String) -> Result<Menu, LibelluleError> {
+        let date = Date::parse(&date, &Iso8601::DATE).map_err(libellule::error::Error::from)?;
+        let menu = self.inner.menu(date).await?;
+
+        Ok(menu.into())
     }
 }

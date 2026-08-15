@@ -1,4 +1,4 @@
-use libellule::models;
+use libellule::model;
 
 use crate::subject::Subject;
 
@@ -40,8 +40,8 @@ pub struct Period {
     pub name: String,
 }
 
-impl From<models::GradesData> for GradesData {
-    fn from(value: models::GradesData) -> Self {
+impl From<model::GradesData> for GradesData {
+    fn from(value: model::GradesData) -> Self {
         GradesData {
             subjects: value.subjects.into_iter().map(Subject::from).collect(),
             assignments: value
@@ -53,8 +53,8 @@ impl From<models::GradesData> for GradesData {
     }
 }
 
-impl From<models::Assignment> for Assignment {
-    fn from(value: models::Assignment) -> Self {
+impl From<model::Assignment> for Assignment {
+    fn from(value: model::Assignment) -> Self {
         Assignment {
             id: value.id,
             label: value.label,
@@ -70,23 +70,23 @@ impl From<models::Assignment> for Assignment {
     }
 }
 
-impl From<models::Grade> for Grade {
-    fn from(value: models::Grade) -> Self {
+impl From<model::Grade> for Grade {
+    fn from(value: model::Grade) -> Self {
         match value {
-            models::Grade::Graded(grade) => Grade::Graded(grade),
-            models::Grade::Absent => Grade::Absent,
-            models::Grade::Exempted => Grade::Exempted,
-            models::Grade::NotGraded => Grade::NotGraded,
-            models::Grade::Unfit => Grade::Unfit,
-            models::Grade::NotSubmitted => Grade::NotSubmitted,
-            models::Grade::AbsentZero => Grade::AbsentZero,
-            models::Grade::NotSubmittedZero => Grade::NotSubmittedZero,
+            model::Grade::Graded(grade) => Grade::Graded(grade),
+            model::Grade::Absent => Grade::Absent,
+            model::Grade::Exempted => Grade::Exempted,
+            model::Grade::NotGraded => Grade::NotGraded,
+            model::Grade::Unfit => Grade::Unfit,
+            model::Grade::NotSubmitted => Grade::NotSubmitted,
+            model::Grade::AbsentZero => Grade::AbsentZero,
+            model::Grade::NotSubmittedZero => Grade::NotSubmittedZero,
         }
     }
 }
 
-impl From<models::Period> for Period {
-    fn from(value: models::Period) -> Self {
+impl From<model::Period> for Period {
+    fn from(value: model::Period) -> Self {
         Period {
             id: value.id,
             name: value.name,

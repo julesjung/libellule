@@ -4,7 +4,7 @@ use url::Url;
 
 use crate::crypto::aes_encrypt;
 use crate::error::Error;
-use crate::models::Tab;
+use crate::model::Tab;
 use crate::protocol::{Function, Request, Response};
 
 #[derive(Debug, Clone)]

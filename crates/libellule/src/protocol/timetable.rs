@@ -6,6 +6,15 @@ use crate::protocol::Value;
 pub struct Timetable {
     #[serde(rename = "ListeCours")]
     pub lessons: Vec<Lesson>,
+
+    #[serde(rename = "premierePlaceHebdoDuJour")]
+    pub start_place: u32,
+
+    #[serde(rename = "debutDemiPensionHebdo")]
+    pub lunch_break_start: u32,
+
+    #[serde(rename = "finDemiPensionHebdo")]
+    pub lunch_break_end: u32,
 }
 
 #[derive(Debug, Deserialize)]
@@ -16,8 +25,11 @@ pub struct Lesson {
     #[serde(rename = "G")]
     pub kind: u32,
 
-    #[serde(rename = "DateDuCours")]
-    pub date: Value<String>,
+    #[serde(rename = "place")]
+    pub start: u32,
+
+    #[serde(rename = "duree")]
+    pub length: u32,
 
     #[serde(rename = "estAnnule", default)]
     pub cancelled: bool,
@@ -40,40 +52,3 @@ pub struct LessonInformation {
     #[serde(rename = "G")]
     pub kind: u32,
 }
-
-// #[derive(Deserialize, Debug)]
-// #[serde(tag = "G")]
-// pub enum LessonInformation {
-//     #[serde(rename = "2")]
-//     Group {
-//         #[serde(rename = "N")]
-//         id: String,
-
-//         #[serde(rename = "L")]
-//         name: String,
-//     },
-
-//     #[serde(rename = "3")]
-//     Teacher {
-//         #[serde(rename = "L")]
-//         name: String,
-//     },
-
-//     #[serde(rename = "16")]
-//     Subject {
-//         #[serde(rename = "N")]
-//         id: String,
-
-//         #[serde(rename = "L")]
-//         name: String,
-//     },
-
-//     #[serde(rename = "17")]
-//     Location {
-//         #[serde(rename = "N")]
-//         id: String,
-
-//         #[serde(rename = "L")]
-//         name: String,
-//     },
-// }

@@ -1,11 +1,14 @@
-use libellule::models;
-use time::{Date, format_description::well_known::Iso8601, macros::format_description};
+use libellule::model;
+use time::Date;
+use time::format_description::well_known::Iso8601;
+use time::macros::format_description;
 
 use crate::subject::Subject;
 
 #[derive(Debug, uniffi::Record)]
 pub struct Timetable {
     pub lessons: Vec<Lesson>,
+    pub lunch_break: LunchBreak,
 }
 
 #[derive(Debug, uniffi::Record)]
@@ -34,6 +37,12 @@ pub struct Group {
 }
 
 #[derive(Debug, uniffi::Record)]
+pub struct LunchBreak {
+    pub start: String,
+    pub end: String,
+}
+
+#[derive(Debug, uniffi::Record)]
 pub struct BoundaryDates {
     first: String,
     second: String,
@@ -48,24 +57,34 @@ impl From<(Date, Date)> for BoundaryDates {
     }
 }
 
-impl From<models::Timetable> for Timetable {
-    fn from(value: models::Timetable) -> Self {
+impl From<model::Timetable> for Timetable {
+    fn from(value: model::Timetable) -> Self {
         Timetable {
             lessons: value.lessons.into_iter().map(Lesson::from).collect(),
+            lunch_break: value.lunch_break.into(),
         }
     }
 }
 
-static DATE_TIME: &[time::format_description::FormatItem<'_>] =
-    format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
+static TIME: &[time::format_description::FormatItem<'_>] =
+    format_description!("[hour]:[minute]:[second]");
 
-impl From<models::Lesson> for Lesson {
-    fn from(value: models::Lesson) -> Self {
+impl From<model::LunchBreak> for LunchBreak {
+    fn from(value: model::LunchBreak) -> Self {
+        LunchBreak {
+            start: value.start.format(TIME).unwrap(),
+            end: value.end.format(TIME).unwrap(),
+        }
+    }
+}
+
+impl From<model::Lesson> for Lesson {
+    fn from(value: model::Lesson) -> Self {
         Lesson {
             id: value.id,
             kind: value.kind,
-            start: value.start.format(DATE_TIME).unwrap(),
-            end: value.end.format(DATE_TIME).unwrap(),
+            start: value.start.format(TIME).unwrap(),
+            end: value.end.format(TIME).unwrap(),
             subject: value.subject.into(),
             teachers: value.teachers,
             groups: value.groups.into_iter().map(Group::from).collect(),
@@ -75,8 +94,8 @@ impl From<models::Lesson> for Lesson {
     }
 }
 
-impl From<models::Group> for Group {
-    fn from(value: models::Group) -> Self {
+impl From<model::Group> for Group {
+    fn from(value: model::Group) -> Self {
         Group {
             id: value.id,
             name: value.name,
@@ -84,8 +103,8 @@ impl From<models::Group> for Group {
     }
 }
 
-impl From<models::Location> for Location {
-    fn from(value: models::Location) -> Self {
+impl From<model::Location> for Location {
+    fn from(value: model::Location) -> Self {
         Location {
             id: value.id,
             name: value.name,

@@ -21,5 +21,8 @@ pub enum Error {
     #[error("unknown lesson information kind")]
     UnknownLessonInformationKind { lesson_kind: u32 },
     #[error("error during conversion: {0}")]
-    ConversionError(#[from] crate::models::ConversionError),
+    ConversionError(#[from] crate::model::ConversionError),
+
+    #[error("start hour not found")]
+    StartHourNotFound,
 }

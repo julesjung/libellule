@@ -1,18 +1,24 @@
 use std::collections::HashMap;
 
 use serde::Serialize;
-use time::Date;
+use time::{Date, Duration, Time};
 
 use crate::error::Error;
-use crate::models::Tab;
+use crate::model::Tab;
 use crate::protocol;
-use crate::time::parse_date;
+use crate::time::{parse_date, parse_time};
 
 #[derive(Debug)]
 pub struct Parameters {
     pub instance: Instance,
     pub user: User,
     pub tabs: TabsParameters,
+}
+
+impl Parameters {
+    pub fn place_to_time(&self, place: u32) -> Time {
+        self.instance.start_time + self.instance.place_duration * place
+    }
 }
 
 #[derive(Debug)]
@@ -24,8 +30,9 @@ pub struct Instance {
     pub last_day: Date,
     pub places_per_day: u32,
     pub places_per_hour: u32,
-    pub start_hours: Vec<String>,
-    pub end_hours: Vec<String>,
+    pub place_duration: Duration,
+    pub start_time: Time,
+    pub end_time: Time,
     pub periods: Vec<Period>,
 }
 
@@ -111,19 +118,20 @@ impl TryFrom<(protocol::InstanceParameters, protocol::UserParameters)> for Param
 
         let general = instance_parameters.general;
 
-        let start_hours = general
+        let place_duration = Duration::hours(1) / general.places_per_hour;
+        let start_time = general
             .start_hours
             .value
             .into_iter()
-            .map(|start_hour| start_hour.label)
-            .collect();
+            .find_map(|start_hour| match start_hour.id == 0 {
+                true => Some(start_hour.label),
+                false => None,
+            })
+            .ok_or(Error::StartHourNotFound)?;
 
-        let end_hours = general
-            .end_hours
-            .value
-            .into_iter()
-            .map(|end_hour| end_hour.label)
-            .collect();
+        let start_time = parse_time(&start_time)?;
+
+        let end_time = start_time + place_duration * general.places_per_day;
 
         let instance = Instance {
             version: general.version,
@@ -133,8 +141,9 @@ impl TryFrom<(protocol::InstanceParameters, protocol::UserParameters)> for Param
             last_day: parse_date(general.last_day.value.as_str())?,
             places_per_day: general.places_per_day,
             places_per_hour: general.places_per_hour,
-            start_hours,
-            end_hours,
+            place_duration,
+            start_time,
+            end_time,
             periods: general.periods.into_iter().map(Period::from).collect(),
         };
 

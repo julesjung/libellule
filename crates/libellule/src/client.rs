@@ -4,10 +4,11 @@ use time::{Date, PlainDateTime, Time};
 use tokio::sync::Mutex;
 use url::Url;
 
+use crate::convert::TryModelize;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::instance::Instance;
-use crate::models::{ConversionError, GradesData, Menu, Parameters, Period, Tab, Timetable};
+use crate::model::{ConversionError, GradesData, Menu, Parameters, Period, Tab, Timetable};
 use crate::protocol;
 use crate::protocol::{
     AuthenticationData, Empty, Function, IndentificationData, Response, UserParameters,
@@ -221,7 +222,7 @@ impl Client {
         let response: Response<protocol::Timetable> =
             self.session.lock().await.call(context, data).await?;
 
-        response.secured_data.data.try_into()
+        response.secured_data.data.try_modelize(&self.parameters)
     }
 
     pub async fn menu(&self, date: Date) -> Result<Menu, Error> {

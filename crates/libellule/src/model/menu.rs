@@ -4,16 +4,6 @@ use crate::protocol;
 pub enum MenuError {
     #[error("unknown meal kind `{kind}`")]
     UnknownMeal { kind: u32 },
-    #[error("missing starter course")]
-    MissingStarterCourse,
-    #[error("missing main course")]
-    MissingMainCourse,
-    #[error("missing trimmings")]
-    MissingTrimmings,
-    #[error("missing dairies")]
-    MissingDairies,
-    #[error("missing dessert")]
-    MissingDessert,
     #[error("unknown course kind `{kind}`")]
     UnknownCourse { kind: u32 },
 }
@@ -26,20 +16,22 @@ pub struct Menu {
 
 #[derive(Debug)]
 pub struct Meal {
-    pub starter: Course,
-    pub main: Course,
-    pub trimmings: Course,
-    pub dairies: Course,
-    pub desserts: Course,
+    pub starter: Option<Course>,
+    pub main: Option<Course>,
+    pub trimmings: Option<Course>,
+    pub dairies: Option<Course>,
+    pub desserts: Option<Course>,
 }
 
 #[derive(Debug)]
-pub struct Course(Vec<Food>);
+pub struct Course {
+    pub food: Vec<Food>,
+}
 
 #[derive(Debug)]
 pub struct Food {
-    id: String,
-    label: String,
+    pub id: String,
+    pub label: String,
 }
 
 impl TryFrom<protocol::Menu> for Vec<Menu> {
@@ -97,11 +89,11 @@ impl TryFrom<protocol::Meal> for Meal {
         }
 
         Ok(Meal {
-            starter: starter.ok_or(MenuError::MissingStarterCourse)?,
-            main: main.ok_or(MenuError::MissingMainCourse)?,
-            trimmings: trimmings.ok_or(MenuError::MissingTrimmings)?,
-            dairies: dairies.ok_or(MenuError::MissingDairies)?,
-            desserts: desserts.ok_or(MenuError::MissingDessert)?,
+            starter: starter,
+            main: main,
+            trimmings: trimmings,
+            dairies: dairies,
+            desserts: desserts,
         })
     }
 }
@@ -110,7 +102,7 @@ impl From<protocol::Course> for Course {
     fn from(value: protocol::Course) -> Self {
         let food = value.food.value.into_iter().map(Food::from).collect();
 
-        Course(food)
+        Course { food }
     }
 }
 
