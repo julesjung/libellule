@@ -13,12 +13,12 @@ struct LessonView: View {
     let lesson: Lesson
     
     var body: some View {
-        let start = DateFormatter.datetime.date(from: lesson.start)!
-        let end = DateFormatter.datetime.date(from: lesson.end)!
+        let start = DateFormatter.time.date(from: lesson.start)!
+        let end = DateFormatter.time.date(from: lesson.end)!
         
         let teachers = lesson.teachers.joined(separator: ", ")
-        let places = lesson.locations.map{$0.name}.joined(separator: ", ")
-        let groups = lesson.groups.map{$0.name}.joined(separator: ", ")
+        let places = lesson.locations.map { $0.name } .joined(separator: ", ")
+        let groups = lesson.groups.map { $0.name } .joined(separator: ", ")
         
         NavigationLink {
             

@@ -17,6 +17,7 @@ final class TimetableStore {
         didSet { if oldValue != selectedDate { Task { await loadTimetable() } } }
     }
     var timetable: Loadable<Timetable> = .idle
+    var menu: Loadable<Menu> = .idle
     
     init(client: Client) {
         self.client = client
@@ -28,8 +29,6 @@ final class TimetableStore {
         
         self.datesRange = lowerBound...upperBound
         self.selectedDate = min(max(Date.now, lowerBound), upperBound)
-        
-        Task { await loadTimetable() }
     }
     
     func clampToDatesRange(date: Date) -> Date {
@@ -65,6 +64,19 @@ final class TimetableStore {
             self.timetable = .loaded(lessons)
         } catch {
             self.timetable = .failed(error)
+        }
+    }
+    
+    func loadMenu() async {
+        guard datesRange.contains(selectedDate) else { return }
+
+        self.menu = .loading
+        do {
+            let date = DateFormatter.date.string(from: selectedDate)
+            let menu = try await client.menu(date: date)
+            self.menu = .loaded(menu)
+        } catch {
+            self.menu = .failed(error)
         }
     }
 }
