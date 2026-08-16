@@ -1,0 +1,11 @@
+[package]
+name = "xtask"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+clap = { version = "4.6.6", features = ["derive"] }
+duct = "1.1.1"
+uniffi = { version = "0.31.1", features = ["cli"] }
