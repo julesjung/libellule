@@ -1,16 +1,7 @@
-use libellule::model;
+use libellule::model::Subject;
 
-#[derive(Debug, uniffi::Record)]
+#[uniffi::remote(Record)]
 pub struct Subject {
     pub id: String,
     pub name: String,
-}
-
-impl From<model::Subject> for Subject {
-    fn from(value: model::Subject) -> Self {
-        Subject {
-            id: value.id,
-            name: value.name,
-        }
-    }
 }

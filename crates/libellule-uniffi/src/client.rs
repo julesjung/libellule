@@ -1,12 +1,10 @@
-use libellule::model;
+use libellule::model::{BoundaryDates, Period, Timetable};
+use libellule::model::{GradesData, Menu};
 use time::Date;
 use time::format_description::well_known::Iso8601;
 
 use crate::error::LibelluleError;
-use crate::grades::{GradesData, Period};
 use crate::instance::Instance;
-use crate::menu::Menu;
-use crate::timetable::{BoundaryDates, Timetable};
 
 #[derive(uniffi::Object)]
 pub struct Client {
@@ -30,11 +28,7 @@ impl Client {
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
     pub fn get_periods(&self) -> Vec<Period> {
-        self.inner
-            .get_periods()
-            .into_iter()
-            .map(Period::from)
-            .collect()
+        self.inner.get_periods()
     }
 
     pub fn get_default_period(&self) -> String {
@@ -42,31 +36,25 @@ impl Client {
     }
 
     pub async fn get_grades(&self, period: &Period) -> Result<GradesData, LibelluleError> {
-        let period = model::Period {
-            id: period.id.clone(),
-            name: period.name.clone(),
-        };
+        let grades = self.inner.get_grades(period).await?;
 
-        let grades = self.inner.get_grades(&period).await?;
-
-        Ok(grades.into())
+        Ok(grades)
     }
 
     pub fn boundary_dates(&self) -> BoundaryDates {
-        self.inner.boundary_dates().into()
+        self.inner.boundary_dates()
     }
 
-    pub async fn timetable(&self, date: String) -> Result<Timetable, LibelluleError> {
-        let date = Date::parse(&date, &Iso8601::DATE).map_err(libellule::error::Error::from)?;
+    pub async fn timetable(&self, date: Date) -> Result<Timetable, LibelluleError> {
         let timetable = self.inner.timetable(date).await?;
 
-        Ok(timetable.into())
+        Ok(timetable)
     }
 
     pub async fn menu(&self, date: String) -> Result<Menu, LibelluleError> {
         let date = Date::parse(&date, &Iso8601::DATE).map_err(libellule::error::Error::from)?;
         let menu = self.inner.menu(date).await?;
 
-        Ok(menu.into())
+        Ok(menu)
     }
 }
