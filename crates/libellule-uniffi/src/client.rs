@@ -1,10 +1,9 @@
-use libellule::model::{BoundaryDates, Period, Timetable};
-use libellule::model::{GradesData, Menu};
+use libellule::model::{BoundaryDates, GradesData, Menu, Period, Timetable};
 use time::Date;
-use time::format_description::well_known::Iso8601;
 
 use crate::error::LibelluleError;
 use crate::instance::Instance;
+use crate::time::DATE_FORMAT;
 
 #[derive(uniffi::Object)]
 pub struct Client {
@@ -52,7 +51,7 @@ impl Client {
     }
 
     pub async fn menu(&self, date: String) -> Result<Menu, LibelluleError> {
-        let date = Date::parse(&date, &Iso8601::DATE).map_err(libellule::error::Error::from)?;
+        let date = Date::parse(&date, DATE_FORMAT).map_err(libellule::error::Error::from)?;
         let menu = self.inner.menu(date).await?;
 
         Ok(menu)

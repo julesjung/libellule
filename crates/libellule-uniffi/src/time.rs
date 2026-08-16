@@ -1,5 +1,3 @@
-use std::num::NonZero;
-
 use time::format_description::well_known::Iso8601;
 use time::format_description::well_known::iso8601::{
     Config, EncodedConfig, FormattedComponents, TimePrecision,
@@ -14,16 +12,16 @@ const DATE_CONFIG: EncodedConfig = Config::DEFAULT
     .set_formatted_components(FormattedComponents::Date)
     .encode();
 
-const DATE_FORMAT: &Iso8601<DATE_CONFIG> = &Iso8601;
+pub const DATE_FORMAT: &Iso8601<DATE_CONFIG> = &Iso8601;
 
 const TIME_CONFIG: EncodedConfig = Config::DEFAULT
     .set_time_precision(TimePrecision::Second {
-        decimal_digits: NonZero::new(0),
+        decimal_digits: None,
     })
     .set_formatted_components(FormattedComponents::Time)
     .encode();
 
-const TIME_FORMAT: &Iso8601<TIME_CONFIG> = &Iso8601;
+pub const TIME_FORMAT: &Iso8601<TIME_CONFIG> = &Iso8601;
 
 custom_type!(UniDate, String, {
     remote,
