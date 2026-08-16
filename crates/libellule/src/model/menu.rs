@@ -89,11 +89,11 @@ impl TryFrom<protocol::Meal> for Meal {
         }
 
         Ok(Meal {
-            starter: starter,
-            main: main,
-            trimmings: trimmings,
-            dairies: dairies,
-            desserts: desserts,
+            starter,
+            main,
+            trimmings,
+            dairies,
+            desserts,
         })
     }
 }

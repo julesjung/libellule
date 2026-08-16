@@ -1,4 +1,5 @@
-use std::{error::Error, fmt::Display};
+use std::error::Error;
+use std::fmt::Display;
 
 use inquire::{CustomType, DateSelect, Password, Select, Text};
 use libellule::{Client, Instance};

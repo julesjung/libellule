@@ -8,7 +8,9 @@ use crate::convert::TryModelize;
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::Error;
 use crate::instance::Instance;
-use crate::model::{ConversionError, GradesData, Menu, Parameters, Period, Tab, Timetable};
+use crate::model::{
+    BoundaryDates, ConversionError, GradesData, Menu, Parameters, Period, Tab, Timetable,
+};
 use crate::protocol;
 use crate::protocol::{
     AuthenticationData, Empty, Function, IndentificationData, Response, UserParameters,
@@ -172,11 +174,11 @@ impl Client {
         Ok(response.secured_data.data)
     }
 
-    pub fn boundary_dates(&self) -> (Date, Date) {
-        (
-            self.parameters.instance.first_day,
-            self.parameters.instance.last_day,
-        )
+    pub fn boundary_dates(&self) -> BoundaryDates {
+        BoundaryDates {
+            start: self.parameters.instance.first_day,
+            end: self.parameters.instance.last_day,
+        }
     }
 
     pub async fn timetable(&self, date: Date) -> Result<Timetable, Error> {
@@ -254,7 +256,7 @@ impl Client {
             .find(|day| day.date.value == date);
 
         let menu = match day {
-            Some(day) => day.try_into().map_err(|err| ConversionError::Menu(err))?,
+            Some(day) => day.try_into().map_err(ConversionError::Menu)?,
             None => Menu {
                 lunch: None,
                 dinner: None,

@@ -3,19 +3,16 @@ name = "libellule-uniffi"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+authors.workspace = true
+repository.workspace = true
 publish = false
 
 [lib]
-crate-type = ["cdylib", "staticlib"]
 name = "libellule"
+crate-type = ["lib", "staticlib"]
 
 [dependencies]
-libellule = { version = "0.1.1", path = "../libellule" }
-thiserror = "2.0.18"
-time = "0.3.55"
-tokio = { version = "1.53.0", features = ["full"] }
-uniffi = { version = "0.31.1", features = ["tokio"] }
-url = "2.5.8"
-
-[build-dependencies]
-uniffi = { version = "0.31.1", features = ["build"] }
+libellule = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true, features = ["formatting", "macros", "parsing"] }
+uniffi = { workspace = true, features = ["tokio"] }

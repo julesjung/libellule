@@ -24,8 +24,8 @@ final class TimetableStore {
         
         let boundaryDates = client.boundaryDates()
         
-        let lowerBound = DateFormatter.date.date(from: boundaryDates.first)!
-        let upperBound = DateFormatter.date.date(from: boundaryDates.second)!
+        let lowerBound = DateFormatter.date.date(from: boundaryDates.start)!
+        let upperBound = DateFormatter.date.date(from: boundaryDates.end)!
         
         self.datesRange = lowerBound...upperBound
         self.selectedDate = min(max(Date.now, lowerBound), upperBound)

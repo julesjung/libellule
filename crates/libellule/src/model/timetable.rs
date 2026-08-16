@@ -1,4 +1,4 @@
-use time::Time;
+use time::{Date, Time};
 
 use crate::model::Subject;
 
@@ -37,4 +37,9 @@ pub struct Group {
 pub struct LunchBreak {
     pub start: Time,
     pub end: Time,
+}
+
+pub struct BoundaryDates {
+    pub start: Date,
+    pub end: Date,
 }
