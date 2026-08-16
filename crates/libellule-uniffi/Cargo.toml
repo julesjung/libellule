@@ -6,19 +6,15 @@ license.workspace = true
 publish = false
 
 [lib]
-crate-type = ["dylib", "staticlib"]
+crate-type = ["cdylib", "staticlib"]
 name = "libellule"
-
-[[bin]]
-name = "uniffi-bindgen"
-path = "uniffi-bindgen.rs"
 
 [dependencies]
 libellule = { version = "0.1.1", path = "../libellule" }
 thiserror = "2.0.18"
 time = "0.3.55"
 tokio = { version = "1.53.0", features = ["full"] }
-uniffi = { version = "0.31.1", features = ["cli", "tokio"] }
+uniffi = { version = "0.31.1", features = ["tokio"] }
 url = "2.5.8"
 
 [build-dependencies]
