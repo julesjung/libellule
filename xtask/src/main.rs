@@ -79,6 +79,7 @@ fn ios_bindings(library_paths: (&str, &str)) -> Result<(), Box<dyn std::error::E
         "run",
         "--bin",
         "uniffi-bindgen",
+        "--release",
         "generate",
         "--library",
         library_paths.0,

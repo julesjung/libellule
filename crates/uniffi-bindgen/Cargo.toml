@@ -1,5 +1,5 @@
 [package]
-name = "xtask"
+name = "uniffi-bindgen"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -8,5 +8,4 @@ repository.workspace = true
 publish = false
 
 [dependencies]
-clap = { version = "4.6.6", features = ["derive"] }
-duct = "1.1.1"
+uniffi = { workspace = true, features = ["cli"] }

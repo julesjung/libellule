@@ -1,3 +1,5 @@
+mod time;
+
 pub mod client;
 pub mod error;
 pub mod grades;
