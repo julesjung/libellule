@@ -1,5 +1,5 @@
-use std::process::Command;
-use std::{fs, path::Path};
+use std::fs;
+use std::path::Path;
 
 use clap::{Parser, Subcommand};
 use duct::cmd;
@@ -74,24 +74,20 @@ fn ios_bindings(library_paths: (&str, &str)) -> Result<(), Box<dyn std::error::E
     fs::create_dir_all("./build/bindings")?;
     fs::create_dir_all("./build/headers")?;
 
-    let status = Command::new("cargo")
-        .args([
-            "run",
-            "--bin",
-            "uniffi-bindgen",
-            "generate",
-            "--library",
-            library_paths.0,
-            "--language",
-            "swift",
-            "--out-dir",
-            "./build/bindings",
-        ])
-        .status()?;
-
-    if !status.success() {
-        return Err("".into());
-    }
+    cmd!(
+        "cargo",
+        "run",
+        "--bin",
+        "uniffi-bindgen",
+        "generate",
+        "--library",
+        library_paths.0,
+        "--language",
+        "swift",
+        "--out-dir",
+        "./build/bindings",
+    )
+    .run()?;
 
     fs::copy(
         "./build/bindings/libelluleFFI.h",
@@ -109,25 +105,21 @@ fn ios_bindings(library_paths: (&str, &str)) -> Result<(), Box<dyn std::error::E
 fn ios_xcframework(library_paths: (&str, &str)) -> Result<(), Box<dyn std::error::Error>> {
     let _ = fs::remove_dir_all("./build/libellule.xcframework");
 
-    let status = Command::new("xcodebuild")
-        .args([
-            "-create-xcframework",
-            "-library",
-            library_paths.0,
-            "-headers",
-            "./build/headers",
-            "-library",
-            library_paths.1,
-            "-headers",
-            "./build/headers",
-            "-output",
-            "./build/libellule.xcframework",
-        ])
-        .status()?;
-
-    if !status.success() {
-        return Err("failed to write xcframework".into());
-    }
+    cmd!(
+        "xcodebuild",
+        "-create-xcframework",
+        "-library",
+        library_paths.0,
+        "-headers",
+        "./build/headers",
+        "-library",
+        library_paths.1,
+        "-headers",
+        "./build/headers",
+        "-output",
+        "./build/libellule.xcframework",
+    )
+    .run()?;
 
     Ok(())
 }
@@ -151,7 +143,7 @@ fn ios_package() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn clean() -> Result<(), Box<dyn std::error::Error>> {
-    Command::new("cargo").arg("clean").status()?;
+    cmd!("cargo", "clean").run()?;
 
     for path in [
         "./build",
