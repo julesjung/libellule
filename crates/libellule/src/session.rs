@@ -3,7 +3,7 @@ use serde::de::DeserializeOwned;
 use url::Url;
 
 use crate::crypto::aes_encrypt;
-use crate::error::Error;
+use crate::error::{Error, TransportError};
 use crate::model::Tab;
 use crate::protocol::{Function, Request, Response};
 
@@ -59,9 +59,11 @@ impl Session {
             .post(url)
             .json(&body)
             .send()
-            .await?
+            .await
+            .map_err(TransportError::from)?
             .text()
-            .await?;
+            .await
+            .map_err(TransportError::from)?;
 
         self.request_count += 1;
 

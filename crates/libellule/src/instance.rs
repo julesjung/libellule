@@ -1,10 +1,11 @@
 use base64::{Engine, engine::general_purpose::STANDARD};
 use rand::Rng;
+use reqwest::IntoUrl;
 use serde_json::json;
 use url::Url;
 
 use crate::{
-    error::Error,
+    error::{Error, ProtocolError, TransportError},
     protocol::{Function, InstanceParameters, Response},
     session::{FunctionContext, Session},
 };
@@ -20,20 +21,28 @@ pub struct Instance {
 }
 
 impl Instance {
-    pub async fn new(url: String) -> Result<Self, Error> {
-        let http = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
+    pub async fn new<T>(url: T) -> Result<Self, Error>
+    where
+        T: IntoUrl,
+    {
+        let http = reqwest::Client::builder()
+            .user_agent(USER_AGENT)
+            .build()
+            .map_err(TransportError::from)?;
 
-        // TODO: parse url in a more meaningful way
-        let base_url = Url::parse(&url)?;
+        let base_url = url.into_url().map_err(TransportError::from)?;
 
         let response = http
             .get(base_url.join("eleve.html").unwrap())
             .send()
-            .await?
+            .await
+            .map_err(TransportError::from)?
             .text()
-            .await?;
+            .await
+            .map_err(TransportError::from)?;
 
-        let session_id = extract_session_id(&response).ok_or(Error::SessionIdNotFound)?;
+        let session_id = extract_session_id(&response)
+            .ok_or(Error::Protocol(ProtocolError::MissingSessionId))?;
 
         let mut session = Session::new(session_id);
 

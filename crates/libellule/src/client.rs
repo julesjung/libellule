@@ -6,11 +6,9 @@ use url::Url;
 
 use crate::convert::TryModelize;
 use crate::crypto::{aes_decrypt, aes_encrypt};
-use crate::error::Error;
+use crate::error::{AuthenticationError, ConversionError, Error};
 use crate::instance::Instance;
-use crate::model::{
-    BoundaryDates, ConversionError, GradesData, Menu, Parameters, Period, Tab, Timetable,
-};
+use crate::model::{BoundaryDates, GradesData, Menu, Parameters, Period, Tab, Timetable};
 use crate::protocol;
 use crate::protocol::{
     AuthenticationData, Empty, Function, IndentificationData, Response, UserParameters,
@@ -69,9 +67,11 @@ impl Client {
 
         let temporary_key = md5::compute(temporary_key.as_bytes());
 
-        let challenge = hex::decode(data.challenge)?;
+        let challenge =
+            hex::decode(data.challenge).map_err(|_| AuthenticationError::BadChallenge)?;
 
-        let decrypted_challenge = aes_decrypt(challenge.as_slice(), &temporary_key, &session.iv)?;
+        let decrypted_challenge = aes_decrypt(challenge.as_slice(), &temporary_key, &session.iv)
+            .map_err(|_| AuthenticationError::InvalidCredentials)?;
         let decrypted_challenge = String::from_utf8(decrypted_challenge).unwrap();
 
         let solution: String = decrypted_challenge
@@ -105,8 +105,10 @@ impl Client {
         let response: Response<AuthenticationData> = session.call(context, data).await?;
         let data = response.secured_data.data;
 
-        let encrypted_key = hex::decode(&data.key)?;
-        let new_key = aes_decrypt(encrypted_key.as_slice(), &temporary_key, &session.iv)?;
+        let encrypted_key =
+            hex::decode(&data.key).map_err(|_| AuthenticationError::InvalidCredentials)?;
+        let new_key = aes_decrypt(encrypted_key.as_slice(), &temporary_key, &session.iv)
+            .map_err(|_| AuthenticationError::InvalidCredentials)?;
         let new_key: Vec<u8> = String::from_utf8(new_key)
             .unwrap()
             .split(',')
@@ -197,7 +199,7 @@ impl Client {
             "G": user.kind
         });
 
-        let date = format_datetime(PlainDateTime::new(date, Time::MIDNIGHT))?;
+        let date = format_datetime(PlainDateTime::new(date, Time::MIDNIGHT));
 
         let data = json!({
             "avecAbsencesEleve": true,
@@ -256,7 +258,7 @@ impl Client {
             .find(|day| day.date.value == date);
 
         let menu = match day {
-            Some(day) => day.try_into().map_err(ConversionError::Menu)?,
+            Some(day) => day.try_into().map_err(|_| ConversionError::Parse)?,
             None => Menu {
                 lunch: None,
                 dinner: None,

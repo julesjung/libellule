@@ -1,13 +1,35 @@
-use std::fmt::Display;
+use libellule::error::{
+    AuthenticationError, ConversionError, Error, ProtocolError, TransportError,
+};
 
-#[derive(uniffi::Error, Debug, thiserror::Error)]
-#[uniffi(flat_error)]
+type LibelluleError = Error;
+
+#[uniffi::remote(Error)]
 pub enum LibelluleError {
-    LibelluleError(#[from] libellule::error::Error),
+    Transport(TransportError),
+    Protocol(ProtocolError),
+    Authentication(AuthenticationError),
+    Conversion(ConversionError),
 }
 
-impl Display for LibelluleError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
+#[uniffi::remote(Error)]
+#[uniffi(flat_error)]
+pub enum TransportError {
+    Http(_),
+}
+
+#[uniffi::remote(Error)]
+pub enum ProtocolError {
+    MissingSessionId,
+}
+
+#[uniffi::remote(Error)]
+pub enum AuthenticationError {
+    BadChallenge,
+    InvalidCredentials,
+}
+
+#[uniffi::remote(Error)]
+pub enum ConversionError {
+    Parse,
 }

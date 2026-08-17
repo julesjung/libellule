@@ -1,4 +1,4 @@
-use crate::error::LibelluleError;
+use libellule::error::Error;
 
 #[derive(uniffi::Object)]
 pub struct Instance {
@@ -8,7 +8,7 @@ pub struct Instance {
 #[uniffi::export(async_runtime = "tokio")]
 impl Instance {
     #[uniffi::constructor]
-    pub async fn new(url: String) -> Result<Self, LibelluleError> {
+    pub async fn new(url: String) -> Result<Self, Error> {
         let instance = Instance {
             inner: libellule::Instance::new(url).await?,
         };
