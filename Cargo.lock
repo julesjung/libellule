@@ -1308,7 +1308,7 @@ checksum = "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
 
 [[package]]
 name = "libellule"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "aes",
  "base64 0.23.1",
@@ -1330,7 +1330,7 @@ dependencies = [
 
 [[package]]
 name = "libellule-cli"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "inquire",
  "libellule",
@@ -1341,7 +1341,7 @@ dependencies = [
 
 [[package]]
 name = "libellule-uniffi"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "libellule",
  "thiserror",
@@ -2570,7 +2570,7 @@ dependencies = [
 
 [[package]]
 name = "uniffi-bindgen"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "uniffi",
 ]
@@ -3103,7 +3103,7 @@ checksum = "3ad82d2a33cdc9674dc7465672f271e096168fcdbe0f799d9e6db8c5892679dc"
 
 [[package]]
 name = "xtask"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "clap",
  "duct",
