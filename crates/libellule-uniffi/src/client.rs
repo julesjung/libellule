@@ -22,16 +22,16 @@ impl Client {
 
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
-    pub fn get_periods(&self) -> Vec<Period> {
-        self.inner.get_periods()
+    pub fn periods(&self) -> Vec<Period> {
+        self.inner.periods()
     }
 
-    pub fn get_default_period(&self) -> String {
-        self.inner.get_default_period()
+    pub fn default_period(&self) -> String {
+        self.inner.default_period()
     }
 
     pub async fn get_grades(&self, period: &Period) -> Result<GradesData, Error> {
-        let grades = self.inner.get_grades(period).await?;
+        let grades = self.inner.grades(period).await?;
 
         Ok(grades)
     }
