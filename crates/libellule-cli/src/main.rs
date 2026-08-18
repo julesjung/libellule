@@ -57,15 +57,15 @@ async fn timetable(client: &Client) -> Result<(), Box<dyn Error>> {
 }
 
 async fn grades(client: &Client) -> Result<(), Box<dyn Error>> {
-    let periods = client.get_periods();
+    let periods = client.periods();
 
-    let default_period_id = client.get_default_period();
+    let default_period_id = client.default_period();
     let default_period = periods
         .iter()
         .find(|period| period.id == default_period_id)
         .unwrap();
 
-    let grades = client.get_grades(default_period).await?;
+    let grades = client.grades(default_period).await?;
 
     dbg!(grades);
 

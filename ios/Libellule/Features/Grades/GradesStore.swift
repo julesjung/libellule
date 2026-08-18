@@ -20,10 +20,10 @@ import LibelluleKit
     init(client: Client) {
         self.client = client
         
-        let periods = client.getPeriods()
+        let periods = client.periods()
         self.periods = periods
         
-        let defaultId = client.getDefaultPeriod()
+        let defaultId = client.defaultPeriod()
         self.selectedPeriod = periods.first { $0.id == defaultId }!
     }
     
