@@ -1,5 +1,5 @@
 use crate::convert::{TryModelize, TryModelizeWith};
-use crate::error::Error;
+use crate::error::{ConversionError, Error};
 use crate::model::Parameters;
 use crate::model::{self, LunchBreak};
 use crate::protocol;
@@ -65,7 +65,7 @@ impl TryModelizeWith<model::Lesson> for protocol::Lesson {
                     id: information.id.unwrap(),
                     name: information.label,
                 }),
-                other => return Err(Error::UnknownLessonInformationKind { lesson_kind: other }),
+                _ => return Err(ConversionError::Parse.into()),
             };
         }
 

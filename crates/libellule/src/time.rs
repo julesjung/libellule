@@ -22,8 +22,8 @@ pub fn parse_datetime(string: &str) -> Result<PlainDateTime, time::error::Parse>
     PlainDateTime::parse(string, DATETIME_FORMAT)
 }
 
-pub fn format_datetime(datetime: PlainDateTime) -> Result<String, time::error::Format> {
-    datetime.format(DATETIME_FORMAT)
+pub fn format_datetime(datetime: PlainDateTime) -> String {
+    datetime.format(DATETIME_FORMAT).unwrap()
 }
 
 pub fn parse_time(input: &str) -> Result<Time, time::error::Parse> {

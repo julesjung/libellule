@@ -19,6 +19,12 @@ tokio = { version = "1.53.1", default-features = false }
 uniffi = "0.32.0"
 url = "2.5.8"
 
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
+
 [profile.release]
 opt-level = 3
 lto = true

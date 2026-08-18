@@ -1,9 +1,9 @@
-use libellule::model::{BoundaryDates, GradesData, Menu, Period, Timetable};
 use time::Date;
 
-use crate::error::LibelluleError;
+use libellule::error::Error;
+use libellule::model::{BoundaryDates, GradesData, Menu, Period, Timetable};
+
 use crate::instance::Instance;
-use crate::time::DATE_FORMAT;
 
 #[derive(uniffi::Object)]
 pub struct Client {
@@ -13,11 +13,7 @@ pub struct Client {
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
     #[uniffi::constructor]
-    pub async fn new(
-        instance: &Instance,
-        username: &str,
-        password: &str,
-    ) -> Result<Client, LibelluleError> {
+    pub async fn new(instance: &Instance, username: &str, password: &str) -> Result<Client, Error> {
         let client = libellule::Client::login(&instance.inner, username, password).await?;
 
         Ok(Client { inner: client })
@@ -34,7 +30,7 @@ impl Client {
         self.inner.get_default_period()
     }
 
-    pub async fn get_grades(&self, period: &Period) -> Result<GradesData, LibelluleError> {
+    pub async fn get_grades(&self, period: &Period) -> Result<GradesData, Error> {
         let grades = self.inner.get_grades(period).await?;
 
         Ok(grades)
@@ -44,14 +40,13 @@ impl Client {
         self.inner.boundary_dates()
     }
 
-    pub async fn timetable(&self, date: Date) -> Result<Timetable, LibelluleError> {
+    pub async fn timetable(&self, date: Date) -> Result<Timetable, Error> {
         let timetable = self.inner.timetable(date).await?;
 
         Ok(timetable)
     }
 
-    pub async fn menu(&self, date: String) -> Result<Menu, LibelluleError> {
-        let date = Date::parse(&date, DATE_FORMAT).map_err(libellule::error::Error::from)?;
+    pub async fn menu(&self, date: Date) -> Result<Menu, Error> {
         let menu = self.inner.menu(date).await?;
 
         Ok(menu)

@@ -1,28 +1,53 @@
-use aes::cipher::block_padding;
-
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("network error")]
-    Network(#[from] reqwest::Error),
-    #[error("session id not found in response")]
-    SessionIdNotFound,
-    #[error("hex decoding error")]
-    InvalidHex(#[from] hex::FromHexError),
-    #[error("incorrect password")]
-    IncorrectPassword(#[from] block_padding::Error),
-    #[error("unknown tab")]
-    UnknownTab,
-    #[error("invalid instace url")]
-    InvalidUrl(#[from] url::ParseError),
-    #[error("error parsing datetime")]
-    ParseDateTime(#[from] time::error::Parse),
-    #[error("error formatting datetime")]
-    FormatDateTime(#[from] time::error::Format),
-    #[error("unknown lesson information kind")]
-    UnknownLessonInformationKind { lesson_kind: u32 },
-    #[error("error during conversion: {0}")]
-    ConversionError(#[from] crate::model::ConversionError),
+    #[error("could not reach PRONOTE instance")]
+    Transport(#[from] TransportError),
 
-    #[error("start hour not found")]
-    StartHourNotFound,
+    #[error("unexpected anwser from PRONOTE")]
+    Protocol(#[from] ProtocolError),
+
+    #[error("authentication failed")]
+    Authentication(#[from] AuthenticationError),
+
+    #[error("could not interpret the data sent by PRONOTE")]
+    Conversion(#[from] ConversionError),
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum TransportError {
+    #[error("http request failed")]
+    Http(#[from] reqwest::Error),
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum ProtocolError {
+    #[error("no session identifier in landing page")]
+    MissingSessionId,
+
+    #[error("response body is not valid JSON")]
+    InvalidJson(#[from] serde_json::Error),
+
+    #[error("the session has expired")]
+    SessionExpired,
+
+    #[error("pronote server error `{code}`")]
+    Server { code: i32, title: String },
+
+    #[error("missing data field from response")]
+    MissingData,
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum AuthenticationError {
+    #[error("login challenge is not valid hex")]
+    BadChallenge,
+
+    #[error("invalid credentials")]
+    InvalidCredentials,
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum ConversionError {
+    #[error("failed to parse")]
+    Parse,
 }

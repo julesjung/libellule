@@ -6,14 +6,12 @@ use url::Url;
 
 use crate::convert::TryModelize;
 use crate::crypto::{aes_decrypt, aes_encrypt};
-use crate::error::Error;
+use crate::error::{AuthenticationError, ConversionError, Error};
 use crate::instance::Instance;
-use crate::model::{
-    BoundaryDates, ConversionError, GradesData, Menu, Parameters, Period, Tab, Timetable,
-};
+use crate::model::{BoundaryDates, GradesData, Menu, Parameters, Period, Tab, Timetable};
 use crate::protocol;
 use crate::protocol::{
-    AuthenticationData, Empty, Function, IndentificationData, Response, UserParameters,
+    AuthenticationData, Function, IndentificationData, Response, UserParameters,
 };
 use crate::session::{FunctionContext, Session};
 use crate::time::{format_date, format_datetime};
@@ -57,7 +55,7 @@ impl Client {
         });
 
         let response: Response<IndentificationData> = session.call(context, data).await?;
-        let data = response.secured_data.data;
+        let data = response.into_data()?;
 
         let mut unencrypted_key = data.random;
         unencrypted_key.push_str(password);
@@ -69,9 +67,11 @@ impl Client {
 
         let temporary_key = md5::compute(temporary_key.as_bytes());
 
-        let challenge = hex::decode(data.challenge)?;
+        let challenge =
+            hex::decode(data.challenge).map_err(|_| AuthenticationError::BadChallenge)?;
 
-        let decrypted_challenge = aes_decrypt(challenge.as_slice(), &temporary_key, &session.iv)?;
+        let decrypted_challenge = aes_decrypt(challenge.as_slice(), &temporary_key, &session.iv)
+            .map_err(|_| AuthenticationError::InvalidCredentials)?;
         let decrypted_challenge = String::from_utf8(decrypted_challenge).unwrap();
 
         let solution: String = decrypted_challenge
@@ -103,10 +103,12 @@ impl Client {
         });
 
         let response: Response<AuthenticationData> = session.call(context, data).await?;
-        let data = response.secured_data.data;
+        let data = response.into_data()?;
 
-        let encrypted_key = hex::decode(&data.key)?;
-        let new_key = aes_decrypt(encrypted_key.as_slice(), &temporary_key, &session.iv)?;
+        let encrypted_key =
+            hex::decode(&data.key).map_err(|_| AuthenticationError::InvalidCredentials)?;
+        let new_key = aes_decrypt(encrypted_key.as_slice(), &temporary_key, &session.iv)
+            .map_err(|_| AuthenticationError::InvalidCredentials)?;
         let new_key: Vec<u8> = String::from_utf8(new_key)
             .unwrap()
             .split(',')
@@ -122,8 +124,8 @@ impl Client {
             None,
         );
 
-        let response: Response<UserParameters> = session.call(context, Empty::new()).await?;
-        let user_parameters = response.secured_data.data;
+        let response: Response<UserParameters> = session.call(context, json!({})).await?;
+        let user_parameters = response.into_data()?;
 
         let parameters = Parameters::try_from((instance.parameters.clone(), user_parameters))?;
 
@@ -171,7 +173,7 @@ impl Client {
 
         let response: Response<GradesData> = self.session.lock().await.call(context, data).await?;
 
-        Ok(response.secured_data.data)
+        Ok(response.into_data()?)
     }
 
     pub fn boundary_dates(&self) -> BoundaryDates {
@@ -197,7 +199,7 @@ impl Client {
             "G": user.kind
         });
 
-        let date = format_datetime(PlainDateTime::new(date, Time::MIDNIGHT))?;
+        let date = format_datetime(PlainDateTime::new(date, Time::MIDNIGHT));
 
         let data = json!({
             "avecAbsencesEleve": true,
@@ -224,7 +226,7 @@ impl Client {
         let response: Response<protocol::Timetable> =
             self.session.lock().await.call(context, data).await?;
 
-        response.secured_data.data.try_modelize(&self.parameters)
+        response.into_data()?.try_modelize(&self.parameters)
     }
 
     pub async fn menu(&self, date: Date) -> Result<Menu, Error> {
@@ -248,15 +250,14 @@ impl Client {
             self.session.lock().await.call(context, data).await?;
 
         let day = response
-            .secured_data
-            .data
+            .into_data()?
             .days
             .value
             .into_iter()
             .find(|day| day.date.value == date);
 
         let menu = match day {
-            Some(day) => day.try_into().map_err(ConversionError::Menu)?,
+            Some(day) => day.try_into().map_err(|_| ConversionError::Parse)?,
             None => Menu {
                 lunch: None,
                 dinner: None,

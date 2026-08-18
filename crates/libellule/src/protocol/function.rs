@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::error::ProtocolError;
 use crate::model::Tab;
 
 #[derive(Serialize, Debug)]
@@ -79,19 +80,41 @@ impl<T> Request<T> {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Response<T> {
     #[serde(rename = "dataSec")]
-    pub secured_data: SecuredData<T>,
+    pub secured_data: Option<SecuredData<T>>,
+
     #[serde(rename = "dataNonSec")]
-    pub _unsecured_data: Option<UnsecuredData>,
+    pub unsecured_data: Option<UnsecuredData>,
+
+    #[serde(rename = "Erreur")]
+    pub error: Option<ServerError>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Empty {}
+impl<T> Response<T> {
+    pub fn into_data(self) -> Result<T, ProtocolError> {
+        if let Some(error) = self.error {
+            return Err(match error.code {
+                22 => ProtocolError::SessionExpired,
+                other => ProtocolError::Server {
+                    code: other,
+                    title: error.title,
+                },
+            });
+        }
 
-impl Empty {
-    pub fn new() -> Empty {
-        Empty {}
+        self.secured_data
+            .map(|secured_data| secured_data.data)
+            .ok_or(ProtocolError::MissingData)
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ServerError {
+    #[serde(rename = "G")]
+    pub code: i32,
+
+    #[serde(rename = "Titre")]
+    pub title: String,
 }

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::Serialize;
 use time::{Date, Duration, Time};
 
-use crate::error::Error;
+use crate::error::{ConversionError, Error};
 use crate::model::Tab;
 use crate::protocol;
 use crate::time::{parse_date, parse_time};
@@ -127,18 +127,21 @@ impl TryFrom<(protocol::InstanceParameters, protocol::UserParameters)> for Param
                 true => Some(start_hour.label),
                 false => None,
             })
-            .ok_or(Error::StartHourNotFound)?;
+            .ok_or(ConversionError::Parse)?;
 
-        let start_time = parse_time(&start_time)?;
+        let start_time = parse_time(&start_time).map_err(|_| ConversionError::Parse)?;
 
         let end_time = start_time + place_duration * general.places_per_day;
 
         let instance = Instance {
             version: general.version,
             label: general.label,
-            first_monday: parse_date(general.first_monday.value.as_str())?,
-            first_day: parse_date(general.first_day.value.as_str())?,
-            last_day: parse_date(general.last_day.value.as_str())?,
+            first_monday: parse_date(general.first_monday.value.as_str())
+                .map_err(|_| ConversionError::Parse)?,
+            first_day: parse_date(general.first_day.value.as_str())
+                .map_err(|_| ConversionError::Parse)?,
+            last_day: parse_date(general.last_day.value.as_str())
+                .map_err(|_| ConversionError::Parse)?,
             places_per_day: general.places_per_day,
             places_per_hour: general.places_per_hour,
             place_duration,

@@ -1,6 +1,6 @@
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
-use crate::error::Error;
+use crate::error::{ConversionError, Error};
 
 #[derive(Debug, PartialEq, Hash, Deserialize_repr, Serialize_repr)]
 #[repr(u32)]
@@ -18,7 +18,7 @@ impl TryFrom<u32> for Tab {
     fn try_from(value: u32) -> Result<Tab, Error> {
         match value {
             198 => Ok(Tab::Grades),
-            _ => Err(Error::UnknownTab),
+            _ => Err(ConversionError::Parse.into()),
         }
     }
 }
