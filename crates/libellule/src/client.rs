@@ -16,6 +16,7 @@ use crate::protocol::{
 use crate::session::{FunctionContext, Session};
 use crate::time::{format_date, format_datetime};
 
+/// An authenticated client, ready to talk to a PRONOTE instance.
 #[derive(Debug)]
 pub struct Client {
     instance_url: Url,
@@ -25,6 +26,7 @@ pub struct Client {
 }
 
 impl Client {
+    /// Creates a client with from an `instance`.
     pub async fn login(
         instance: &Instance,
         username: &str,
@@ -139,7 +141,8 @@ impl Client {
 }
 
 impl Client {
-    pub fn get_periods(&self) -> Vec<Period> {
+    /// Returns the available grades periods.
+    pub fn periods(&self) -> Vec<Period> {
         self.parameters
             .tabs
             .periods
@@ -149,7 +152,8 @@ impl Client {
             .clone()
     }
 
-    pub fn get_default_period(&self) -> String {
+    /// Returns the `id` for the default [`Period`].
+    pub fn default_period(&self) -> String {
         self.parameters
             .tabs
             .periods
@@ -159,7 +163,8 @@ impl Client {
             .clone()
     }
 
-    pub async fn get_grades(&self, period: &Period) -> Result<GradesData, Error> {
+    /// Fetches the Grades for a specific `period`.
+    pub async fn grades(&self, period: &Period) -> Result<GradesData, Error> {
         let context = FunctionContext::new(
             &self.instance_url,
             &self.http,
@@ -176,6 +181,7 @@ impl Client {
         Ok(response.into_data()?)
     }
 
+    /// Returns the date range allowed for the timetable.
     pub fn boundary_dates(&self) -> BoundaryDates {
         BoundaryDates {
             start: self.parameters.instance.first_day,
@@ -183,6 +189,7 @@ impl Client {
         }
     }
 
+    /// Fetches the timetable for a specific `date`.
     pub async fn timetable(&self, date: Date) -> Result<Timetable, Error> {
         let context = FunctionContext::new(
             &self.instance_url,
@@ -229,6 +236,7 @@ impl Client {
         response.into_data()?.try_modelize(&self.parameters)
     }
 
+    /// Fetches the menu for a specific `date`.
     pub async fn menu(&self, date: Date) -> Result<Menu, Error> {
         let context = FunctionContext::new(
             &self.instance_url,
