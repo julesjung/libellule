@@ -19,8 +19,13 @@ pub enum TransportError {
 }
 
 #[uniffi::remote(Error)]
+#[uniffi(flat_error)]
 pub enum ProtocolError {
     MissingSessionId,
+    InvalidJson(_),
+    SessionExpired,
+    Server { code: i32, title: String },
+    MissingData,
 }
 
 #[uniffi::remote(Error)]
