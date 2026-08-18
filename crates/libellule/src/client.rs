@@ -11,7 +11,7 @@ use crate::instance::Instance;
 use crate::model::{BoundaryDates, GradesData, Menu, Parameters, Period, Tab, Timetable};
 use crate::protocol;
 use crate::protocol::{
-    AuthenticationData, Empty, Function, IndentificationData, Response, UserParameters,
+    AuthenticationData, Function, IndentificationData, Response, UserParameters,
 };
 use crate::session::{FunctionContext, Session};
 use crate::time::{format_date, format_datetime};
@@ -55,7 +55,7 @@ impl Client {
         });
 
         let response: Response<IndentificationData> = session.call(context, data).await?;
-        let data = response.secured_data.data;
+        let data = response.into_data()?;
 
         let mut unencrypted_key = data.random;
         unencrypted_key.push_str(password);
@@ -103,7 +103,7 @@ impl Client {
         });
 
         let response: Response<AuthenticationData> = session.call(context, data).await?;
-        let data = response.secured_data.data;
+        let data = response.into_data()?;
 
         let encrypted_key =
             hex::decode(&data.key).map_err(|_| AuthenticationError::InvalidCredentials)?;
@@ -124,8 +124,8 @@ impl Client {
             None,
         );
 
-        let response: Response<UserParameters> = session.call(context, Empty::new()).await?;
-        let user_parameters = response.secured_data.data;
+        let response: Response<UserParameters> = session.call(context, json!({})).await?;
+        let user_parameters = response.into_data()?;
 
         let parameters = Parameters::try_from((instance.parameters.clone(), user_parameters))?;
 
@@ -173,7 +173,7 @@ impl Client {
 
         let response: Response<GradesData> = self.session.lock().await.call(context, data).await?;
 
-        Ok(response.secured_data.data)
+        Ok(response.into_data()?)
     }
 
     pub fn boundary_dates(&self) -> BoundaryDates {
@@ -226,7 +226,7 @@ impl Client {
         let response: Response<protocol::Timetable> =
             self.session.lock().await.call(context, data).await?;
 
-        response.secured_data.data.try_modelize(&self.parameters)
+        response.into_data()?.try_modelize(&self.parameters)
     }
 
     pub async fn menu(&self, date: Date) -> Result<Menu, Error> {
@@ -250,8 +250,7 @@ impl Client {
             self.session.lock().await.call(context, data).await?;
 
         let day = response
-            .secured_data
-            .data
+            .into_data()?
             .days
             .value
             .into_iter()

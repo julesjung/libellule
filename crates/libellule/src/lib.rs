@@ -1,3 +1,7 @@
+//! # libellule
+//!
+//! The `libellule` crate provides a fast, type-safe PRONTE [`Client`].
+
 mod client;
 mod convert;
 mod crypto;

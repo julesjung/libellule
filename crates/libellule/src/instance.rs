@@ -60,11 +60,13 @@ impl Instance {
 
         session.iv = *md5::compute(iv);
 
+        let parameters = response.into_data()?;
+
         Ok(Instance {
             http,
             base_url,
             session,
-            parameters: response.secured_data.data,
+            parameters,
         })
     }
 

@@ -23,6 +23,18 @@ pub enum TransportError {
 pub enum ProtocolError {
     #[error("no session identifier in landing page")]
     MissingSessionId,
+
+    #[error("response body is not valid JSON")]
+    InvalidJson(#[from] serde_json::Error),
+
+    #[error("the session has expired")]
+    SessionExpired,
+
+    #[error("pronote server error `{code}`")]
+    Server { code: i32, title: String },
+
+    #[error("missing data field from response")]
+    MissingData,
 }
 
 #[derive(Debug, thiserror::Error)]
