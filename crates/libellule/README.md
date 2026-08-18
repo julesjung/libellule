@@ -8,7 +8,7 @@ A Rust implementation of the PRONOTE protocol.
 > [!WARNING]
 > Libellule is not affiliated with, endorsed by, or sponsored by INDEX ÉDUCATION.
 
-## Usage
+## Example
 
 Add libellule as a dependency in your Cargo.toml:
 
@@ -32,14 +32,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let client = Client::login(&instance, username, password).await?;
 
-    let periods = client.get_periods();
-    let default_period_id = client.get_default_period();
+    let periods = client.periods();
+    let default_period_id = client.default_period();
     let default_period = periods
         .iter()
         .find(|period| period.id == default_period_id)
         .unwrap();
 
-    let grades = client.get_grades(default_period).await?;
+    let grades = client.grades(default_period).await?;
 
     println!("{:#?}", grades);
 

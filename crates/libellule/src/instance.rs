@@ -12,6 +12,7 @@ use crate::{
 
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
+/// Represents a connection with a PRONOTE instance.
 #[derive(Debug)]
 pub struct Instance {
     pub(crate) http: reqwest::Client,
@@ -21,6 +22,7 @@ pub struct Instance {
 }
 
 impl Instance {
+    /// Connects to a PRONOTE instance at a `url`.
     pub async fn new<T>(url: T) -> Result<Self, Error>
     where
         T: IntoUrl,
@@ -70,6 +72,7 @@ impl Instance {
         })
     }
 
+    /// Returns the instance name.
     pub fn label(&self) -> &str {
         self.parameters.general.label.as_str()
     }
