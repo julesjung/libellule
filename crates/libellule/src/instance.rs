@@ -58,11 +58,9 @@ impl Instance {
 
         let context = FunctionContext::new(&base_url, &http, Function::InstanceParameters, None);
 
-        let response: Response<InstanceParameters> = session.call(context, data).await?;
+        let parameters: InstanceParameters = session.call(context, data).await?;
 
         session.iv = *md5::compute(iv);
-
-        let parameters = response.into_data()?;
 
         Ok(Instance {
             http,

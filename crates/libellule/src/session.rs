@@ -31,7 +31,7 @@ impl Session {
         &mut self,
         context: FunctionContext<'a>,
         data: S,
-    ) -> Result<Response<D>, Error>
+    ) -> Result<D, Error>
     where
         S: Serialize,
         D: DeserializeOwned,
@@ -68,8 +68,9 @@ impl Session {
         self.request_count += 1;
 
         let response: Response<D> = serde_json::from_str(&response).unwrap();
+        let data = response.into_data()?;
 
-        Ok(response)
+        Ok(data)
     }
 
     pub fn encode_request_count(&self) -> String {
