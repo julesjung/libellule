@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::protocol::Value;
+use crate::protocol::ValueWrapper;
 
 #[derive(Debug, Deserialize)]
 pub struct Timetable {
@@ -32,10 +32,10 @@ pub struct Lesson {
     pub length: u32,
 
     #[serde(rename = "estAnnule", default)]
-    pub cancelled: bool,
+    pub _cancelled: bool,
 
     #[serde(rename = "ListeContenus")]
-    pub information: Value<Vec<LessonInformation>>,
+    pub information: ValueWrapper<Vec<LessonInformation>>,
 
     #[serde(rename = "CouleurFond")]
     pub background_color: String,

@@ -1,20 +1,20 @@
 use serde::Deserialize;
 
-use crate::protocol::Value;
+use crate::protocol::ValueWrapper;
 
 #[derive(Debug, Deserialize)]
 pub struct Menu {
     #[serde(rename = "ListeJours")]
-    pub days: Value<Vec<Day>>,
+    pub days: ValueWrapper<Vec<Day>>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Day {
     #[serde(rename = "Date")]
-    pub date: Value<String>,
+    pub date: ValueWrapper<String>,
 
     #[serde(rename = "ListeRepas")]
-    pub meals: Value<Vec<Meal>>,
+    pub meals: ValueWrapper<Vec<Meal>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -23,7 +23,7 @@ pub struct Meal {
     pub kind: u32,
 
     #[serde(rename = "ListePlats")]
-    pub courses: Value<Vec<Course>>,
+    pub courses: ValueWrapper<Vec<Course>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -32,7 +32,7 @@ pub struct Course {
     pub kind: u32,
 
     #[serde(rename = "ListeAliments")]
-    pub food: Value<Vec<Food>>,
+    pub food: ValueWrapper<Vec<Food>>,
 }
 
 #[derive(Debug, Deserialize)]

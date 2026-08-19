@@ -13,7 +13,7 @@ use crate::instance::Instance;
 use crate::model::{BoundaryDates, GradesData, Menu, Parameters, Period, Tab, Timetable};
 use crate::protocol;
 use crate::protocol::{
-    AuthenticationData, Function, IndentificationData, Response, UserParameters,
+    self, AuthenticationData, Function, IndentificationData, UserParameters, Weeks,
 };
 use crate::session::{FunctionContext, Session};
 use crate::time::{format_date, format_datetime};

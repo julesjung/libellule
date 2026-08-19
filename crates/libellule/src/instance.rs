@@ -6,7 +6,7 @@ use url::Url;
 
 use crate::{
     error::{Error, ProtocolError, TransportError},
-    protocol::{Function, InstanceParameters, Response},
+    protocol::{Function, InstanceParameters},
     session::{FunctionContext, Session},
 };
 
