@@ -11,7 +11,6 @@ use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::{AuthenticationError, ConversionError, Error};
 use crate::instance::Instance;
 use crate::model::{BoundaryDates, GradesData, Menu, Parameters, Period, Tab, Timetable};
-use crate::protocol;
 use crate::protocol::{
     self, AuthenticationData, Function, IndentificationData, UserParameters, Weeks,
 };
@@ -262,5 +261,23 @@ impl Client {
         };
 
         Ok(menu)
+    }
+
+    /// Returns homework for the week containing `date`.
+    pub async fn homework(&self, date: Date) -> Result<(), Error> {
+        // TODO: check that date is within range
+        let week = (date - self.parameters.instance.first_monday).whole_weeks();
+
+        let data = json!({
+            "domaine": Weeks::from_single(week as u32)
+        });
+
+        let data: protocol::Homework = self
+            .call(Function::Homework, Some(Tab::Homework), data)
+            .await?;
+
+        dbg!(data);
+
+        Ok(())
     }
 }

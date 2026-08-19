@@ -1,15 +1,21 @@
 mod authentication;
+mod date;
 mod function;
+mod homework;
 mod identification;
 mod menu;
 mod parameters;
+mod reference;
 mod timetable;
 mod value;
 
 pub use authentication::*;
+pub use date::*;
 pub use function::*;
+pub use homework::*;
 pub use identification::*;
 pub use menu::*;
 pub use parameters::*;
+pub use reference::*;
 pub use timetable::*;
 pub use value::*;

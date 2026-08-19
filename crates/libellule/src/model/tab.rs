@@ -7,6 +7,7 @@ use crate::error::{ConversionError, Error};
 pub enum Tab {
     Menu = 10,
     Timetable = 16,
+    Homework = 88,
     Grades = 198,
 }
 
