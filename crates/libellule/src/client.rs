@@ -6,14 +6,12 @@ use time::{Date, PlainDateTime, Time};
 use tokio::sync::Mutex;
 use url::Url;
 
-use crate::convert::TryModelize;
+use crate::convert::{TryModelize, homework};
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::{AuthenticationError, ConversionError, Error};
 use crate::instance::Instance;
-use crate::model::{BoundaryDates, GradesData, Menu, Parameters, Period, Tab, Timetable};
-use crate::protocol::{
-    self, AuthenticationData, Function, IndentificationData, UserParameters, Weeks,
-};
+use crate::model::{BoundaryDates, GradesData, Homework, Menu, Parameters, Period, Tab, Timetable};
+use crate::protocol::{self, AuthenticationData, Function, IndentificationData, UserParameters};
 use crate::session::{FunctionContext, Session};
 use crate::time::{format_date, format_datetime};
 
@@ -264,20 +262,24 @@ impl Client {
     }
 
     /// Returns homework for the week containing `date`.
-    pub async fn homework(&self, date: Date) -> Result<(), Error> {
+    pub async fn homework(&self, date: Date) -> Result<Homework, Error> {
         // TODO: check that date is within range
         let week = (date - self.parameters.instance.first_monday).whole_weeks();
+        let week = format!("[{week}]");
 
         let data = json!({
-            "domaine": Weeks::from_single(week as u32)
+            "domaine": {
+                "_T": 8,
+                "V": week
+            }
         });
 
-        let data: protocol::Homework = self
+        let raw: protocol::Homework = self
             .call(Function::Homework, Some(Tab::Homework), data)
             .await?;
 
-        dbg!(data);
+        let model = homework(raw)?;
 
-        Ok(())
+        Ok(model)
     }
 }

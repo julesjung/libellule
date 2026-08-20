@@ -1,143 +1,114 @@
-use serde::{
-    Deserialize, Serialize,
-    de::{DeserializeOwned, Visitor},
-};
-use serde_with::{DeserializeAs, SerializeAs, serde_as};
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
+use time::macros::format_description;
+
+use crate::error::ProtocolError;
+
+const DATE_FORMAT: &[time::format_description::FormatItem<'_>] =
+    format_description!("[day]/[month]/[year]");
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ValueWrapper<T> {
+pub(crate) struct ValueWrapper<T> {
     #[serde(rename = "_T")]
-    pub kind: u32,
+    pub kind: i32,
 
     #[serde(rename = "V")]
     pub value: T,
 }
 
-#[deprecated]
-pub struct FromUncheckedValue;
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(transparent)]
+pub(crate) struct Color(pub(crate) String);
 
-impl<'de, T> DeserializeAs<'de, T> for FromUncheckedValue
-where
-    T: Deserialize<'de>,
-{
-    fn deserialize_as<D>(deserializer: D) -> Result<T, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        ValueWrapper::<T>::deserialize(deserializer).map(|value| value.value)
-    }
-}
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(into = "ValueWrapper<String>", try_from = "ValueWrapper<String>")]
+pub(crate) struct Date(pub(crate) String);
 
-pub struct Value<const KIND: u32>;
-
-impl<T, const KIND: u32> SerializeAs<T> for Value<KIND>
-where
-    T: Serialize,
-{
-    fn serialize_as<S>(source: &T, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let value = ValueWrapper {
-            kind: KIND,
-            value: source,
-        };
-
-        serializer.serialize_some(&value)
-    }
-}
-
-impl<'de, T, const KIND: u32> DeserializeAs<'de, T> for Value<KIND>
-where
-    T: Deserialize<'de>,
-{
-    fn deserialize_as<D>(deserializer: D) -> Result<T, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = ValueWrapper::<T>::deserialize(deserializer)?;
-
-        if value.kind == KIND {
-            Ok(value.value)
-        } else {
-            let error = format!("unexpected value kind `{}`", value.kind);
-            Err(serde::de::Error::custom(error))
+impl From<Date> for ValueWrapper<String> {
+    fn from(value: Date) -> Self {
+        ValueWrapper {
+            kind: 7,
+            value: value.0,
         }
     }
 }
 
-#[serde_as]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Weeks(#[serde_as(as = "Value<8>")] String);
+impl TryFrom<ValueWrapper<String>> for Date {
+    type Error = ProtocolError;
 
-impl Weeks {
-    pub fn from_single(week: u32) -> Weeks {
-        Weeks(format!("[{week}]"))
-    }
-}
-
-#[serde_as]
-#[derive(Debug, Deserialize)]
-pub struct Html(#[serde_as(as = "Value<21>")] String);
-
-#[serde_as]
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(bound(serialize = "T: Serialize", deserialize = "T: DeserializeOwned"))]
-pub struct Array<T>(#[serde_as(as = "Value<24>")] Vec<T>);
-
-impl<T> From<Array<T>> for Vec<T> {
-    fn from(value: Array<T>) -> Self {
-        value.0
-    }
-}
-impl<T> From<Vec<T>> for Array<T> {
-    fn from(value: Vec<T>) -> Self {
-        Array(value)
-    }
-}
-
-#[derive(Debug)]
-pub struct Color {
-    red: u8,
-    green: u8,
-    blue: u8,
-}
-
-impl<'de> Deserialize<'de> for Color {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        struct ColorVisitor;
-
-        impl<'de> Visitor<'de> for ColorVisitor {
-            type Value = Color;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                write!(formatter, "a hex color such as #FF8800")
-            }
-
-            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
-            where
-                E: serde::de::Error,
-            {
-                let hex = value.strip_prefix('#').unwrap_or(value);
-
-                if hex.len() != 6 {
-                    return Err(E::custom("invalid hex color code"));
-                }
-
-                let red = u8::from_str_radix(&hex[0..2], 16)
-                    .map_err(|_| E::custom("invalid red component"))?;
-                let green = u8::from_str_radix(&hex[2..4], 16)
-                    .map_err(|_| E::custom("invalid green component"))?;
-                let blue = u8::from_str_radix(&hex[4..6], 16)
-                    .map_err(|_| E::custom("invalid blue component"))?;
-
-                Ok(Color { red, green, blue })
-            }
+    fn try_from(value: ValueWrapper<String>) -> Result<Self, Self::Error> {
+        if value.kind == 7 {
+            return Ok(Date(value.value));
         }
 
-        deserializer.deserialize_str(ColorVisitor)
+        Err(ProtocolError::UnexpectedValueKind {
+            kind: value.kind,
+            expected: 7,
+        })
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(into = "ValueWrapper<String>", try_from = "ValueWrapper<String>")]
+pub(crate) struct Html(pub(crate) String);
+
+impl From<Html> for ValueWrapper<String> {
+    fn from(value: Html) -> Self {
+        ValueWrapper {
+            kind: 21,
+            value: value.0,
+        }
+    }
+}
+
+impl TryFrom<ValueWrapper<String>> for Html {
+    type Error = ProtocolError;
+
+    fn try_from(value: ValueWrapper<String>) -> Result<Self, Self::Error> {
+        if value.kind == 21 {
+            return Ok(Html(value.value));
+        }
+
+        Err(ProtocolError::UnexpectedValueKind {
+            kind: value.kind,
+            expected: 21,
+        })
+    }
+}
+
+pub type Array<T> = Object<Vec<T>>;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(
+    into = "ValueWrapper<T>",
+    try_from = "ValueWrapper<T>",
+    bound(
+        serialize = "T: Clone + Serialize",
+        deserialize = "T: DeserializeOwned"
+    )
+)]
+pub(crate) struct Object<T>(pub(crate) T);
+
+impl<T> From<Object<T>> for ValueWrapper<T> {
+    fn from(value: Object<T>) -> Self {
+        ValueWrapper {
+            kind: 21,
+            value: value.0,
+        }
+    }
+}
+
+impl<T> TryFrom<ValueWrapper<T>> for Object<T> {
+    type Error = ProtocolError;
+
+    fn try_from(value: ValueWrapper<T>) -> Result<Self, Self::Error> {
+        if value.kind == 24 {
+            return Ok(Object(value.value));
+        }
+
+        Err(ProtocolError::UnexpectedValueKind {
+            kind: value.kind,
+            expected: 24,
+        })
     }
 }

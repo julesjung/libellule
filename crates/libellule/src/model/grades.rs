@@ -1,21 +1,16 @@
 use serde::Deserialize;
-use serde_with::serde_as;
 
 use crate::model::Subject;
-use crate::protocol::FromUncheckedValue;
+use crate::protocol::{Array, Object};
 
-#[serde_as]
 #[derive(Deserialize, Debug)]
 pub struct GradesData {
     #[serde(rename = "listeServices")]
-    #[serde_as(as = "FromUncheckedValue")]
-    pub subjects: Vec<Subject>,
+    pub subjects: Array<Subject>,
     #[serde(rename = "listeDevoirs")]
-    #[serde_as(as = "FromUncheckedValue")]
-    pub assignments: Vec<Assignment>,
+    pub assignments: Array<Assignment>,
 }
 
-#[serde_as]
 #[derive(Deserialize, Debug)]
 pub struct Assignment {
     #[serde(rename = "N")]
@@ -23,27 +18,20 @@ pub struct Assignment {
     #[serde(rename = "commentaire")]
     pub label: String,
     #[serde(rename = "note")]
-    #[serde_as(as = "FromUncheckedValue")]
-    pub grade: Grade,
+    pub grade: Object<Grade>,
     #[serde(rename = "bareme")]
-    #[serde_as(as = "FromUncheckedValue")]
-    pub scale: String,
+    pub scale: Object<String>,
     pub coefficient: f32,
     #[serde(rename = "date")]
-    #[serde_as(as = "FromUncheckedValue")]
-    pub date: String,
+    pub date: Object<String>,
     #[serde(rename = "service")]
-    #[serde_as(as = "FromUncheckedValue")]
-    pub subject: Subject,
+    pub subject: Object<Subject>,
     #[serde(rename = "moyenne")]
-    #[serde_as(as = "FromUncheckedValue")]
-    pub average: String,
+    pub average: Object<String>,
     #[serde(rename = "noteMin")]
-    #[serde_as(as = "FromUncheckedValue")]
-    pub min_grade: String,
+    pub min_grade: Object<String>,
     #[serde(rename = "noteMax")]
-    #[serde_as(as = "FromUncheckedValue")]
-    pub max_grade: String,
+    pub max_grade: Object<String>,
 }
 
 #[derive(Deserialize, Debug)]

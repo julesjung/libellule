@@ -1,29 +1,23 @@
 use serde::Deserialize;
 
-use crate::protocol::{Array, Color, Date, Html, ObjectReference, ValueWrapper};
+use crate::protocol::{Array, Color, Date, Html, Object, ObjectReference};
 
 #[derive(Debug, Deserialize)]
 pub struct Homework {
     #[serde(rename = "ListeTravauxAFaire")]
-    pub tasks: Array<Task>,
+    pub tasks: Array<HomeworkItem>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Task {
+pub struct HomeworkItem {
     #[serde(rename = "CouleurFond")]
     pub background: Color,
 
     #[serde(rename = "DonneLe")]
     pub given_on: Date,
 
-    #[serde(rename = "ListePieceJointe")]
-    pub attachment: Array<Attachment>,
-
-    #[serde(rename = "ListeThemes")]
-    pub themes: Array<Theme>,
-
     #[serde(rename = "Matiere")]
-    pub subject: ValueWrapper<ObjectReference>,
+    pub subject: Object<ObjectReference>,
 
     #[serde(rename = "N")]
     pub id: String,
@@ -34,15 +28,6 @@ pub struct Task {
     #[serde(rename = "TAFFait")]
     pub done: bool,
 
-    #[serde(rename = "dateCDT")]
-    pub notebook_date: Date,
-
     #[serde(rename = "descriptif")]
     pub description: Html,
 }
-
-#[derive(Debug, Deserialize)]
-pub struct Attachment;
-
-#[derive(Debug, Deserialize)]
-pub struct Theme;

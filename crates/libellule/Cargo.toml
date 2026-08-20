@@ -20,11 +20,11 @@ rand = "0.10.2"
 reqwest = { version = "0.13.4", features = ["json"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
-serde_with = "3.21.0"
-sha2 = "0.11.0"
 serde_repr = "0.1.21"
+sha2 = "0.11.0"
 thiserror = { workspace = true }
 time = { workspace = true, features = ["formatting", "macros", "parsing"] }
+tl = "0.7.8"
 tokio = { workspace = true, features = ["sync"] }
 url = { workspace = true }
 

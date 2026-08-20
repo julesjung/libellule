@@ -90,7 +90,9 @@ async fn homework(client: &Client) -> Result<(), Box<dyn std::error::Error>> {
     let date = DateSelect::new("Date:").prompt()?;
     let date = date.format("%Y-%m-%d").to_string();
 
-    client.homework(Date::parse(&date, &Iso8601::DATE)?).await?;
+    let homework = client.homework(Date::parse(&date, &Iso8601::DATE)?).await?;
+
+    dbg!(homework);
 
     Ok(())
 }
