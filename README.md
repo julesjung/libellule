@@ -7,11 +7,49 @@ A Rust implementation of the PRONOTE protocol.
 
 ## Features
 
-- Pure Rust implementation
-- Library crate
-- Command-line interface
-- Native iOS client
-- Direct communication with PRONOTE
+- [ ] Connection
+  - [ ] Instance selection
+    - [x] URL
+    - [ ] QR code
+    - [ ] Geolocation
+    - [ ] Search
+  - [x] Authentication
+- [ ] Timetable
+  - [ ] Lessons
+    - [x] Basic information
+    - [ ] Detailed view
+    - [ ] Contents
+    - [ ] Status (cancelled, moved, ...)
+  - [ ] Menu
+    - [x] Food list
+    - [ ] Allergies
+    - [ ] Labels
+- [ ] Homework
+  - [x] Basic information
+  - [ ] Update status
+  - [ ] View attachments
+  - [ ] Submit files and recordings
+- [ ] Grades
+  - [x] Full list
+  - [ ] Sort by date
+  - [ ] Group by subject
+  - [ ] Average calculation
+- [ ] Absences
+- [ ] Communication
+  - [ ] Polls
+  - [ ] Messages
+  - [ ] Informations
+  - [ ] Agenda
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Libellule iOS<br/>SwiftUI] --> B[LibelluleKit<br/>Swift Package]
+    B --> C[libellule-uniffi<br/>Rust UniFFI bindings]
+    C --> D[libellule<br/>Rust library]
+    E[libellule-cli<br/>Rust CLI] --> D
+```
 
 ## Security
 

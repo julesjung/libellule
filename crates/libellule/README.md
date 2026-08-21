@@ -1,14 +1,16 @@
 # Libellule
 
-![Crates.io Version](https://img.shields.io/crates/v/libellule)
-![Crates.io License](https://img.shields.io/crates/l/libellule)
+[![Version](https://img.shields.io/crates/v/libellule.svg)](https://crates.io/crates/libellule)
+[![Documentation](https://docs.rs/libellule/badge.svg)](https://docs.rs/libellule)
+[![CI](https://img.shields.io/github/actions/workflow/status/julesjung/libellule/ci.yml)](https://github.com/julesjung/libellule/actions/workflows/ci.yml)
+![License](https://img.shields.io/crates/l/libellule.svg)
 
 A Rust implementation of the PRONOTE protocol.
 
 > [!WARNING]
 > Libellule is not affiliated with, endorsed by, or sponsored by INDEX ÉDUCATION.
 
-## Example
+## Usage
 
 Add libellule as a dependency in your Cargo.toml:
 
@@ -48,16 +50,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 This code displays all the grades for the default period from PRONOTE's demo instance.
-
-## Security
-
-Authentication and API requests are sent directly to your PRONOTE server. This library never relays or stores your credentials.
-
-## Legal
-
-Libellule is an independent implementation of the PRONOTE protocol developed through observation of publicly accessible network communications. No proprietary source code from the official PRONOTE software has been copied.
-
-PRONOTE is a trademark of INDEX ÉDUCATION.
 
 ## License
 
