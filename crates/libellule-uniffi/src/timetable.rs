@@ -1,4 +1,6 @@
-use libellule::model::{BoundaryDates, Group, Lesson, Location, LunchBreak, Subject, Timetable};
+use libellule::model::{
+    BoundaryDates, Group, Lesson, Location, LunchBreak, Timetable, TimetableSubject,
+};
 use time::{Date, Time};
 
 #[uniffi::remote(Record)]
@@ -13,7 +15,7 @@ pub struct Lesson {
     pub kind: u32,
     pub start: Time,
     pub end: Time,
-    pub subject: Subject,
+    pub subject: TimetableSubject,
     pub teachers: Vec<String>,
     pub groups: Vec<Group>,
     pub locations: Vec<Location>,
@@ -42,4 +44,10 @@ pub struct LunchBreak {
 pub struct BoundaryDates {
     start: Date,
     end: Date,
+}
+
+#[uniffi::remote(Record)]
+pub struct TimetableSubject {
+    id: String,
+    name: String,
 }

@@ -1,5 +1,6 @@
 mod authentication;
 mod function;
+mod grades;
 mod homework;
 mod identification;
 mod menu;
@@ -10,6 +11,7 @@ mod value;
 
 pub use authentication::*;
 pub use function::*;
+pub use grades::*;
 pub use homework::*;
 pub use identification::*;
 pub use menu::*;

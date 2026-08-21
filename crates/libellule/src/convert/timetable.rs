@@ -56,7 +56,7 @@ impl TryModelizeWith<model::Lesson> for protocol::Lesson {
                 }),
                 3 => teachers.push(information.label),
                 16 => {
-                    subject = Some(model::Subject {
+                    subject = Some(model::TimetableSubject {
                         id: information.id.unwrap(),
                         name: information.label,
                     })

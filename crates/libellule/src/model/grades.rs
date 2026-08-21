@@ -1,41 +1,30 @@
-use serde::Deserialize;
-
-use crate::model::Subject;
-use crate::protocol::{Array, Object};
-
-#[derive(Deserialize, Debug)]
+#[derive(Debug)]
 pub struct GradesData {
-    #[serde(rename = "listeServices")]
-    pub subjects: Array<Subject>,
-    #[serde(rename = "listeDevoirs")]
-    pub assignments: Array<Assignment>,
+    pub subjects: Vec<GradeSubject>,
+    pub assignments: Vec<Assignment>,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Assignment {
-    #[serde(rename = "N")]
+#[derive(Debug)]
+pub struct GradeSubject {
     pub id: String,
-    #[serde(rename = "commentaire")]
-    pub label: String,
-    #[serde(rename = "note")]
-    pub grade: Object<Grade>,
-    #[serde(rename = "bareme")]
-    pub scale: Object<String>,
-    pub coefficient: f32,
-    #[serde(rename = "date")]
-    pub date: Object<String>,
-    #[serde(rename = "service")]
-    pub subject: Object<Subject>,
-    #[serde(rename = "moyenne")]
-    pub average: Object<String>,
-    #[serde(rename = "noteMin")]
-    pub min_grade: Object<String>,
-    #[serde(rename = "noteMax")]
-    pub max_grade: Object<String>,
+    pub name: String,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(from = "String")]
+#[derive(Debug)]
+pub struct Assignment {
+    pub id: String,
+    pub label: String,
+    pub grade: Grade,
+    pub scale: String,
+    pub coefficient: f32,
+    pub date: String,
+    pub subject: GradeSubject,
+    pub average: String,
+    pub min_grade: String,
+    pub max_grade: String,
+}
+
+#[derive(Debug)]
 pub enum Grade {
     Graded(String),
     Absent,
@@ -45,19 +34,4 @@ pub enum Grade {
     NotSubmitted,
     AbsentZero,
     NotSubmittedZero,
-}
-
-impl From<String> for Grade {
-    fn from(value: String) -> Self {
-        match value.as_str() {
-            "|1" => Grade::Absent,
-            "|2" => Grade::Exempted,
-            "|3" => Grade::NotGraded,
-            "|4" => Grade::Unfit,
-            "|5" => Grade::NotSubmitted,
-            "|6" => Grade::AbsentZero,
-            "|7" => Grade::NotSubmittedZero,
-            _ => Grade::Graded(value),
-        }
-    }
 }

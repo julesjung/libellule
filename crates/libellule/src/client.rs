@@ -6,7 +6,7 @@ use time::{Date, PlainDateTime, Time};
 use tokio::sync::Mutex;
 use url::Url;
 
-use crate::convert::{TryModelize, homework};
+use crate::convert::{TryModelize, grades_data, homework};
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::{AuthenticationError, ConversionError, Error};
 use crate::instance::Instance;
@@ -177,9 +177,12 @@ impl Client {
             "Periode": period
         });
 
-        let data: GradesData = self.call(Function::Grades, Some(Tab::Grades), data).await?;
+        let raw: protocol::GradesData =
+            self.call(Function::Grades, Some(Tab::Grades), data).await?;
 
-        Ok(data)
+        let model = grades_data(raw)?;
+
+        Ok(model)
     }
 
     /// Returns the date range allowed for the timetable.

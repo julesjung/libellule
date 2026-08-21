@@ -18,18 +18,6 @@ pub fn inner_text(raw: protocol::Html) -> String {
     raw.0
 }
 
-pub fn color(raw: protocol::Color) -> String {
-    raw.0
-}
-
 pub fn date(raw: protocol::Date) -> Result<Date, ConversionError> {
     Date::parse(&raw.0, DATE_FORMAT).map_err(ConversionError::from)
-}
-
-pub fn array<T>(raw: protocol::Array<T>) -> Result<Vec<T>, ConversionError> {
-    Ok(raw.0)
-}
-
-pub fn object<T>(raw: protocol::Object<T>) -> Result<T, ConversionError> {
-    Ok(raw.0)
 }

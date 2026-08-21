@@ -4,7 +4,6 @@ mod grades;
 mod homework;
 mod instance;
 mod menu;
-mod subject;
 mod time;
 mod timetable;
 
