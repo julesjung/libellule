@@ -6,7 +6,7 @@ use time::{Date, PlainDateTime, Time};
 use tokio::sync::Mutex;
 use url::Url;
 
-use crate::convert::{grades_data, homework, timetable};
+use crate::convert::{grades_data, homework, parameters, timetable};
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::{AuthenticationError, ConversionError, Error};
 use crate::instance::Instance;
@@ -125,7 +125,7 @@ impl Client {
 
         let user_parameters: UserParameters = session.call(context, json!({})).await?;
 
-        let parameters = Parameters::try_from((instance.parameters.clone(), user_parameters))?;
+        let parameters = parameters(instance.parameters.clone(), user_parameters)?;
 
         Ok(Client {
             instance_url: instance.base_url.clone(),
