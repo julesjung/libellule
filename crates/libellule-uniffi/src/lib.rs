@@ -1,11 +1,11 @@
+mod client;
+mod error;
+mod grades;
+mod homework;
+mod instance;
+mod menu;
+mod subject;
 mod time;
-
-pub mod client;
-pub mod error;
-pub mod grades;
-pub mod instance;
-pub mod menu;
-pub mod subject;
-pub mod timetable;
+mod timetable;
 
 uniffi::setup_scaffolding!();

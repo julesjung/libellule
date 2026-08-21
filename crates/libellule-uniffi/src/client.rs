@@ -1,7 +1,7 @@
 use time::Date;
 
 use libellule::error::Error;
-use libellule::model::{BoundaryDates, GradesData, Menu, Period, Timetable};
+use libellule::model::{BoundaryDates, GradesData, Homework, Menu, Period, Timetable};
 
 use crate::instance::Instance;
 
@@ -50,5 +50,11 @@ impl Client {
         let menu = self.inner.menu(date).await?;
 
         Ok(menu)
+    }
+
+    pub async fn homework(&self, date: Date) -> Result<Homework, Error> {
+        let homework = self.inner.homework(date).await?;
+
+        Ok(homework)
     }
 }
