@@ -1,18 +1,17 @@
+use serde::Serialize;
+use serde::de::DeserializeOwned;
 use serde_json::json;
 use sha2::Digest;
 use time::{Date, PlainDateTime, Time};
 use tokio::sync::Mutex;
 use url::Url;
 
-use crate::convert::TryModelize;
+use crate::convert::{TryModelize, homework};
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::{AuthenticationError, ConversionError, Error};
 use crate::instance::Instance;
-use crate::model::{BoundaryDates, GradesData, Menu, Parameters, Period, Tab, Timetable};
-use crate::protocol;
-use crate::protocol::{
-    AuthenticationData, Function, IndentificationData, Response, UserParameters,
-};
+use crate::model::{BoundaryDates, GradesData, Homework, Menu, Parameters, Period, Tab, Timetable};
+use crate::protocol::{self, AuthenticationData, Function, IndentificationData, UserParameters};
 use crate::session::{FunctionContext, Session};
 use crate::time::{format_date, format_datetime};
 
@@ -56,8 +55,7 @@ impl Client {
             "informationsAppareil": null
         });
 
-        let response: Response<IndentificationData> = session.call(context, data).await?;
-        let data = response.into_data()?;
+        let data: IndentificationData = session.call(context, data).await?;
 
         let mut unencrypted_key = data.random;
         unencrypted_key.push_str(password);
@@ -104,8 +102,7 @@ impl Client {
             "espace": 3
         });
 
-        let response: Response<AuthenticationData> = session.call(context, data).await?;
-        let data = response.into_data()?;
+        let data: AuthenticationData = session.call(context, data).await?;
 
         let encrypted_key =
             hex::decode(&data.key).map_err(|_| AuthenticationError::InvalidCredentials)?;
@@ -126,8 +123,7 @@ impl Client {
             None,
         );
 
-        let response: Response<UserParameters> = session.call(context, json!({})).await?;
-        let user_parameters = response.into_data()?;
+        let user_parameters: UserParameters = session.call(context, json!({})).await?;
 
         let parameters = Parameters::try_from((instance.parameters.clone(), user_parameters))?;
 
@@ -137,6 +133,18 @@ impl Client {
             parameters,
             session: Mutex::new(session),
         })
+    }
+}
+
+impl Client {
+    async fn call<S, D>(&self, function: Function, tab: Option<Tab>, data: S) -> Result<D, Error>
+    where
+        S: Serialize,
+        D: DeserializeOwned,
+    {
+        let context = FunctionContext::new(&self.instance_url, &self.http, function, tab);
+
+        self.session.lock().await.call(context, data).await
     }
 }
 
@@ -165,20 +173,13 @@ impl Client {
 
     /// Fetches the Grades for a specific `period`.
     pub async fn grades(&self, period: &Period) -> Result<GradesData, Error> {
-        let context = FunctionContext::new(
-            &self.instance_url,
-            &self.http,
-            Function::Grades,
-            Some(Tab::Grades),
-        );
-
         let data = json!({
             "Periode": period
         });
 
-        let response: Response<GradesData> = self.session.lock().await.call(context, data).await?;
+        let data: GradesData = self.call(Function::Grades, Some(Tab::Grades), data).await?;
 
-        Ok(response.into_data()?)
+        Ok(data)
     }
 
     /// Returns the date range allowed for the timetable.
@@ -191,13 +192,6 @@ impl Client {
 
     /// Fetches the timetable for a specific `date`.
     pub async fn timetable(&self, date: Date) -> Result<Timetable, Error> {
-        let context = FunctionContext::new(
-            &self.instance_url,
-            &self.http,
-            Function::Timetable,
-            Some(Tab::Timetable),
-        );
-
         let user = &self.parameters.user;
 
         let user = json!({
@@ -230,21 +224,15 @@ impl Client {
             "Ressource": user
         });
 
-        let response: Response<protocol::Timetable> =
-            self.session.lock().await.call(context, data).await?;
+        let data: protocol::Timetable = self
+            .call(Function::Timetable, Some(Tab::Timetable), data)
+            .await?;
 
-        response.into_data()?.try_modelize(&self.parameters)
+        data.try_modelize(&self.parameters)
     }
 
     /// Fetches the menu for a specific `date`.
     pub async fn menu(&self, date: Date) -> Result<Menu, Error> {
-        let context = FunctionContext::new(
-            &self.instance_url,
-            &self.http,
-            Function::Menu,
-            Some(Tab::Menu),
-        );
-
         let date = format_date(date);
 
         let data = json!({
@@ -254,11 +242,9 @@ impl Client {
             }
         });
 
-        let response: Response<protocol::Menu> =
-            self.session.lock().await.call(context, data).await?;
+        let data: protocol::Menu = self.call(Function::Menu, Some(Tab::Menu), data).await?;
 
-        let day = response
-            .into_data()?
+        let day = data
             .days
             .value
             .into_iter()
@@ -273,5 +259,27 @@ impl Client {
         };
 
         Ok(menu)
+    }
+
+    /// Returns homework for the week containing `date`.
+    pub async fn homework(&self, date: Date) -> Result<Homework, Error> {
+        // TODO: check that date is within range
+        let week = (date - self.parameters.instance.first_monday).whole_weeks();
+        let week = format!("[{week}]");
+
+        let data = json!({
+            "domaine": {
+                "_T": 8,
+                "V": week
+            }
+        });
+
+        let raw: protocol::Homework = self
+            .call(Function::Homework, Some(Tab::Homework), data)
+            .await?;
+
+        let model = homework(raw)?;
+
+        Ok(model)
     }
 }

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::protocol::Value;
+use crate::protocol::ValueWrapper;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct InstanceParameters {
@@ -17,13 +17,13 @@ pub struct GeneralParameters {
     pub label: String,
 
     #[serde(rename = "PremierLundi")]
-    pub first_monday: Value<String>,
+    pub first_monday: ValueWrapper<String>,
 
     #[serde(rename = "PremiereDate")]
-    pub first_day: Value<String>,
+    pub first_day: ValueWrapper<String>,
 
     #[serde(rename = "DerniereDate")]
-    pub last_day: Value<String>,
+    pub last_day: ValueWrapper<String>,
 
     #[serde(rename = "PlacesParJour")]
     pub places_per_day: u32,
@@ -32,10 +32,10 @@ pub struct GeneralParameters {
     pub places_per_hour: u32,
 
     #[serde(rename = "ListeHeures")]
-    pub start_hours: Value<Vec<Hour>>,
+    pub start_hours: ValueWrapper<Vec<Hour>>,
 
     #[serde(rename = "ListeHeuresFin")]
-    pub end_hours: Value<Vec<Hour>>,
+    pub end_hours: ValueWrapper<Vec<Hour>>,
 
     #[serde(rename = "ListePeriodes")]
     pub periods: Vec<Period>,
@@ -55,7 +55,7 @@ pub struct UserParameters {
     #[serde(rename = "ressource")]
     pub resources: Resources,
     #[serde(rename = "listeInformationsEtablissements")]
-    pub institutions: Value<Vec<Institution>>,
+    pub institutions: ValueWrapper<Vec<Institution>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -69,7 +69,7 @@ pub struct Resources {
     #[serde(rename = "classeDEleve")]
     pub class: Class,
     #[serde(rename = "listeOngletsPourPeriodes")]
-    pub tabs_periods: Value<Vec<TabPeriods>>,
+    pub tabs_periods: ValueWrapper<Vec<TabPeriods>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -89,9 +89,9 @@ pub struct TabPeriods {
     #[serde(rename = "G")]
     pub id: u32,
     #[serde(rename = "listePeriodes")]
-    pub periods: Value<Vec<Period>>,
+    pub periods: ValueWrapper<Vec<Period>>,
     #[serde(rename = "periodeParDefaut")]
-    pub default: Value<Period>,
+    pub default: ValueWrapper<Period>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]

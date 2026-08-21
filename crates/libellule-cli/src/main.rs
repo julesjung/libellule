@@ -27,6 +27,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             Command::Timetable,
             Command::Grades,
             Command::Menu,
+            Command::Homework,
             Command::Quit,
         ];
         let command: Command = Select::new("Command:", commands).prompt()?;
@@ -35,6 +36,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             Command::Timetable => timetable(&client).await?,
             Command::Grades => grades(&client).await?,
             Command::Menu => menu(&client).await?,
+            Command::Homework => homework(&client).await?,
             Command::Quit => break,
         }
     }
@@ -84,10 +86,22 @@ async fn menu(client: &Client) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+async fn homework(client: &Client) -> Result<(), Box<dyn std::error::Error>> {
+    let date = DateSelect::new("Date:").prompt()?;
+    let date = date.format("%Y-%m-%d").to_string();
+
+    let homework = client.homework(Date::parse(&date, &Iso8601::DATE)?).await?;
+
+    dbg!(homework);
+
+    Ok(())
+}
+
 enum Command {
     Timetable,
     Grades,
     Menu,
+    Homework,
     Quit,
 }
 
@@ -97,6 +111,7 @@ impl Display for Command {
             Command::Timetable => write!(f, "Timetable"),
             Command::Grades => write!(f, "Grades"),
             Command::Menu => write!(f, "Menu"),
+            Command::Homework => write!(f, "Homework"),
             Command::Quit => write!(f, "Quit"),
         }
     }

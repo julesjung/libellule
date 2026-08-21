@@ -26,6 +26,7 @@ pub enum ProtocolError {
     SessionExpired,
     Server { code: i32, title: String },
     MissingData,
+    UnexpectedValueKind { kind: i32, expected: i32 },
 }
 
 #[uniffi::remote(Error)]
@@ -35,6 +36,8 @@ pub enum AuthenticationError {
 }
 
 #[uniffi::remote(Error)]
+#[uniffi(flat_error)]
 pub enum ConversionError {
     Parse,
+    ParseDate(_),
 }

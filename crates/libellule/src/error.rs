@@ -35,6 +35,9 @@ pub enum ProtocolError {
 
     #[error("missing data field from response")]
     MissingData,
+
+    #[error("unexpected value kind `{kind}` expected `{expected}`")]
+    UnexpectedValueKind { kind: i32, expected: i32 },
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -50,4 +53,7 @@ pub enum AuthenticationError {
 pub enum ConversionError {
     #[error("failed to parse")]
     Parse,
+
+    #[error("failed to parse date")]
+    ParseDate(#[from] time::error::Parse),
 }

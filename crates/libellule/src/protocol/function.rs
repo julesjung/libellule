@@ -24,6 +24,9 @@ pub enum Function {
 
     #[serde(rename = "PageMenus")]
     Menu,
+
+    #[serde(rename = "PageCahierDeTexte")]
+    Homework,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -86,7 +89,7 @@ pub struct Response<T> {
     pub secured_data: Option<SecuredData<T>>,
 
     #[serde(rename = "dataNonSec")]
-    pub unsecured_data: Option<UnsecuredData>,
+    pub _unsecured_data: Option<UnsecuredData>,
 
     #[serde(rename = "Erreur")]
     pub error: Option<ServerError>,
