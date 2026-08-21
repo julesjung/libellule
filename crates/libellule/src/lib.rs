@@ -53,7 +53,9 @@ mod time;
 pub mod error;
 
 /// Improved representation of PRONOTE return types.
+#[allow(missing_docs)]
 pub mod model;
 
-pub use client::*;
-pub use instance::*;
+pub use client::Client;
+pub use error::Error;
+pub use instance::Instance;
