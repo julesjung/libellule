@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::protocol::ValueWrapper;
+use crate::protocol::{Array, Date, Object};
 
 #[derive(Deserialize, Debug, Clone)]
 pub(crate) struct InstanceParameters {
@@ -17,13 +17,13 @@ pub(crate) struct GeneralParameters {
     pub(crate) label: String,
 
     #[serde(rename = "PremierLundi")]
-    pub(crate) first_monday: ValueWrapper<String>,
+    pub(crate) first_monday: Date,
 
     #[serde(rename = "PremiereDate")]
-    pub(crate) first_day: ValueWrapper<String>,
+    pub(crate) first_day: Date,
 
     #[serde(rename = "DerniereDate")]
-    pub(crate) last_day: ValueWrapper<String>,
+    pub(crate) last_day: Date,
 
     #[serde(rename = "PlacesParJour")]
     pub(crate) places_per_day: u32,
@@ -32,10 +32,10 @@ pub(crate) struct GeneralParameters {
     pub(crate) places_per_hour: u32,
 
     #[serde(rename = "ListeHeures")]
-    pub(crate) start_hours: ValueWrapper<Vec<Hour>>,
+    pub(crate) start_hours: Array<Hour>,
 
     #[serde(rename = "ListeHeuresFin")]
-    pub(crate) _end_hours: ValueWrapper<Vec<Hour>>,
+    pub(crate) _end_hours: Array<Hour>,
 
     #[serde(rename = "ListePeriodes")]
     pub(crate) periods: Vec<Period>,
@@ -56,7 +56,7 @@ pub(crate) struct UserParameters {
     pub(crate) resources: Resources,
 
     #[serde(rename = "listeInformationsEtablissements")]
-    pub(crate) _institutions: ValueWrapper<Vec<Institution>>,
+    pub(crate) _institutions: Array<Institution>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -74,7 +74,7 @@ pub(crate) struct Resources {
     pub(crate) _class: Class,
 
     #[serde(rename = "listeOngletsPourPeriodes")]
-    pub(crate) tabs_periods: ValueWrapper<Vec<TabPeriods>>,
+    pub(crate) tabs_periods: Array<TabPeriods>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -94,9 +94,9 @@ pub(crate) struct TabPeriods {
     #[serde(rename = "G")]
     pub(crate) id: u32,
     #[serde(rename = "listePeriodes")]
-    pub(crate) periods: ValueWrapper<Vec<Period>>,
+    pub(crate) periods: Array<Period>,
     #[serde(rename = "periodeParDefaut")]
-    pub(crate) default: ValueWrapper<Period>,
+    pub(crate) default: Object<Period>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
