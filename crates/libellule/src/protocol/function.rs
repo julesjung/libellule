@@ -4,7 +4,7 @@ use crate::error::ProtocolError;
 use crate::model::Tab;
 
 #[derive(Serialize, Debug)]
-pub enum Function {
+pub(crate) enum Function {
     #[serde(rename = "FonctionParametres")]
     InstanceParameters,
 
@@ -30,41 +30,45 @@ pub enum Function {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SecuredData<T> {
-    pub data: T,
+pub(crate) struct SecuredData<T> {
+    pub(crate) data: T,
+
     #[serde(
         rename = "Signature",
         skip_serializing_if = "Option::is_none",
         skip_deserializing
     )]
-    pub signature: Option<Signature>,
+    pub(crate) signature: Option<Signature>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Signature {
+pub(crate) struct Signature {
     #[serde(rename = "onglet")]
     tab: Tab,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct UnsecuredData {
+pub(crate) struct UnsecuredData {
     #[serde(rename = "fichiers")]
-    pub files: Vec<String>,
+    pub(crate) files: Vec<String>,
 }
 
 #[derive(Serialize, Debug)]
-pub struct Request<T> {
+pub(crate) struct Request<T> {
     #[serde(rename = "id")]
-    pub function: Function,
+    pub(crate) function: Function,
+
     #[serde(rename = "no")]
-    pub request_count: String,
-    pub session: u32,
+    pub(crate) request_count: String,
+
+    pub(crate) session: u32,
+
     #[serde(rename = "dataSec")]
-    pub secured_data: SecuredData<T>,
+    pub(crate) secured_data: SecuredData<T>,
 }
 
 impl<T> Request<T> {
-    pub fn new(
+    pub(crate) fn new(
         function: Function,
         request_count: String,
         session: u32,
@@ -84,19 +88,19 @@ impl<T> Request<T> {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Response<T> {
+pub(crate) struct Response<T> {
     #[serde(rename = "dataSec")]
-    pub secured_data: Option<SecuredData<T>>,
+    pub(crate) secured_data: Option<SecuredData<T>>,
 
     #[serde(rename = "dataNonSec")]
-    pub _unsecured_data: Option<UnsecuredData>,
+    pub(crate) _unsecured_data: Option<UnsecuredData>,
 
     #[serde(rename = "Erreur")]
-    pub error: Option<ServerError>,
+    pub(crate) error: Option<ServerError>,
 }
 
 impl<T> Response<T> {
-    pub fn into_data(self) -> Result<T, ProtocolError> {
+    pub(crate) fn into_data(self) -> Result<T, ProtocolError> {
         if let Some(error) = self.error {
             return Err(match error.code {
                 22 => ProtocolError::SessionExpired,
@@ -114,10 +118,10 @@ impl<T> Response<T> {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ServerError {
+pub(crate) struct ServerError {
     #[serde(rename = "G")]
-    pub code: i32,
+    pub(crate) code: i32,
 
     #[serde(rename = "Titre")]
-    pub title: String,
+    pub(crate) title: String,
 }

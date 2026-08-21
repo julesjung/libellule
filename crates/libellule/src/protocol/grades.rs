@@ -1,41 +1,52 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::protocol::{Array, Date, Grade, Object};
 
 #[derive(Debug, Deserialize)]
-pub struct GradesData {
+pub(crate) struct GradesData {
     #[serde(rename = "listeServices")]
-    pub subjects: Array<GradeSubject>,
+    pub(crate) subjects: Array<GradeSubject>,
+
     #[serde(rename = "listeDevoirs")]
-    pub assignments: Array<Assignment>,
+    pub(crate) assignments: Array<Assignment>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Assignment {
+pub(crate) struct Assignment {
     #[serde(rename = "N")]
-    pub id: String,
+    pub(crate) id: String,
+
     #[serde(rename = "commentaire")]
-    pub label: String,
+    pub(crate) label: String,
+
     #[serde(rename = "note")]
-    pub grade: Grade,
+    pub(crate) grade: Grade,
+
     #[serde(rename = "bareme")]
-    pub scale: Grade,
-    pub coefficient: f32,
-    pub date: Date,
+    pub(crate) scale: Grade,
+
+    pub(crate) coefficient: f32,
+
+    pub(crate) date: Date,
+
     #[serde(rename = "service")]
-    pub subject: Object<GradeSubject>,
+    pub(crate) subject: Object<GradeSubject>,
+
     #[serde(rename = "moyenne")]
-    pub average: Grade,
+    pub(crate) average: Grade,
+
     #[serde(rename = "noteMin")]
-    pub min_grade: Grade,
+    pub(crate) min_grade: Grade,
+
     #[serde(rename = "noteMax")]
-    pub max_grade: Grade,
+    pub(crate) max_grade: Grade,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct GradeSubject {
+pub(crate) struct GradeSubject {
     #[serde(rename = "N")]
-    pub id: String,
+    pub(crate) id: String,
+
     #[serde(rename = "L")]
-    pub name: String,
+    pub(crate) name: String,
 }

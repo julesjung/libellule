@@ -1,11 +1,7 @@
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use time::macros::format_description;
 
 use crate::error::ProtocolError;
-
-const DATE_FORMAT: &[time::format_description::FormatItem<'_>] =
-    format_description!("[day]/[month]/[year]");
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub(crate) struct ValueWrapper<T> {
@@ -104,7 +100,7 @@ impl TryFrom<ValueWrapper<String>> for Html {
     }
 }
 
-pub type Array<T> = Object<Vec<T>>;
+pub(crate) type Array<T> = Object<Vec<T>>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(

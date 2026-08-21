@@ -3,101 +3,107 @@ use serde::{Deserialize, Serialize};
 use crate::protocol::ValueWrapper;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct InstanceParameters {
+pub(crate) struct InstanceParameters {
     #[serde(rename = "General")]
-    pub general: GeneralParameters,
+    pub(crate) general: GeneralParameters,
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct GeneralParameters {
+pub(crate) struct GeneralParameters {
     #[serde(rename = "versionPN")]
-    pub version: String,
+    pub(crate) version: String,
 
     #[serde(rename = "NomEtablissementConnexion")]
-    pub label: String,
+    pub(crate) label: String,
 
     #[serde(rename = "PremierLundi")]
-    pub first_monday: ValueWrapper<String>,
+    pub(crate) first_monday: ValueWrapper<String>,
 
     #[serde(rename = "PremiereDate")]
-    pub first_day: ValueWrapper<String>,
+    pub(crate) first_day: ValueWrapper<String>,
 
     #[serde(rename = "DerniereDate")]
-    pub last_day: ValueWrapper<String>,
+    pub(crate) last_day: ValueWrapper<String>,
 
     #[serde(rename = "PlacesParJour")]
-    pub places_per_day: u32,
+    pub(crate) places_per_day: u32,
 
     #[serde(rename = "PlacesParHeure")]
-    pub places_per_hour: u32,
+    pub(crate) places_per_hour: u32,
 
     #[serde(rename = "ListeHeures")]
-    pub start_hours: ValueWrapper<Vec<Hour>>,
+    pub(crate) start_hours: ValueWrapper<Vec<Hour>>,
 
     #[serde(rename = "ListeHeuresFin")]
-    pub end_hours: ValueWrapper<Vec<Hour>>,
+    pub(crate) _end_hours: ValueWrapper<Vec<Hour>>,
 
     #[serde(rename = "ListePeriodes")]
-    pub periods: Vec<Period>,
+    pub(crate) periods: Vec<Period>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct Hour {
+pub(crate) struct Hour {
     #[serde(rename = "G")]
-    pub id: u32,
+    pub(crate) id: u32,
 
     #[serde(rename = "L")]
-    pub label: String,
+    pub(crate) label: String,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct UserParameters {
+pub(crate) struct UserParameters {
     #[serde(rename = "ressource")]
-    pub resources: Resources,
+    pub(crate) resources: Resources,
+
     #[serde(rename = "listeInformationsEtablissements")]
-    pub institutions: ValueWrapper<Vec<Institution>>,
+    pub(crate) _institutions: ValueWrapper<Vec<Institution>>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Resources {
+pub(crate) struct Resources {
     #[serde(rename = "N")]
-    pub id: String,
+    pub(crate) id: String,
+
     #[serde(rename = "L")]
-    pub label: String,
+    pub(crate) label: String,
+
     #[serde(rename = "G")]
-    pub group: u32,
+    pub(crate) group: u32,
+
     #[serde(rename = "classeDEleve")]
-    pub class: Class,
+    pub(crate) _class: Class,
+
     #[serde(rename = "listeOngletsPourPeriodes")]
-    pub tabs_periods: ValueWrapper<Vec<TabPeriods>>,
+    pub(crate) tabs_periods: ValueWrapper<Vec<TabPeriods>>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Class {
+pub(crate) struct Class {
     #[serde(rename = "L")]
-    pub name: String,
+    pub(crate) _name: String,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Institution {
+pub(crate) struct Institution {
     #[serde(rename = "L")]
-    pub name: String,
+    pub(crate) _name: String,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct TabPeriods {
+pub(crate) struct TabPeriods {
     #[serde(rename = "G")]
-    pub id: u32,
+    pub(crate) id: u32,
     #[serde(rename = "listePeriodes")]
-    pub periods: ValueWrapper<Vec<Period>>,
+    pub(crate) periods: ValueWrapper<Vec<Period>>,
     #[serde(rename = "periodeParDefaut")]
-    pub default: ValueWrapper<Period>,
+    pub(crate) default: ValueWrapper<Period>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct Period {
+pub(crate) struct Period {
     #[serde(rename = "N")]
-    pub id: Option<String>,
+    pub(crate) id: Option<String>,
+
     #[serde(rename = "L")]
-    pub name: String,
+    pub(crate) name: String,
 }
