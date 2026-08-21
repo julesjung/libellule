@@ -1,6 +1,8 @@
-use crate::{error::ConversionError, model, protocol};
+use crate::error::ConversionError;
+use crate::model;
+use crate::protocol;
 
-pub fn grades_data(raw: protocol::GradesData) -> Result<model::GradesData, ConversionError> {
+pub(crate) fn grades_data(raw: protocol::GradesData) -> Result<model::GradesData, ConversionError> {
     let subjects = raw
         .subjects
         .0
@@ -21,14 +23,14 @@ pub fn grades_data(raw: protocol::GradesData) -> Result<model::GradesData, Conve
     })
 }
 
-pub fn grade_subject(raw: protocol::GradeSubject) -> model::GradeSubject {
+fn grade_subject(raw: protocol::GradeSubject) -> model::GradeSubject {
     model::GradeSubject {
         id: raw.id,
         name: raw.name,
     }
 }
 
-pub fn assignment(raw: protocol::Assignment) -> Result<model::Assignment, ConversionError> {
+fn assignment(raw: protocol::Assignment) -> Result<model::Assignment, ConversionError> {
     Ok(model::Assignment {
         id: raw.id,
         label: raw.label,
@@ -43,7 +45,7 @@ pub fn assignment(raw: protocol::Assignment) -> Result<model::Assignment, Conver
     })
 }
 
-pub fn grade(raw: String) -> model::Grade {
+fn grade(raw: String) -> model::Grade {
     match raw.as_str() {
         "|1" => model::Grade::Absent,
         "|2" => model::Grade::Exempted,

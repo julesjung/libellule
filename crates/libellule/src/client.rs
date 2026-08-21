@@ -6,7 +6,7 @@ use time::{Date, PlainDateTime, Time};
 use tokio::sync::Mutex;
 use url::Url;
 
-use crate::convert::{TryModelize, grades_data, homework};
+use crate::convert::{grades_data, homework, timetable};
 use crate::crypto::{aes_decrypt, aes_encrypt};
 use crate::error::{AuthenticationError, ConversionError, Error};
 use crate::instance::Instance;
@@ -227,11 +227,13 @@ impl Client {
             "Ressource": user
         });
 
-        let data: protocol::Timetable = self
+        let raw: protocol::Timetable = self
             .call(Function::Timetable, Some(Tab::Timetable), data)
             .await?;
 
-        data.try_modelize(&self.parameters)
+        let model = timetable(raw, &self.parameters)?;
+
+        Ok(model)
     }
 
     /// Fetches the menu for a specific `date`.
