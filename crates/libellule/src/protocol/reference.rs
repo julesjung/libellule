@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ObjectReference {
+pub(crate) struct ObjectReference {
     #[serde(rename = "N")]
-    pub id: String,
+    pub(crate) id: String,
 
     #[serde(rename = "L")]
-    pub name: String,
+    pub(crate) name: String,
 }

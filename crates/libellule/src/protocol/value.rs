@@ -1,11 +1,7 @@
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use time::macros::format_description;
 
 use crate::error::ProtocolError;
-
-const DATE_FORMAT: &[time::format_description::FormatItem<'_>] =
-    format_description!("[day]/[month]/[year]");
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub(crate) struct ValueWrapper<T> {
@@ -50,6 +46,34 @@ impl TryFrom<ValueWrapper<String>> for Date {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(into = "ValueWrapper<String>", try_from = "ValueWrapper<String>")]
+pub(crate) struct Grade(pub(crate) String);
+
+impl From<Grade> for ValueWrapper<String> {
+    fn from(value: Grade) -> Self {
+        ValueWrapper {
+            kind: 10,
+            value: value.0,
+        }
+    }
+}
+
+impl TryFrom<ValueWrapper<String>> for Grade {
+    type Error = ProtocolError;
+
+    fn try_from(value: ValueWrapper<String>) -> Result<Self, Self::Error> {
+        if value.kind == 10 {
+            return Ok(Grade(value.value));
+        }
+
+        Err(ProtocolError::UnexpectedValueKind {
+            kind: value.kind,
+            expected: 10,
+        })
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(into = "ValueWrapper<String>", try_from = "ValueWrapper<String>")]
 pub(crate) struct Html(pub(crate) String);
 
 impl From<Html> for ValueWrapper<String> {
@@ -76,7 +100,7 @@ impl TryFrom<ValueWrapper<String>> for Html {
     }
 }
 
-pub type Array<T> = Object<Vec<T>>;
+pub(crate) type Array<T> = Object<Vec<T>>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(

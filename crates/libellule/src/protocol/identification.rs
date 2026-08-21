@@ -1,8 +1,9 @@
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
-pub struct IndentificationData {
-    pub challenge: String,
+pub(crate) struct IndentificationData {
+    pub(crate) challenge: String,
+
     #[serde(rename = "alea")]
-    pub random: String,
+    pub(crate) random: String,
 }

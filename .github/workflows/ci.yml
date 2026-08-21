@@ -34,6 +34,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
       - run: cargo fmt -p ${{ matrix.crate }} --check
-      - run: cargo clippy -p ${{ matrix.crate }} --all-targets --all-features --keep-going -D warnings
+      - run: cargo clippy -p ${{ matrix.crate }} --all-targets --all-features --keep-going -- -D warnings
       - run: cargo build -p ${{ matrix.crate }} --all-targets --all-features
       - run: cargo test -p ${{ matrix.crate }} --all-targets --all-features

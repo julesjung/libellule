@@ -1,5 +1,6 @@
 mod authentication;
 mod function;
+mod grades;
 mod homework;
 mod identification;
 mod menu;
@@ -8,12 +9,13 @@ mod reference;
 mod timetable;
 mod value;
 
-pub use authentication::*;
-pub use function::*;
-pub use homework::*;
-pub use identification::*;
-pub use menu::*;
-pub use parameters::*;
-pub use reference::*;
-pub use timetable::*;
+pub(crate) use authentication::*;
+pub(crate) use function::*;
+pub(crate) use grades::*;
+pub(crate) use homework::*;
+pub(crate) use identification::*;
+pub(crate) use menu::*;
+pub(crate) use parameters::*;
+pub(crate) use reference::*;
+pub(crate) use timetable::*;
 pub(crate) use value::*;

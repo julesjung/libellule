@@ -1,10 +1,11 @@
-use crate::convert::{array, color, date, inner_text, object};
+use super::value::{date, inner_text};
+
 use crate::error::ConversionError;
 use crate::model;
 use crate::protocol;
 
-pub fn homework(raw: protocol::Homework) -> Result<model::Homework, ConversionError> {
-    let items = array(raw.tasks)?;
+pub(crate) fn homework(raw: protocol::Homework) -> Result<model::Homework, ConversionError> {
+    let items = raw.tasks.0;
     let items = items
         .into_iter()
         .map(self::item)
@@ -13,8 +14,8 @@ pub fn homework(raw: protocol::Homework) -> Result<model::Homework, ConversionEr
     Ok(model::Homework { items })
 }
 
-pub fn item(raw: protocol::HomeworkItem) -> Result<model::HomeworkItem, ConversionError> {
-    let subject = self::subject(object(raw.subject)?);
+fn item(raw: protocol::HomeworkItem) -> Result<model::HomeworkItem, ConversionError> {
+    let subject = self::subject(raw.subject.0);
 
     Ok(model::HomeworkItem {
         id: raw.id,
@@ -23,11 +24,11 @@ pub fn item(raw: protocol::HomeworkItem) -> Result<model::HomeworkItem, Conversi
         done: raw.done,
         creation: date(raw.given_on)?,
         due: date(raw.due)?,
-        background: color(raw.background),
+        background: raw.background.0,
     })
 }
 
-pub fn subject(raw: protocol::ObjectReference) -> model::HomeworkSubject {
+fn subject(raw: protocol::ObjectReference) -> model::HomeworkSubject {
     model::HomeworkSubject {
         id: raw.id,
         name: raw.name,

@@ -3,31 +3,31 @@ use serde::Deserialize;
 use crate::protocol::{Array, Color, Date, Html, Object, ObjectReference};
 
 #[derive(Debug, Deserialize)]
-pub struct Homework {
+pub(crate) struct Homework {
     #[serde(rename = "ListeTravauxAFaire")]
-    pub tasks: Array<HomeworkItem>,
+    pub(crate) tasks: Array<HomeworkItem>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct HomeworkItem {
+pub(crate) struct HomeworkItem {
     #[serde(rename = "CouleurFond")]
-    pub background: Color,
+    pub(crate) background: Color,
 
     #[serde(rename = "DonneLe")]
-    pub given_on: Date,
+    pub(crate) given_on: Date,
 
     #[serde(rename = "Matiere")]
-    pub subject: Object<ObjectReference>,
+    pub(crate) subject: Object<ObjectReference>,
 
     #[serde(rename = "N")]
-    pub id: String,
+    pub(crate) id: String,
 
     #[serde(rename = "PourLe")]
-    pub due: Date,
+    pub(crate) due: Date,
 
     #[serde(rename = "TAFFait")]
-    pub done: bool,
+    pub(crate) done: bool,
 
     #[serde(rename = "descriptif")]
-    pub description: Html,
+    pub(crate) description: Html,
 }
