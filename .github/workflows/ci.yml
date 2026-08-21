@@ -1,4 +1,4 @@
-name: Cargo Build & Test
+name: CI
 
 on:
   push:
@@ -9,13 +9,28 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build_and_test:
-    name: Rust project
+  check:
+    name: ${{ matrix.crate }}
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        crate:
+          - libellule
+          - libellule-uniffi
+
     steps:
       - uses: actions/checkout@v6
-      - run: rustup update stable && rustup default stable
-      - run: rustup component add clippy
-      - run: cargo clippy --all-targets --all-features --keep-going
-      - run: cargo build --verbose
-      - run: cargo test --verbose
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      - run: cargo fmt -p ${{ matrix.crate }} --check
+      - run: cargo clippy -p ${{ matrix.crate }} --all-targets --all-features --keep-going -D warnings
+      - run: cargo build -p ${{ matrix.crate }} --all-targets --all-features
+      - run: cargo test -p ${{ matrix.crate }} --all-targets --all-features
