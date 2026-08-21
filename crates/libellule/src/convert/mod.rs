@@ -1,4 +1,8 @@
-mod modelize;
+mod grades;
+mod homework;
 mod timetable;
+mod value;
 
-pub use modelize::*;
+pub(crate) use grades::*;
+pub(crate) use homework::*;
+pub(crate) use timetable::*;

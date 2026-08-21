@@ -1,7 +1,5 @@
 use time::{Date, Time};
 
-use crate::model::Subject;
-
 #[derive(Debug)]
 pub struct Timetable {
     pub lessons: Vec<Lesson>,
@@ -14,7 +12,7 @@ pub struct Lesson {
     pub kind: u32,
     pub start: Time,
     pub end: Time,
-    pub subject: Subject,
+    pub subject: TimetableSubject,
     pub teachers: Vec<String>,
     pub groups: Vec<Group>,
     pub locations: Vec<Location>,
@@ -39,7 +37,14 @@ pub struct LunchBreak {
     pub end: Time,
 }
 
+#[derive(Debug)]
 pub struct BoundaryDates {
     pub start: Date,
     pub end: Date,
+}
+
+#[derive(Debug)]
+pub struct TimetableSubject {
+    pub id: String,
+    pub name: String,
 }

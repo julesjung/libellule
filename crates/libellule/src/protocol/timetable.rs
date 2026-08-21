@@ -1,54 +1,54 @@
 use serde::Deserialize;
 
-use crate::protocol::Value;
+use crate::protocol::ValueWrapper;
 
 #[derive(Debug, Deserialize)]
-pub struct Timetable {
+pub(crate) struct Timetable {
     #[serde(rename = "ListeCours")]
-    pub lessons: Vec<Lesson>,
+    pub(crate) lessons: Vec<Lesson>,
 
     #[serde(rename = "premierePlaceHebdoDuJour")]
-    pub start_place: u32,
+    pub(crate) start_place: u32,
 
     #[serde(rename = "debutDemiPensionHebdo")]
-    pub lunch_break_start: u32,
+    pub(crate) lunch_break_start: u32,
 
     #[serde(rename = "finDemiPensionHebdo")]
-    pub lunch_break_end: u32,
+    pub(crate) lunch_break_end: u32,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Lesson {
+pub(crate) struct Lesson {
     #[serde(rename = "N")]
-    pub id: String,
+    pub(crate) id: String,
 
     #[serde(rename = "G")]
-    pub kind: u32,
+    pub(crate) kind: u32,
 
     #[serde(rename = "place")]
-    pub start: u32,
+    pub(crate) start: u32,
 
     #[serde(rename = "duree")]
-    pub length: u32,
+    pub(crate) length: u32,
 
     #[serde(rename = "estAnnule", default)]
-    pub cancelled: bool,
+    pub(crate) _cancelled: bool,
 
     #[serde(rename = "ListeContenus")]
-    pub information: Value<Vec<LessonInformation>>,
+    pub(crate) information: ValueWrapper<Vec<LessonInformation>>,
 
     #[serde(rename = "CouleurFond")]
-    pub background_color: String,
+    pub(crate) background_color: String,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct LessonInformation {
+pub(crate) struct LessonInformation {
     #[serde(rename = "N")]
-    pub id: Option<String>,
+    pub(crate) id: Option<String>,
 
     #[serde(rename = "L")]
-    pub label: String,
+    pub(crate) label: String,
 
     #[serde(rename = "G")]
-    pub kind: u32,
+    pub(crate) kind: u32,
 }

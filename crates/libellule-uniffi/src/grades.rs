@@ -1,8 +1,8 @@
-use libellule::model::{Assignment, Grade, GradesData, Period, Subject};
+use libellule::model::{Assignment, Grade, GradeSubject, GradesData, Period};
 
 #[uniffi::remote(Record)]
 pub struct GradesData {
-    pub subjects: Vec<Subject>,
+    pub subjects: Vec<GradeSubject>,
     pub assignments: Vec<Assignment>,
 }
 
@@ -14,10 +14,16 @@ pub struct Assignment {
     pub scale: String,
     pub coefficient: f32,
     pub date: String,
-    pub subject: Subject,
+    pub subject: GradeSubject,
     pub average: String,
     pub min_grade: String,
     pub max_grade: String,
+}
+
+#[uniffi::remote(Record)]
+struct GradeSubject {
+    id: String,
+    name: String,
 }
 
 #[uniffi::remote(Enum)]

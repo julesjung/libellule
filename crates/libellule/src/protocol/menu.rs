@@ -1,45 +1,45 @@
 use serde::Deserialize;
 
-use crate::protocol::Value;
+use crate::protocol::ValueWrapper;
 
 #[derive(Debug, Deserialize)]
-pub struct Menu {
+pub(crate) struct Menu {
     #[serde(rename = "ListeJours")]
-    pub days: Value<Vec<Day>>,
+    pub(crate) days: ValueWrapper<Vec<Day>>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Day {
+pub(crate) struct Day {
     #[serde(rename = "Date")]
-    pub date: Value<String>,
+    pub(crate) date: ValueWrapper<String>,
 
     #[serde(rename = "ListeRepas")]
-    pub meals: Value<Vec<Meal>>,
+    pub(crate) meals: ValueWrapper<Vec<Meal>>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Meal {
+pub(crate) struct Meal {
     #[serde(rename = "G")]
-    pub kind: u32,
+    pub(crate) kind: u32,
 
     #[serde(rename = "ListePlats")]
-    pub courses: Value<Vec<Course>>,
+    pub(crate) courses: ValueWrapper<Vec<Course>>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Course {
+pub(crate) struct Course {
     #[serde(rename = "G")]
-    pub kind: u32,
+    pub(crate) kind: u32,
 
     #[serde(rename = "ListeAliments")]
-    pub food: Value<Vec<Food>>,
+    pub(crate) food: ValueWrapper<Vec<Food>>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Food {
+pub(crate) struct Food {
     #[serde(rename = "N")]
-    pub id: String,
+    pub(crate) id: String,
 
     #[serde(rename = "L")]
-    pub label: String,
+    pub(crate) label: String,
 }

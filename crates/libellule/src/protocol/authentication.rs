@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
-pub struct AuthenticationData {
+pub(crate) struct AuthenticationData {
     #[serde(rename = "cle")]
-    pub key: String,
+    pub(crate) key: String,
 }
