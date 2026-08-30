@@ -1,12 +1,12 @@
 [package]
 name = "libellule"
-version.workspace = true
-edition.workspace = true
-rust-version = "1.88"
+version = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
 description = "Unofficial implementation of the PRONOTE protocol"
 readme = "README.md"
-repository.workspace = true
-license.workspace = true
+repository = { workspace = true }
+license = { workspace = true }
 keywords = ["api", "client", "pronote"]
 categories = ["api-bindings", "authentication"]
 
