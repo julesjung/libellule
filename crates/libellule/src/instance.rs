@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use base64::{Engine, engine::general_purpose::STANDARD};
 use rand::Rng;
 use reqwest::IntoUrl;
@@ -29,6 +31,8 @@ impl Instance {
     {
         let http = reqwest::Client::builder()
             .user_agent(USER_AGENT)
+            .connect_timeout(Duration::from_secs(5))
+            .timeout(Duration::from_secs(10))
             .build()
             .map_err(TransportError::from)?;
 

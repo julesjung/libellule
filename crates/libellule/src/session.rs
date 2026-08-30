@@ -9,8 +9,8 @@ use crate::protocol::{Function, Request, Response};
 
 #[derive(Debug, Clone)]
 pub struct Session {
-    pub session_id: u32,
-    pub request_count: u32,
+    session_id: u32,
+    request_count: u32,
     pub key: [u8; 16],
     pub iv: [u8; 16],
 }
