@@ -31,7 +31,6 @@ pub enum ProtocolError {
 
 #[uniffi::remote(Error)]
 pub enum AuthenticationError {
-    BadChallenge,
     InvalidCredentials,
 }
 

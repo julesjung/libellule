@@ -1,7 +1,8 @@
+use md5::Md5;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use serde_json::json;
-use sha2::Digest;
+use sha2::{Digest, Sha256};
 use time::{Date, PlainDateTime, Time};
 use tokio::sync::Mutex;
 use url::Url;
@@ -60,33 +61,15 @@ impl Client {
         let mut unencrypted_key = data.random;
         unencrypted_key.push_str(password);
 
-        let mtp = hex::encode_upper(sha2::Sha256::digest(unencrypted_key.as_bytes()));
+        let mtp = hex::encode_upper(Sha256::digest(unencrypted_key.as_bytes()));
 
         let mut temporary_key = username.to_string();
         temporary_key.push_str(mtp.as_str());
 
-        let temporary_key = md5::compute(temporary_key.as_bytes());
+        let temporary_key = Md5::digest(temporary_key.as_bytes()).into();
 
-        let challenge =
-            hex::decode(data.challenge).map_err(|_| AuthenticationError::BadChallenge)?;
-
-        let decrypted_challenge = aes_decrypt(challenge.as_slice(), &temporary_key, &session.iv)
-            .map_err(|_| AuthenticationError::InvalidCredentials)?;
-        let decrypted_challenge = String::from_utf8(decrypted_challenge).unwrap();
-
-        let solution: String = decrypted_challenge
-            .chars()
-            .enumerate()
-            .filter_map(|(index, character)| {
-                if index % 2 == 0 {
-                    Some(character)
-                } else {
-                    None
-                }
-            })
-            .collect();
-
-        let encrypted_solution = aes_encrypt(solution.as_bytes(), &temporary_key, &session.iv);
+        let encrypted_solution =
+            aes_encrypt(data.challenge.as_bytes(), &temporary_key, &session.iv);
         let encrypted_solution = hex::encode(encrypted_solution);
 
         let context = FunctionContext::new(
@@ -104,35 +87,41 @@ impl Client {
 
         let data: AuthenticationData = session.call(context, data).await?;
 
-        let encrypted_key =
-            hex::decode(&data.key).map_err(|_| AuthenticationError::InvalidCredentials)?;
-        let new_key = aes_decrypt(encrypted_key.as_slice(), &temporary_key, &session.iv)
-            .map_err(|_| AuthenticationError::InvalidCredentials)?;
-        let new_key: Vec<u8> = String::from_utf8(new_key)
-            .unwrap()
-            .split(',')
-            .map(|byte| byte.parse::<u8>().unwrap())
-            .collect();
+        if data.failed == 0
+            && let Some(key) = data.key
+        {
+            let encrypted_key =
+                hex::decode(&key).map_err(|_| AuthenticationError::InvalidCredentials)?;
+            let new_key = aes_decrypt(encrypted_key.as_slice(), &temporary_key, &session.iv)
+                .map_err(|_| AuthenticationError::InvalidCredentials)?;
+            let new_key: Vec<u8> = String::from_utf8(new_key)
+                .unwrap()
+                .split(',')
+                .map(|byte| byte.parse::<u8>().unwrap())
+                .collect();
 
-        session.key = *md5::compute(new_key);
+            session.set_key(new_key);
 
-        let context = FunctionContext::new(
-            &instance.base_url,
-            &instance.http,
-            Function::UserParameters,
-            None,
-        );
+            let context = FunctionContext::new(
+                &instance.base_url,
+                &instance.http,
+                Function::UserParameters,
+                None,
+            );
 
-        let user_parameters: UserParameters = session.call(context, json!({})).await?;
+            let user_parameters: UserParameters = session.call(context, json!({})).await?;
 
-        let parameters = parameters(instance.parameters.clone(), user_parameters)?;
+            let parameters = parameters(instance.parameters.clone(), user_parameters)?;
 
-        Ok(Client {
-            instance_url: instance.base_url.clone(),
-            http: instance.http.clone(),
-            parameters,
-            session: Mutex::new(session),
-        })
+            return Ok(Client {
+                instance_url: instance.base_url.clone(),
+                http: instance.http.clone(),
+                parameters,
+                session: Mutex::new(session),
+            });
+        }
+
+        Err(AuthenticationError::InvalidCredentials.into())
     }
 }
 
