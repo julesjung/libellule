@@ -69,10 +69,6 @@ pub enum ProtocolError {
 /// The credentials or the login challenge were rejected. The user might need to type in something a different.
 #[derive(Debug, thiserror::Error)]
 pub enum AuthenticationError {
-    /// The challenge given by PRONOTE's server is invalid.
-    #[error("login challenge is not valid hex")]
-    BadChallenge,
-
     /// The challenge could not be decrypted with the user's password. Most of the time, it means that the username or the password is wrong.
     #[error("invalid credentials")]
     InvalidCredentials,

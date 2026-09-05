@@ -67,26 +67,8 @@ impl Client {
 
         let temporary_key = md5::compute(temporary_key.as_bytes());
 
-        let challenge =
-            hex::decode(data.challenge).map_err(|_| AuthenticationError::BadChallenge)?;
-
-        let decrypted_challenge = aes_decrypt(challenge.as_slice(), &temporary_key, &session.iv)
-            .map_err(|_| AuthenticationError::InvalidCredentials)?;
-        let decrypted_challenge = String::from_utf8(decrypted_challenge).unwrap();
-
-        let solution: String = decrypted_challenge
-            .chars()
-            .enumerate()
-            .filter_map(|(index, character)| {
-                if index % 2 == 0 {
-                    Some(character)
-                } else {
-                    None
-                }
-            })
-            .collect();
-
-        let encrypted_solution = aes_encrypt(solution.as_bytes(), &temporary_key, &session.iv);
+        let encrypted_solution =
+            aes_encrypt(data.challenge.as_bytes(), &temporary_key, &session.iv);
         let encrypted_solution = hex::encode(encrypted_solution);
 
         let context = FunctionContext::new(
