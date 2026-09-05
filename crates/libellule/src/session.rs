@@ -1,3 +1,4 @@
+use md5::{Digest, Md5};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use url::Url;
@@ -11,8 +12,8 @@ use crate::protocol::{Function, Request, Response};
 pub struct Session {
     session_id: u32,
     request_count: u32,
-    pub key: [u8; 16],
-    pub iv: [u8; 16],
+    pub(crate) key: [u8; 16],
+    pub(crate) iv: [u8; 16],
 }
 
 impl Session {
@@ -20,9 +21,23 @@ impl Session {
         Session {
             session_id,
             request_count: 0,
-            key: *md5::compute([]),
+            key: Md5::digest([]).into(),
             iv: [0u8; 16],
         }
+    }
+
+    pub(crate) fn set_key<T>(&mut self, key: T)
+    where
+        T: AsRef<[u8]>,
+    {
+        self.key = Md5::digest(key).into()
+    }
+
+    pub(crate) fn set_iv<T>(&mut self, iv: T)
+    where
+        T: AsRef<[u8]>,
+    {
+        self.iv = Md5::digest(iv).into()
     }
 }
 

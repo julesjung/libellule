@@ -1,7 +1,8 @@
+use md5::Md5;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use serde_json::json;
-use sha2::Digest;
+use sha2::{Digest, Sha256};
 use time::{Date, PlainDateTime, Time};
 use tokio::sync::Mutex;
 use url::Url;
@@ -60,12 +61,12 @@ impl Client {
         let mut unencrypted_key = data.random;
         unencrypted_key.push_str(password);
 
-        let mtp = hex::encode_upper(sha2::Sha256::digest(unencrypted_key.as_bytes()));
+        let mtp = hex::encode_upper(Sha256::digest(unencrypted_key.as_bytes()));
 
         let mut temporary_key = username.to_string();
         temporary_key.push_str(mtp.as_str());
 
-        let temporary_key = md5::compute(temporary_key.as_bytes());
+        let temporary_key = Md5::digest(temporary_key.as_bytes()).into();
 
         let encrypted_solution =
             aes_encrypt(data.challenge.as_bytes(), &temporary_key, &session.iv);
@@ -99,7 +100,7 @@ impl Client {
                 .map(|byte| byte.parse::<u8>().unwrap())
                 .collect();
 
-            session.key = *md5::compute(new_key);
+            session.set_key(new_key);
 
             let context = FunctionContext::new(
                 &instance.base_url,

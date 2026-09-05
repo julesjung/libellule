@@ -64,7 +64,7 @@ impl Instance {
 
         let parameters: InstanceParameters = session.call(context, data).await?;
 
-        session.iv = *md5::compute(iv);
+        session.set_iv(iv);
 
         Ok(Instance {
             http,
