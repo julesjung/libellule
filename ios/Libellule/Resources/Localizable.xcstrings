@@ -14,9 +14,6 @@
     "Absent" : {
 
     },
-    "Accompagnement" : {
-
-    },
     "Aucun cours" : {
 
     },
@@ -72,25 +69,10 @@
     "Date" : {
 
     },
-    "Dessert" : {
-
-    },
     "Emploi du temps" : {
 
     },
-    "Entrée" : {
-
-    },
     "Erreur" : {
-
-    },
-    "Le menu n'a été renseigné pour cette date" : {
-
-    },
-    "Menu" : {
-
-    },
-    "Midi" : {
 
     },
     "Mot de passe" : {
@@ -117,6 +99,7 @@
 
     },
     "Notes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fr" : {
           "stringUnit" : {
@@ -126,34 +109,14 @@
         }
       }
     },
-    "Pas de menu" : {
-
-    },
     "Période" : {
-
-    },
-    "Plat" : {
-
-    },
-    "Produits laitiers" : {
-
-    },
-    "Profitez-en pour bien vous reposer !" : {
 
     },
     "Réessayer" : {
 
     },
-    "Repas" : {
-
-    },
-    "Retour à l'écran de connexion" : {
-
-    },
-    "Soir" : {
-
-    },
     "Suivant" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fr" : {
           "stringUnit" : {

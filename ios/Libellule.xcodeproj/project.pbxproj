@@ -14,9 +14,22 @@
 		847AC295300AB73000D87659 /* Libellule.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Libellule.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		845B727B304C5FC50004C622 /* Exceptions for "Libellule" folder in "Libellule" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Features/Timetable/MenuView.swift,
+			);
+			target = 847AC294300AB73000D87659 /* Libellule */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		846604EB302CA9B8003AC176 /* Libellule */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				845B727B304C5FC50004C622 /* Exceptions for "Libellule" folder in "Libellule" target */,
+			);
 			path = Libellule;
 			sourceTree = "<group>";
 		};
