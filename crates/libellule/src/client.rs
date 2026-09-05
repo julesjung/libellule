@@ -86,35 +86,41 @@ impl Client {
 
         let data: AuthenticationData = session.call(context, data).await?;
 
-        let encrypted_key =
-            hex::decode(&data.key).map_err(|_| AuthenticationError::InvalidCredentials)?;
-        let new_key = aes_decrypt(encrypted_key.as_slice(), &temporary_key, &session.iv)
-            .map_err(|_| AuthenticationError::InvalidCredentials)?;
-        let new_key: Vec<u8> = String::from_utf8(new_key)
-            .unwrap()
-            .split(',')
-            .map(|byte| byte.parse::<u8>().unwrap())
-            .collect();
+        if data.failed == 0
+            && let Some(key) = data.key
+        {
+            let encrypted_key =
+                hex::decode(&key).map_err(|_| AuthenticationError::InvalidCredentials)?;
+            let new_key = aes_decrypt(encrypted_key.as_slice(), &temporary_key, &session.iv)
+                .map_err(|_| AuthenticationError::InvalidCredentials)?;
+            let new_key: Vec<u8> = String::from_utf8(new_key)
+                .unwrap()
+                .split(',')
+                .map(|byte| byte.parse::<u8>().unwrap())
+                .collect();
 
-        session.key = *md5::compute(new_key);
+            session.key = *md5::compute(new_key);
 
-        let context = FunctionContext::new(
-            &instance.base_url,
-            &instance.http,
-            Function::UserParameters,
-            None,
-        );
+            let context = FunctionContext::new(
+                &instance.base_url,
+                &instance.http,
+                Function::UserParameters,
+                None,
+            );
 
-        let user_parameters: UserParameters = session.call(context, json!({})).await?;
+            let user_parameters: UserParameters = session.call(context, json!({})).await?;
 
-        let parameters = parameters(instance.parameters.clone(), user_parameters)?;
+            let parameters = parameters(instance.parameters.clone(), user_parameters)?;
 
-        Ok(Client {
-            instance_url: instance.base_url.clone(),
-            http: instance.http.clone(),
-            parameters,
-            session: Mutex::new(session),
-        })
+            return Ok(Client {
+                instance_url: instance.base_url.clone(),
+                http: instance.http.clone(),
+                parameters,
+                session: Mutex::new(session),
+            });
+        }
+
+        Err(AuthenticationError::InvalidCredentials.into())
     }
 }
 
