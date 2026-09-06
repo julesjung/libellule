@@ -25,9 +25,7 @@ struct DateSelector: View {
             temporarySelection = selection
             showingDatePicker = true
         } label: {
-            HStack {
-                Text(selection.formatted(.dateTime.weekday(.wide).day().month(.wide)).localizedCapitalized)
-            }
+            Text(selection.formatted(.dateTime.weekday(.wide).day().month(.wide)).localizedCapitalized)
         }
         .sheet(isPresented: $showingDatePicker) {
             NavigationStack {

@@ -9,66 +9,60 @@ import SwiftUI
 import LibelluleKit
 
 struct TimetableView: View {
-    @State var store: TimetableStore
-
-    var body: some View {
-        NavigationStack {
-            LoadableView(state: store.timetable, retry: { await store.loadTimetable() }) { timetable in
-                GeometryReader { geometry in
-                    DayPager(previous: store.previousDay, next: store.nextDay) {
-                        let width = geometry.size.width
-                        
-                        HStack(spacing: 0) {
-                            Color.clear
-                                .frame(width: width)
-                            
-                            dayView(timetable: timetable)
-                                .frame(width: width)
-                            
-                            if store.selectedDate != store.datesRange.upperBound {
-                                Color.clear
-                                    .frame(width: width)
-                            }
-                        }
-                    }
-                }
-                .ignoresSafeArea()
-            }
-            .task {
-                await store.loadTimetable()
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    DateSelector(selection: $store.selectedDate, in: store.datesRange)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink {
-                        MenuView(store: store)
-                    } label: {
-                        Image(systemName: "menucard")
-                    }
-                }
-            }
+    private let datesRange: ClosedRange<Date>
+    private let dates: [String]
+    
+    @State private var visibleDate: ScrollPosition
+    
+    init(datesRange: ClosedRange<Date>) {
+        self.datesRange = datesRange
+        
+        var dates: [String] = []
+        let calendar = Calendar.current
+        
+        var currentDate = calendar.startOfDay(for: datesRange.lowerBound)
+        let end = calendar.startOfDay(for: datesRange.upperBound)
+        
+        while currentDate <= end {
+            dates.append(DateFormatter.date.string(from: currentDate))
+            guard let nextDate = calendar.date(byAdding: .day, value: 1, to: currentDate) else { break }
+            currentDate = nextDate
         }
+        
+        self.dates = dates
+        
+        let today = min(max(Date.now, datesRange.lowerBound), datesRange.upperBound)
+        self._visibleDate = State(initialValue: .init(id: DateFormatter.date.string(from: today)))
     }
     
-    @ViewBuilder
-    private func dayView(timetable: Timetable) -> some View {
-        if timetable.lessons.isEmpty {
-            ContentUnavailableView(
-                "Aucun cours",
-                systemImage: "beach.umbrella",
-                description: Text("Profitez-en pour bien vous reposer !")
-            )
-        } else {
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(timetable.lessons, id: \.id) { lesson in
-                        LessonView(lesson: lesson)
+    private var dateBinding: Binding<Date> {
+        Binding<Date>(
+            get: {
+                DateFormatter.date.date(from: visibleDate.viewID as! String)!
+            },
+            set: { newValue in
+                visibleDate = ScrollPosition(id: DateFormatter.date.string(from: newValue))
+            }
+        )
+    }
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 0) {
+                    ForEach(dates, id: \.self) { date in
+                        DayView(date: date)
+                            .containerRelativeFrame(.horizontal)
                     }
+                }
+                .scrollTargetLayout()
+            }
+            .scrollTargetBehavior(.paging)
+            .scrollPosition($visibleDate)
+            .scrollIndicators(.hidden)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    DateSelector(selection: dateBinding, in: datesRange)
                 }
             }
         }
