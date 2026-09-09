@@ -1160,7 +1160,7 @@ checksum = "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
 
 [[package]]
 name = "libellule"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "aes",
  "base64 0.23.1",
@@ -1182,7 +1182,7 @@ dependencies = [
 
 [[package]]
 name = "libellule-cli"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "inquire",
  "libellule",
@@ -1193,7 +1193,7 @@ dependencies = [
 
 [[package]]
 name = "libellule-uniffi"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "libellule",
  "thiserror",
