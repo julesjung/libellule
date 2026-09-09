@@ -32,13 +32,13 @@ pub(crate) struct Lesson {
     pub(crate) length: u32,
 
     #[serde(rename = "estAnnule", default)]
-    pub(crate) _cancelled: bool,
+    pub(crate) cancelled: bool,
 
     #[serde(rename = "ListeContenus")]
     pub(crate) information: ValueWrapper<Vec<LessonInformation>>,
 
     #[serde(rename = "CouleurFond")]
-    pub(crate) background_color: String,
+    pub(crate) color: String,
 }
 
 #[derive(Deserialize, Debug)]

@@ -71,6 +71,7 @@ fn lesson(
         subject: subject.unwrap(),
         locations,
         groups,
-        background: raw.background_color,
+        color: raw.color,
+        cancelled: raw.cancelled,
     })
 }
