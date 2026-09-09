@@ -19,7 +19,8 @@ pub struct Lesson {
     pub teachers: Vec<String>,
     pub groups: Vec<Group>,
     pub locations: Vec<Location>,
-    pub background: String,
+    pub color: String,
+    pub cancelled: bool,
 }
 
 #[uniffi::remote(Record)]
