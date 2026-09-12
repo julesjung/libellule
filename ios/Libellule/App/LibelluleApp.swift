@@ -15,7 +15,7 @@ struct LibelluleApp: App {
     private let appParameters: AppParameters?
     
     init() {
-        let schema = Schema([CachedDay.self])
+        let schema = Schema([CachedDay.self, CachedHomework.self])
         let configuration = ModelConfiguration(schema: schema)
         
         do {

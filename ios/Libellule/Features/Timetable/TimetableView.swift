@@ -11,8 +11,22 @@ import LibelluleKit
 struct TimetableView: View {
     private let datesRange: ClosedRange<Date>
     private let dates: [String]
+
+    @State private var showingDatePicker = false
+    @State private var temporarySelection: Date
     
     @State private var visibleDate: ScrollPosition
+    
+    private var dateBinding: Binding<Date> {
+        Binding<Date>(
+            get: {
+                DateFormatter.date.date(from: visibleDate.viewID as! String)!
+            },
+            set: { newValue in
+                visibleDate = ScrollPosition(id: DateFormatter.date.string(from: newValue))
+            }
+        )
+    }
     
     init(datesRange: ClosedRange<Date>) {
         self.datesRange = datesRange
@@ -32,18 +46,8 @@ struct TimetableView: View {
         self.dates = dates
         
         let today = min(max(Date.now, datesRange.lowerBound), datesRange.upperBound)
+        self.temporarySelection = today
         self._visibleDate = State(initialValue: .init(id: DateFormatter.date.string(from: today)))
-    }
-    
-    private var dateBinding: Binding<Date> {
-        Binding<Date>(
-            get: {
-                DateFormatter.date.date(from: visibleDate.viewID as! String)!
-            },
-            set: { newValue in
-                visibleDate = ScrollPosition(id: DateFormatter.date.string(from: newValue))
-            }
-        )
     }
     
     var body: some View {
@@ -62,10 +66,30 @@ struct TimetableView: View {
             .scrollIndicators(.hidden)
             .navigationTitle(dateBinding.wrappedValue.formatted(.dateTime.weekday(.wide)).localizedCapitalized)
             .navigationSubtitle(dateBinding.wrappedValue.formatted(date: .long, time: .omitted))
-            .toolbar {
-                DateSelector(selection: dateBinding, in: datesRange)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarTitleMenu {
+                Button("Choisir une date", systemImage: "calendar") {
+                    temporarySelection = dateBinding.wrappedValue
+                    showingDatePicker = true
+                }
             }
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .sheet(isPresented: $showingDatePicker) {
+                NavigationStack {
+                    SingleDateCalendarView(selection: $temporarySelection, in: datesRange)
+                        .navigationTitle("Date")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(role: .confirm) {
+                                    dateBinding.wrappedValue = temporarySelection
+                                    showingDatePicker = false
+                                }
+                            }
+                        }
+                        .padding()
+                }
+                    .presentationDetents([.medium])
+            }
         }
     }
 }

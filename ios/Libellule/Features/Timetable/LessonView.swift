@@ -24,7 +24,7 @@ struct LessonView: View {
         } label: {
             HStack(spacing: 12) {
                 RoundedRectangle(cornerRadius: 10)
-                    .foregroundStyle(Color(hex: lesson.background))
+                    .foregroundStyle(Color(hex: lesson.color))
                     .frame(width: 10)
                 
                 VStack(alignment: .leading) {
@@ -58,8 +58,4 @@ struct LessonView: View {
             }
         }
     }
-}
-
-#Preview {
-    LessonView(lesson: CachedLesson(id: "29#pSS2zUe8bF2mLdD408rJsdOG_8GcbtV3b4wO8Q7fla4", start: "11:00:00", end: "12:00:00", subjectName: "PHYSIQUE-CHIMIE", teachers: ["LE CORRE T."], rooms: ["Salle 213 PHY"], groups: ["[1PH-CH1]"], background: "#EC6719"))
 }

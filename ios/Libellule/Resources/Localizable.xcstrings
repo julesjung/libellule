@@ -1,10 +1,10 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
-    "Accueil" : {
+    "Aucun cours" : {
 
     },
-    "Aucun cours" : {
+    "Aucun devoir" : {
 
     },
     "Chargement de l'utilsateur" : {
@@ -30,6 +30,9 @@
       }
     },
     "Choisir une date" : {
+
+    },
+    "Choisir une semaine" : {
 
     },
     "Connexion" : {
@@ -99,6 +102,9 @@
         }
       }
     },
+    "Semaine %@" : {
+
+    },
     "Suivant" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -133,9 +139,6 @@
           }
         }
       }
-    },
-    "Voir tout l'emploi du temps" : {
-
     }
   },
   "version" : "1.3"
