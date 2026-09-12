@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 import LibelluleKit
 
 @Observable
