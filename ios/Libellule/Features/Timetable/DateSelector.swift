@@ -21,11 +21,9 @@ struct DateSelector: View {
     }
     
     var body: some View {
-        Button {
+        Button("Choisir une date", systemImage: "calendar") {
             temporarySelection = selection
             showingDatePicker = true
-        } label: {
-            Text(selection.formatted(.dateTime.weekday(.wide).day().month(.wide)).localizedCapitalized)
         }
         .sheet(isPresented: $showingDatePicker) {
             NavigationStack {

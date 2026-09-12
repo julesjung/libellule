@@ -1,26 +1,10 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
-    "%@/%@" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@/%2$@"
-          }
-        }
-      }
-    },
-    "Absent" : {
+    "Accueil" : {
 
     },
     "Aucun cours" : {
-
-    },
-    "Aucune note" : {
-
-    },
-    "Aucune note pour cette période" : {
 
     },
     "Chargement de l'utilsateur" : {
@@ -44,6 +28,9 @@
           }
         }
       }
+    },
+    "Choisir une date" : {
+
     },
     "Connexion" : {
       "localizations" : {
@@ -69,10 +56,16 @@
     "Date" : {
 
     },
-    "Emploi du temps" : {
+    "Devoirs" : {
 
     },
-    "Erreur" : {
+    "EDT" : {
+
+    },
+    "Hello, World!" : {
+
+    },
+    "mercredi 9 septembre" : {
 
     },
     "Mot de passe" : {
@@ -95,9 +88,6 @@
         }
       }
     },
-    "Non Noté" : {
-
-    },
     "Notes" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -109,12 +99,6 @@
         }
       }
     },
-    "Période" : {
-
-    },
-    "Réessayer" : {
-
-    },
     "Suivant" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -125,6 +109,9 @@
           }
         }
       }
+    },
+    "Updated just now" : {
+
     },
     "URL de l'instance PRONOTE" : {
       "localizations" : {
@@ -146,6 +133,9 @@
           }
         }
       }
+    },
+    "Voir tout l'emploi du temps" : {
+
     }
   },
   "version" : "1.3"

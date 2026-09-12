@@ -18,6 +18,8 @@
 		845B727B304C5FC50004C622 /* Exceptions for "Libellule" folder in "Libellule" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Features/Grades/GradesStore.swift,
+				Features/Grades/GradesView.swift,
 				Features/Timetable/MenuView.swift,
 			);
 			target = 847AC294300AB73000D87659 /* Libellule */;

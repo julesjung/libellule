@@ -14,12 +14,12 @@ struct LessonList: View {
         if lessons.isEmpty {
             ContentUnavailableView("Aucun cours", systemImage: "beach.umbrella")
         } else {
-            ScrollView {
+            List {
                 ForEach(lessons, id: \.id) { lesson in
                     LessonView(lesson: lesson)
                 }
             }
-            .scenePadding(.horizontal)
+            .listStyle(.insetGrouped)
         }
     }
 }

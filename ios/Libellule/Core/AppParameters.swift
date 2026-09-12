@@ -30,3 +30,19 @@ nonisolated struct StoredPeriod: Codable {
     var id: String
     var name: String
 }
+
+enum AppError: Error {
+    case notLoggedIn
+    case invalidCredentials
+}
+
+extension AppError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .notLoggedIn:
+            return "Please log in"
+        case .invalidCredentials:
+            return "Invalid credentials"
+        }
+    }
+}

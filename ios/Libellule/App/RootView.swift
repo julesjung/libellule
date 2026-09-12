@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RootView: View {
     @State var appParameters: AppParameters?
+    @State var currentTab: AppTab = .home
     
     init(appParameters: AppParameters?) {
         self._appParameters = State(initialValue: appParameters)
@@ -20,35 +21,6 @@ struct RootView: View {
         } else {
             LoginView(appParameters: $appParameters)
         }
-        //        switch session.state {
-        //        case .loggedOut:
-        //            InstanceView()
-        //        case .connecting, .authenticating:
-        //            ProgressView()
-        //        case .connected(let instance):
-        //            LoginView(instance: instance)
-        //        case .authenticated(let client):
-        
-        //                Tab("Devoirs", systemImage: "") {
-        //                    HomeworkView(client: client)
-        //                }
-        //                Tab("Notes", systemImage: "graph.2d") {
-        //                    GradesView(store: GradesStore(client: client))
-        //                }
-        //        case .failed(let error):
-        //            ContentUnavailableView {
-        //                Label("Erreur", systemImage: "wifi.exclamationmark")
-        //            } description: {
-        //                Text(error.localizedDescription)
-        //            } actions: {
-        //                Button("Retour à l'écran de connexion") {
-        //                    session.state = .loggedOut
-        //                }
-        //                    .buttonStyle(.glassProminent)
-        //                    .controlSize(.large)
-        //                    .buttonSizing(.flexible)
-        //            }
-        //        }
     }
     
     @ViewBuilder
@@ -60,10 +32,22 @@ struct RootView: View {
             return startDate...endDate
         }()
         
-        TabView {
-            Tab("Emploi du temps", systemImage: "calendar") {
+        TabView(selection: $currentTab) {
+            Tab("Accueil", systemImage: "house", value: .home) {
+                HomeView(datesRange: datesRange, currentTab: $currentTab)
+            }
+            
+            Tab("EDT", systemImage: "calendar.day.timeline.left", value: .timetable) {
                 TimetableView(datesRange: datesRange)
+            }
+            
+            Tab("Devoirs", systemImage: "checkmark.square", value: .homework) {
+                HomeworkView()
             }
         }
     }
+}
+
+enum AppTab {
+    case home, timetable, homework
 }

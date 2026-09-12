@@ -18,42 +18,42 @@ struct LessonView: View {
         
         let teachers = lesson.teachers.joined(separator: ", ")
         let rooms = lesson.rooms.joined(separator: ", ")
-        let groups = lesson.groups.joined(separator: ", ")
-        
-        GroupBox {
-            HStack(spacing: 0) {
-                VStack(alignment: .center, spacing: 12) {
+
+        NavigationLink {
+            LessonDetails(lesson: lesson)
+        } label: {
+            HStack(spacing: 12) {
+                RoundedRectangle(cornerRadius: 10)
+                    .foregroundStyle(Color(hex: lesson.background))
+                    .frame(width: 10)
+                
+                VStack(alignment: .leading) {
                     Text(start.formatted(date: .omitted, time: .shortened))
                         .font(.caption)
                         .monospaced()
+                        .bold()
+                    
                     Spacer()
+                    
                     Text(end.formatted(date: .omitted, time: .shortened))
                         .font(.caption)
                         .monospaced()
+                        .bold()
                 }
-                .padding(.trailing)
-                
-                RoundedRectangle(cornerRadius: 10)
-                    .foregroundStyle(Color(hex: lesson.background))
-                    .frame(width: 8)
+                .frame(minWidth: 50)
                 
                 VStack(alignment: .leading) {
                     Text(lesson.subjectName.localizedCapitalized)
                         .font(.headline)
                     if !teachers.isEmpty {
-                        Label(teachers, systemImage: "person")
+                        Text(teachers)
                             .font(.subheadline)
                     }
                     if !rooms.isEmpty {
-                        Label(rooms, systemImage: "location")
-                            .font(.subheadline)
-                    }
-                    if !groups.isEmpty {
-                        Label(groups, systemImage: "person.3")
+                        Text(rooms)
                             .font(.subheadline)
                     }
                 }
-                .padding(.leading)
                 Spacer()
             }
         }

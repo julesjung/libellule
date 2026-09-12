@@ -60,11 +60,12 @@ struct TimetableView: View {
             .scrollTargetBehavior(.paging)
             .scrollPosition($visibleDate)
             .scrollIndicators(.hidden)
+            .navigationTitle(dateBinding.wrappedValue.formatted(.dateTime.weekday(.wide)).localizedCapitalized)
+            .navigationSubtitle(dateBinding.wrappedValue.formatted(date: .long, time: .omitted))
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    DateSelector(selection: dateBinding, in: datesRange)
-                }
+                DateSelector(selection: dateBinding, in: datesRange)
             }
+            .toolbarTitleDisplayMode(.inlineLarge)
         }
     }
 }
