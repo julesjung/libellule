@@ -256,7 +256,7 @@ impl Client {
     /// Returns homework for the week containing `date`.
     pub async fn homework(&self, date: Date) -> Result<Homework, Error> {
         // TODO: check that date is within range
-        let week = (date - self.parameters.instance.first_monday).whole_weeks();
+        let week = (date - self.parameters.instance.first_monday).whole_weeks() + 1;
         let week = format!("[{week}]");
 
         let data = json!({
