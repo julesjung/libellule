@@ -19,9 +19,9 @@ struct LessonView: View {
         let teachers = lesson.teachers.joined(separator: ", ")
         let rooms = lesson.rooms.joined(separator: ", ")
 
-        NavigationLink {
-            LessonDetails(lesson: lesson)
-        } label: {
+//        NavigationLink {
+//            LessonDetails(lesson: lesson)
+//        } label: {
             HStack(spacing: 12) {
                 RoundedRectangle(cornerRadius: 10)
                     .foregroundStyle(Color(hex: lesson.color))
@@ -56,6 +56,6 @@ struct LessonView: View {
                 }
                 Spacer()
             }
-        }
+//        }
     }
 }

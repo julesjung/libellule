@@ -20,29 +20,8 @@ struct HomeworkWeek: View {
     
     var body: some View {
         Group {
-            if let items = homeworkWeeks.first?.items {
-                List(items, id: \.id) { item in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(item.due.formatted(date: .numeric, time: .omitted))
-                                .font(.caption)
-                                .monospaced()
-                                .bold()
-                            
-                            Text(item.subjectName)
-                                .font(.headline)
-                            
-                            Text(item.contents)
-                                .font(.subheadline)
-                        }
-                        Spacer()
-                        Button(action: { }) {
-                            Image(systemName: item.done ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(item.done ? .accent : .gray)
-                        }
-                        .disabled(true)
-                    }
-                }
+            if let items = homeworkWeeks.first?.items, !items.isEmpty {
+                HomeworkList(items: items)
             } else {
                 ContentUnavailableView("Aucun devoir", systemImage: "beach.umbrella")
             }

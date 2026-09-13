@@ -44,10 +44,12 @@ struct HomeworkView: View {
         end = calendar.date(byAdding: .day, value: 6, to: end) ?? end
         
         self.datesRange = start...end
-                
-        self.dates = Array(
-            calendar.dates(byAdding: .weekOfYear, value: 1, startingAt: start, in: .distantPast..<end)
+            
+        var dates = [start]
+        dates.append(
+            contentsOf: calendar.dates(byAdding: .weekOfYear, startingAt: start, in: .distantPast..<end)
         )
+        self.dates = dates
         
         var today = min(max(Date.now, start), end)
         today = calendar.date(from: calendar.dateComponents(
@@ -74,8 +76,8 @@ struct HomeworkView: View {
             .scrollTargetBehavior(.paging)
             .scrollPosition($visibleDate)
             .scrollIndicators(.hidden)
-            .navigationTitle("Semaine \(dateBinding.wrappedValue.formatted(.dateTime.week()).localizedCapitalized)")
-            .navigationSubtitle(dateBinding.wrappedValue.formatted(date: .long, time: .omitted))
+            .navigationTitle("Semaine \(dateBinding.wrappedValue.formatted(.dateTime.week(.defaultDigits)))")
+            .navigationSubtitle(formatWeek(monday: dateBinding.wrappedValue))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarTitleMenu {
                 Button("Choisir une semaine", systemImage: "calendar") {
@@ -101,5 +103,15 @@ struct HomeworkView: View {
                     .presentationDetents([.medium])
             }
         }
+    }
+    
+    func formatWeek(monday: Date) -> String {
+        let sunday = Calendar.current.date(byAdding: .day, value: 6, to: monday)!
+        
+        let weekFormatter = DateIntervalFormatter()
+        weekFormatter.dateStyle = .long
+        weekFormatter.timeStyle = .none
+        
+        return weekFormatter.string(from: DateInterval(start: monday, end: sunday))!
     }
 }
