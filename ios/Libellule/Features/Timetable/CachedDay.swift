@@ -31,9 +31,9 @@ final class CachedLesson {
     var teachers: [String]
     var rooms: [String]
     var groups: [String]
-    var background: String
+    var color: String
     
-    init(id: String, start: String, end: String, subjectName: String, teachers: [String], rooms: [String], groups: [String], background: String) {
+    init(id: String, start: String, end: String, subjectName: String, teachers: [String], rooms: [String], groups: [String], color: String) {
         self.id = id
         self.start = start
         self.end = end
@@ -41,7 +41,7 @@ final class CachedLesson {
         self.teachers = teachers
         self.rooms = rooms
         self.groups = groups
-        self.background = background
+        self.color = color
     }
     
     init(lesson: Lesson) {
@@ -52,6 +52,6 @@ final class CachedLesson {
         self.teachers = lesson.teachers
         self.rooms = lesson.locations.map(\.name)
         self.groups = lesson.groups.map(\.name)
-        self.background = lesson.background
+        self.color = lesson.color
     }
 }

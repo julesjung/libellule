@@ -33,16 +33,12 @@ struct RootView: View {
         }()
         
         TabView(selection: $currentTab) {
-            Tab("Accueil", systemImage: "house", value: .home) {
-                HomeView(datesRange: datesRange, currentTab: $currentTab)
-            }
-            
             Tab("EDT", systemImage: "calendar.day.timeline.left", value: .timetable) {
                 TimetableView(datesRange: datesRange)
             }
             
             Tab("Devoirs", systemImage: "checkmark.square", value: .homework) {
-                HomeworkView()
+                HomeworkView(datesRange: datesRange)
             }
         }
     }

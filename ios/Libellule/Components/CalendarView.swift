@@ -8,7 +8,7 @@
 import SwiftUI
 import UIKit
 
-struct CalendarView: UIViewRepresentable {
+struct SingleDateCalendarView: UIViewRepresentable {
     @Binding var selection: Date
     var `in`: ClosedRange<Date>
 
@@ -21,7 +21,6 @@ struct CalendarView: UIViewRepresentable {
 
         calendarView.calendar = Calendar.current
         calendarView.locale = Locale.current
-        calendarView.fontDesign = .rounded
         calendarView.availableDateRange = DateInterval(start: `in`.lowerBound, end: `in`.upperBound)
 
         let selection = UICalendarSelectionSingleDate(
@@ -99,3 +98,96 @@ struct CalendarView: UIViewRepresentable {
         }
     }
 }
+
+struct WeekOfYearCalendarView: UIViewRepresentable {
+    @Binding var selection: Date
+    var `in`: ClosedRange<Date>
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(selection: $selection)
+    }
+
+    func makeUIView(context: Context) -> UICalendarView {
+        let calendarView = UICalendarView()
+
+        calendarView.calendar = Calendar.current
+        calendarView.locale = Locale.current
+
+        calendarView.availableDateRange = DateInterval(
+            start: `in`.lowerBound,
+            end: `in`.upperBound
+        )
+
+        let selection = UICalendarSelectionWeekOfYear(
+            delegate: context.coordinator
+        )
+
+        selection.selectedWeekOfYear = calendarView.calendar.dateComponents(
+            [.yearForWeekOfYear, .weekOfYear],
+            from: self.selection
+        )
+
+        calendarView.selectionBehavior = selection
+
+        calendarView.visibleDateComponents = calendarView.calendar.dateComponents(
+            [.yearForWeekOfYear, .weekOfYear],
+            from: self.selection
+        )
+
+        return calendarView
+    }
+
+    func updateUIView(
+        _ calendarView: UICalendarView,
+        context: Context
+    ) {
+        let components = calendarView.calendar.dateComponents(
+            [.yearForWeekOfYear, .weekOfYear],
+            from: selection
+        )
+
+        guard
+            let selection = calendarView.selectionBehavior
+                as? UICalendarSelectionWeekOfYear
+        else {
+            return
+        }
+
+        if selection.selectedWeekOfYear != components {
+            selection.setSelected(components, animated: false)
+        }
+    }
+    
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UICalendarView, context: Context) -> CGSize? {
+        let width = proposal.width ?? 0
+        let height = proposal.height ?? 0
+
+        return uiView.systemLayoutSizeFitting(
+            CGSize(
+                width: width,
+                height: height
+            ),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+    }
+
+    final class Coordinator: NSObject, UICalendarSelectionWeekOfYearDelegate {
+        var selection: Binding<Date>
+        
+        init(selection: Binding<Date>) {
+            self.selection = selection
+        }
+        
+        func week(ofYearSelection selection: UICalendarSelectionWeekOfYear, didSelectWeekOfYear weekOfYearComponents: DateComponents?) {
+            guard let weekOfYearComponents else {
+                return
+            }
+            
+            if let date = weekOfYearComponents.date {
+                self.selection.wrappedValue = date
+            }
+        }
+    }
+}
+
