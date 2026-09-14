@@ -11,17 +11,7 @@ struct HomeworkList: View {
     let groupedItems: [Date: [CachedHomeworkItem]]
     
     init(items: [CachedHomeworkItem]) {
-        var groupedItems = [Date: [CachedHomeworkItem]]()
-        
-        for item in items {
-            if var entry = groupedItems[item.due] {
-                entry.append(item)
-            } else {
-                groupedItems.updateValue([item], forKey: item.due)
-            }
-        }
-        
-        self.groupedItems = groupedItems
+        self.groupedItems = Dictionary(grouping: items, by: \.due)
     }
     
     var body: some View {
