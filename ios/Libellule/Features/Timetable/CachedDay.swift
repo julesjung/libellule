@@ -32,17 +32,7 @@ final class CachedLesson {
     var rooms: [String]
     var groups: [String]
     var color: String
-    
-    init(id: String, start: String, end: String, subjectName: String, teachers: [String], rooms: [String], groups: [String], color: String) {
-        self.id = id
-        self.start = start
-        self.end = end
-        self.subjectName = subjectName
-        self.teachers = teachers
-        self.rooms = rooms
-        self.groups = groups
-        self.color = color
-    }
+    var cancelled: Bool
     
     init(lesson: Lesson) {
         self.id = lesson.id
@@ -53,5 +43,6 @@ final class CachedLesson {
         self.rooms = lesson.locations.map(\.name)
         self.groups = lesson.groups.map(\.name)
         self.color = lesson.color
+        self.cancelled = lesson.cancelled
     }
 }
