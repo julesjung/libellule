@@ -73,6 +73,14 @@ struct TimetableView: View {
                     showingDatePicker = true
                 }
             }
+            .toolbar {
+                NavigationLink {
+                    MenuView(date: dateBinding.wrappedValue)
+                } label: {
+                    Image(systemName: "menucard")
+                }
+
+            }
             .sheet(isPresented: $showingDatePicker) {
                 NavigationStack {
                     SingleDateCalendarView(selection: $temporarySelection, in: datesRange)

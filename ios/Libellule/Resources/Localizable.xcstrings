@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Accompagnement" : {
+
+    },
     "Aucun cours" : {
 
     },
@@ -59,16 +62,31 @@
     "Date" : {
 
     },
+    "Dessert" : {
+
+    },
     "Devoirs" : {
 
     },
     "EDT" : {
 
     },
+    "Entrée" : {
+
+    },
     "Hello, World!" : {
 
     },
+    "Le menu n'a été renseigné pour cette date" : {
+
+    },
+    "Menu" : {
+
+    },
     "mercredi 9 septembre" : {
+
+    },
+    "Midi" : {
 
     },
     "Mot de passe" : {
@@ -102,7 +120,22 @@
         }
       }
     },
+    "Pas de menu" : {
+
+    },
+    "Plat" : {
+
+    },
+    "Produits laitiers" : {
+
+    },
+    "Repas" : {
+
+    },
     "Semaine %@" : {
+
+    },
+    "Soir" : {
 
     },
     "Suivant" : {

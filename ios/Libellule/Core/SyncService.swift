@@ -135,4 +135,30 @@ actor SyncService: ModelActor {
         
         try? modelContext.save()
     }
+    
+    func refreshMenuIfStale(_ date: Date) async {
+        if let existing = try? modelContext.fetch(
+            FetchDescriptor<CachedMenu>(predicate: #Predicate { $0.date == date })
+        ),
+           let fetchedAt = existing.first?.fetchedAt,
+           Date.now.timeIntervalSince(fetchedAt) < 15 * 60 {
+            return
+        }
+        await refreshMenu(date)
+    }
+    
+    func refreshMenu(_ date: Date) async {
+        guard let client = try? await self.client(),
+              let menu = try? await client.menu(date: DateFormatter.date.string(from: date)) else { return }
+        
+        if let existing = try? modelContext.fetch(
+            FetchDescriptor<CachedMenu>(predicate: #Predicate { $0.date == date })
+        ).first {
+            modelContext.delete(existing)
+        }
+        
+        modelContext.insert(CachedMenu(date: date, menu: menu))
+        
+        try? modelContext.save()
+    }
 }
