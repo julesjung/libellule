@@ -20,7 +20,7 @@ cbc = { version = "0.2.1", features = ["alloc"] }
 hex = "0.4.3"
 md-5 = "0.11.0"
 rand = "0.10.2"
-reqwest = { version = "0.13.5", features = ["json"] }
+reqwest = { version = "0.13.5", default-features = false, features = ["charset", "http2", "json", "system-proxy"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_repr = "0.1.21"
@@ -30,6 +30,11 @@ time = { workspace = true, features = ["formatting", "macros", "parsing"] }
 tl = "0.7.8"
 tokio = { workspace = true, features = ["sync"] }
 url = { workspace = true }
+
+[features]
+default = ["rustls"]
+native-tls = ["reqwest/native-tls"]
+rustls = ["reqwest/rustls"]
 
 [lints.rust]
 missing_docs = "warn"
