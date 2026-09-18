@@ -11,7 +11,7 @@ crate-type = ["lib", "staticlib"]
 name = "libellule"
 
 [dependencies]
-libellule = { workspace = true, default-features = false, features = ["native-tls"] }
+libellule = { workspace = true, features = ["native-tls"] }
 thiserror = { workspace = true }
 time = { workspace = true, features = ["formatting", "macros", "parsing"] }
 uniffi = { workspace = true, features = ["tokio"] }

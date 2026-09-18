@@ -9,7 +9,7 @@ publish = false
 
 [dependencies]
 inquire = { version = "0.9.4", features = ["date"] }
-libellule = { workspace = true }
+libellule = { workspace = true, features = ["rustls"] }
 time = { workspace = true, features = ["macros"] }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 url = { workspace = true }
