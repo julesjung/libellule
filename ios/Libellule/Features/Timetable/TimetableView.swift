@@ -20,10 +20,10 @@ struct TimetableView: View {
     private var dateBinding: Binding<Date> {
         Binding<Date>(
             get: {
-                DateFormatter.date.date(from: visibleDate.viewID as! String)!
+                FFIDate.date.date(from: visibleDate.viewID as! String)!
             },
             set: { newValue in
-                visibleDate = ScrollPosition(id: DateFormatter.date.string(from: newValue))
+                visibleDate = ScrollPosition(id: FFIDate.date.string(from: newValue))
             }
         )
     }
@@ -38,7 +38,7 @@ struct TimetableView: View {
         let end = calendar.startOfDay(for: datesRange.upperBound)
         
         while currentDate <= end {
-            dates.append(DateFormatter.date.string(from: currentDate))
+            dates.append(FFIDate.date.string(from: currentDate))
             guard let nextDate = calendar.date(byAdding: .day, value: 1, to: currentDate) else { break }
             currentDate = nextDate
         }
@@ -47,7 +47,7 @@ struct TimetableView: View {
         
         let today = min(max(Date.now, datesRange.lowerBound), datesRange.upperBound)
         self.temporarySelection = today
-        self._visibleDate = State(initialValue: .init(id: DateFormatter.date.string(from: today)))
+        self._visibleDate = State(initialValue: .init(id: FFIDate.date.string(from: today)))
     }
     
     var body: some View {

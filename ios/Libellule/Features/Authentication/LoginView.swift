@@ -105,7 +105,7 @@ struct LoginView: View {
     func login() async {
         do {
             loading = true
-            appParameters = try await syncService!.login(url: url, username: username, password: password)
+            appParameters = try await syncService.login(url: url, username: username, password: password)
             if let data = try? JSONEncoder().encode(appParameters) {
                 UserDefaults.standard.set(data, forKey: "app")
             }

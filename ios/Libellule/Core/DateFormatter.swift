@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension DateFormatter {
+nonisolated enum FFIDate {
     static let date: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"

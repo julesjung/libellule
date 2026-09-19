@@ -14,40 +14,41 @@ private struct SyncServiceKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    var syncService: SyncService? {
-        get { self[SyncServiceKey.self] }
-        set { self[SyncServiceKey.self] = newValue }
-    }
+    @Entry var syncService: SyncService = .shared
 }
 
-actor SyncService: ModelActor {
-    nonisolated let modelExecutor: any ModelExecutor
-    nonisolated let modelContainer: ModelContainer
+@ModelActor
+actor SyncService {
+    private var client: Client?
+    private var building: Task<Client, any Error>?
     
-    private var clientTask: Task<Client, Error>?
+    static let shared = SyncService(modelContainer: Store.container)
     
-    init(modelContainer: ModelContainer) {
-        let modelContext = ModelContext(modelContainer)
-        self.modelExecutor = DefaultSerialModelExecutor(modelContext: modelContext)
-        self.modelContainer = modelContainer
+    private func currentClient() async throws -> Client {
+        if let client { return client }
+        if let building { return try await building.value }
+        
+        let task = Task { try await ClientFactory.make() }
+        building = task
+        defer { building = nil }
+        let fresh = try await task.value
+        client = fresh
+        
+        return fresh
     }
     
-    func refreshSession() throws {
-        guard let data = UserDefaults.standard.data(forKey: "app"),
-              let parameters = try? JSONDecoder().decode(AppParameters.self, from: data),
-              let username = try? KeychainService.shared.load(forKey: "username"),
-              let password = try? KeychainService.shared.load(forKey: "password") else {
-            throw AppError.notLoggedIn
-        }
-        
-        clientTask = Task {
-            let instance = try await Instance(url: parameters.instanceUrl)
-            return try await Client(instance: instance, username: username, password: password)
+    private func withClient<T: Sendable>(_ call: (Client) async throws -> T) async throws -> T {
+        do {
+            return try await call(currentClient())
+        } catch {
+            client = nil
+            
+            return try await call(currentClient())
         }
     }
     
     func login(url: String, username: String, password: String) async throws(AppError) -> AppParameters {
-        clientTask = Task {
+        building = Task {
             do {
                 let instance = try await Instance(url: url)
                 return try await Client(instance: instance, username: username, password: password)
@@ -57,25 +58,17 @@ actor SyncService: ModelActor {
         }
         
         do {
-            let client = try await client()
+            let parameters = try await withClient { client in
+                let periods = client.periods().map { StoredPeriod(id: $0.id, name: $0.name) }
+                let defaultPeriodId = client.defaultPeriod()
+                let boundaryDates = client.boundaryDates()
+                
+                return AppParameters(instanceUrl: url, periods: periods, defaultPeriodId: defaultPeriodId, startDate: boundaryDates.start, endDate: boundaryDates.end)
+            }
             
-            let periods = client.periods().map { StoredPeriod(id: $0.id, name: $0.name) }
-            let defaultPeriodId = client.defaultPeriod()
-            let boundaryDates = client.boundaryDates()
-            
-            return AppParameters(instanceUrl: url, periods: periods, defaultPeriodId: defaultPeriodId, startDate: boundaryDates.start, endDate: boundaryDates.end)
+            return parameters
         } catch {
             throw AppError.invalidCredentials
-        }
-    }
-    
-    private func client() async throws -> Client {
-        if let task = clientTask {
-            return try await task.value
-        } else {
-            try refreshSession()
-            
-            return try await clientTask!.value
         }
     }
     
@@ -91,9 +84,9 @@ actor SyncService: ModelActor {
     }
     
     func refreshDay(_ date: String) async {
-        guard let client = try? await self.client(),
-              let timetable = try? await client.timetable(date: date) else { return }
-        
+        guard let timetable = try? await withClient({ client in
+            return try? await client.timetable(date: date)
+        }) else { return }
         
         if let existing = try? modelContext.fetch(
             FetchDescriptor<CachedDay>(predicate: #Predicate { $0.date == date })
@@ -121,9 +114,9 @@ actor SyncService: ModelActor {
     }
     
     func refreshHomework(_ date: Date) async {
-        guard let client = try? await self.client(),
-              let homework = try? await client.homework(date: DateFormatter.date.string(from: date)) else { return }
-        
+        guard let homework = try? await withClient({ client in
+            try await client.homework(date: FFIDate.date.string(from: date))
+        }) else { return }
         
         if let existing = try? modelContext.fetch(
             FetchDescriptor<CachedHomework>(predicate: #Predicate { $0.date == date })
@@ -148,8 +141,9 @@ actor SyncService: ModelActor {
     }
     
     func refreshMenu(_ date: Date) async {
-        guard let client = try? await self.client(),
-              let menu = try? await client.menu(date: DateFormatter.date.string(from: date)) else { return }
+        guard let menu = try? await withClient({ client in
+            return try await client.menu(date: FFIDate.date.string(from: date))
+        }) else { return }
         
         if let existing = try? modelContext.fetch(
             FetchDescriptor<CachedMenu>(predicate: #Predicate { $0.date == date })
@@ -162,3 +156,4 @@ actor SyncService: ModelActor {
         try? modelContext.save()
     }
 }
+
