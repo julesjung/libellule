@@ -33,6 +33,10 @@ struct RootView: View {
         }()
         
         TabView(selection: $currentTab) {
+            Tab("Accueil", systemImage: "house", value: .home) {
+                HomeView()
+            }
+            
             Tab("EDT", systemImage: "calendar.day.timeline.left", value: .timetable) {
                 TimetableView(datesRange: datesRange)
             }

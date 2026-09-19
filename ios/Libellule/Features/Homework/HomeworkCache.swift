@@ -23,7 +23,7 @@ final class CachedHomework {
         
         self.date = date
         self.fetchedAt = .now
-        self.items = items
+        self.items = homework.items.map(CachedHomeworkItem.init)
     }
 }
 
@@ -36,16 +36,6 @@ final class CachedHomeworkItem {
     var creation: Date
     var due: Date
     var color: String
-    
-    init(id: String, subjectName: String, contents: String, done: Bool, creation: Date, due: Date, color: String) {
-        self.id = id
-        self.subjectName = subjectName
-        self.contents = contents
-        self.done = done
-        self.creation = creation
-        self.due = due
-        self.color = color
-    }
     
     init(item: LibelluleKit.HomeworkItem) {
         self.id = item.id
