@@ -27,10 +27,10 @@ struct HomeworkWeek: View {
             }
         }
         .task(id: date) {
-            await sync?.refreshHomeworkIfStale(date)
+            await sync.refreshHomeworkIfStale(date)
         }
         .refreshable {
-            await sync?.refreshHomework(date)
+            await sync.refreshHomework(date)
         }
     }
 }

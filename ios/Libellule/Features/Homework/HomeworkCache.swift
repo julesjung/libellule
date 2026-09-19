@@ -52,9 +52,8 @@ final class CachedHomeworkItem {
         self.subjectName = item.subject.name
         self.contents = item.description
         self.done = item.done
-        self.creation = DateFormatter.date.date(from: item.creation)!
-        self.due = DateFormatter.date.date(from: item.due)!
+        self.creation = FFIDate.date.date(from: item.creation)!
+        self.due = FFIDate.date.date(from: item.due)!
         self.color = item.background
     }
 }
-

@@ -9,6 +9,6 @@ import Foundation
 
 enum DateKeys {
     static func today() -> String {
-        DateFormatter.date.string(from: .now)
+        FFIDate.date.string(from: .now)
     }
 }

@@ -123,10 +123,10 @@ struct MenuView: View {
             }
         }
         .task {
-            await sync?.refreshMenu(date)
+            await sync.refreshMenuIfStale(date)
         }
         .refreshable {
-            await sync?.refreshMenuIfStale(date)
+            await sync.refreshMenu(date)
         }
         .navigationTitle("Menu")
     }

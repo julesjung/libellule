@@ -26,8 +26,8 @@ struct RootView: View {
     @ViewBuilder
     func tabs(appParameters: AppParameters) -> some View {
         let datesRange: ClosedRange<Date> = {
-            let startDate = DateFormatter.date.date(from: appParameters.startDate)!
-            let endDate = DateFormatter.date.date(from: appParameters.endDate)!
+            let startDate = FFIDate.date.date(from: appParameters.startDate)!
+            let endDate = FFIDate.date.date(from: appParameters.endDate)!
             
             return startDate...endDate
         }()

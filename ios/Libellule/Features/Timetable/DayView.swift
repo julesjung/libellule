@@ -27,10 +27,10 @@ struct DayView: View {
             }
         }
         .task(id: date) {
-            await sync?.refreshDayIfStale(date)
+            await sync.refreshDayIfStale(date)
         }
         .refreshable {
-            await sync?.refreshDay(date)
+            await sync.refreshDay(date)
         }
     }
 }

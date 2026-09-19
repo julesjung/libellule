@@ -13,8 +13,8 @@ struct LessonView: View {
     let lesson: CachedLesson
 
     var body: some View {
-        let start = DateFormatter.time.date(from: lesson.start)!
-        let end = DateFormatter.time.date(from: lesson.end)!
+        let start = FFIDate.time.date(from: lesson.start)!
+        let end = FFIDate.time.date(from: lesson.end)!
 
         let teachers = lesson.teachers.joined(separator: ", ")
         let rooms = lesson.rooms.joined(separator: ", ")
